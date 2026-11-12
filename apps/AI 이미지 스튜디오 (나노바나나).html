@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Studio - 단일 및 일괄 이미지 생성기</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf4ff',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+              yellow: '#facc15'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <!-- JSZip & FileSaver for Instant Zip Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+/* Custom styling & animations for AI Image Studio */
+
+/* Card hover glow */
+.image-card {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.image-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(168, 85, 247, 0.3);
+}
+
+.image-card .card-overlay {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.image-card:hover .card-overlay {
+  opacity: 1;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #232b3e;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #39445f;
+}
+
+/* Active style badges */
+.active-badge {
+  border-color: #a855f7 !important;
+  background-color: rgba(168, 85, 247, 0.2) !important;
+  color: #d8b4fe !important;
+}
+
+/* Pulsing border for generating state */
+@keyframes borderPulse {
+  0%, 100% {
+    border-color: rgba(168, 85, 247, 0.8);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    border-color: rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
+  }
+}
+
+.generating-pulse {
+  animation: borderPulse 2s infinite ease-in-out;
+}
+
+
+</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-purple-600 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-purple-600 to-indigo-500 p-0.5 shadow-lg shadow-purple-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <span class="text-xl">🍌</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-purple-400 bg-clip-text text-transparent">AI Image Studio</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 font-medium">Nano Banana v2.0</span>
+          </div>
+          <p class="text-xs text-slate-400">텍스트 기반 단일 & 일괄 이미지 생성 및 다운로드</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button id="btn-open-settings" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all flex items-center space-x-1.5 shadow-sm">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>설정 (API 키)</span>
+        </button>
+        <div id="engine-status" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-800/40 text-amber-300 text-xs font-medium">
+          <span id="engine-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="engine-status-text">상태 확인 중...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Controls & Prompt Generator (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      
+      <!-- Mode Tabs (Single vs Batch) -->
+      <div class="bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl flex space-x-1 shadow-inner">
+        <button id="tab-single" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center space-x-2 bg-purple-600 text-white shadow-md">
+          <i data-lucide="wand-2" class="w-4 h-4"></i>
+          <span>단일 생성 모드</span>
+        </button>
+        <button id="tab-batch" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center space-x-2 text-slate-400 hover:text-slate-200">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>일괄 생성 모드</span>
+        </button>
+      </div>
+
+      <!-- Generator Settings Card -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-5 backdrop-blur-sm">
+        
+        <!-- SINGLE MODE INPUT -->
+        <div id="single-mode-panel" class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-medium text-slate-200">
+                <span class="text-purple-400 mr-1">✦</span> 생성할 텍스트 프롬프트
+              </label>
+              <div class="flex space-x-1 text-xs">
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="귀여운 미니 노란색 로봇 바나나가 알록달록한 붓을 들고 서 있는 3D 렌더링 피규어">예시 1</button>
+                <span class="text-slate-600">•</span>
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="비 내리는 밤 네온사인이 화려한 사이버펑크 서울 골목길과 미래형 자동차">예시 2</button>
+                <span class="text-slate-600">•</span>
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="황금빛 석양이 비치는 잔잔한 호수와 신비로운 벚꽃 숲의 수채화">예시 3</button>
+              </div>
+            </div>
+            <textarea id="single-prompt" rows="3" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="예: 우주복을 입고 달 위에서 커피를 마시는 귀여운 고양이, 8k 고화질..."></textarea>
+            
+            <!-- Notice when multiple prompts are detected in single mode -->
+            <div id="single-multi-detect-banner" class="hidden mt-2 p-2.5 rounded-xl bg-purple-950/40 border border-purple-700/50 flex items-center justify-between text-xs">
+              <div class="flex items-center space-x-2 text-purple-200">
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                <span><strong id="single-detect-count">0</strong>개의 개별 프롬프트가 감지되었습니다!</span>
+              </div>
+              <button type="button" id="btn-switch-to-batch-with-text" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold transition-all shadow-sm">
+                일괄 모드로 분리하기 →
+              </button>
+            </div>
+          </div>
+
+          <!-- Quantity Selector (단일 모드에서도 1~8장 복수 생성 지원) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">생성 개수</label>
+            <div class="grid grid-cols-4 gap-2" id="quantity-selector">
+              <button type="button" class="qty-btn py-2 rounded-lg border border-purple-500 bg-purple-600/20 text-purple-300 font-bold text-sm transition-all text-center" data-count="1">1장</button>
+              <button type="button" class="qty-btn py-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-sm hover:border-slate-600 transition-all text-center" data-count="2">2장</button>
+              <button type="button" class="qty-btn py-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-sm hover:border-slate-600 transition-all text-center" data-count="4">4장</button>
+              <button type="button" class="qty-btn py-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-sm hover:border-slate-600 transition-all text-center" data-count="8">8장</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BATCH MODE INPUT (Initially Hidden) -->
+        <div id="batch-mode-panel" class="space-y-4 hidden">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-medium text-slate-200">
+                <span class="text-purple-400 mr-1">✦</span> 일괄 프롬프트 텍스트 입력
+              </label>
+              <span id="batch-count-badge" class="text-xs px-2 py-0.5 rounded bg-purple-900/40 border border-purple-700/50 text-purple-300 font-semibold">0개 감지됨</span>
+            </div>
+
+            <!-- Delimiter Selector -->
+            <div class="mb-2.5 p-2 bg-slate-950/70 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-400 flex items-center space-x-1">
+                  <i data-lucide="split" class="w-3.5 h-3.5 text-purple-400"></i>
+                  <span>구분 방식 (Separator)</span>
+                </span>
+                <span id="current-delim-label" class="text-[10px] text-purple-300 font-mono">자동 스마트 감지 중</span>
+              </div>
+              <div class="grid grid-cols-4 sm:grid-cols-7 gap-1" id="delimiter-selector">
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-purple-500 bg-purple-600/20 text-purple-200 text-center transition-all" data-delim="auto">🤖 자동</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="newline">↵ 줄바꿈</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="comma">, 쉼표</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="semicolon">; 세미콜론</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="pipe">| 파이프</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="numbering">1. 번호목록</button>
+                <button type="button" class="delim-btn py-1 px-1.5 rounded-lg text-[11px] font-medium border border-slate-700 bg-slate-800 text-slate-400 text-center hover:text-slate-200 transition-all" data-delim="custom">✏️ 직접입력</button>
+              </div>
+              <div id="custom-delim-wrapper" class="hidden pt-1">
+                <input type="text" id="custom-delim-input" placeholder="사용자 정의 구분 문자열 (예: ///, //, ---)" class="w-full bg-slate-900 border border-purple-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none">
+              </div>
+            </div>
+
+            <textarea id="batch-prompts" rows="5" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="예시 입력 (어떤 구분자든 자동 인식):&#10;1. 우주 비행사 고양이&#10;2. 사이버펑크 네온 로봇 바나나&#10;또는: 사과, 바나나, 체리&#10;또는: 석양의 바다; 신비로운 숲; 미래 도시"></textarea>
+
+            <!-- Parsed Prompts Real-time Preview Area -->
+            <div id="parsed-prompts-preview-box" class="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-semibold text-slate-300 flex items-center space-x-1.5">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  <span>인식된 개별 프롬프트 목록</span>
+                </span>
+                <span id="parsed-preview-count" class="text-purple-300 font-mono text-[11px]">0개 인식</span>
+              </div>
+              <div id="parsed-prompts-list" class="max-h-36 overflow-y-auto space-y-1.5 pr-1">
+                <p class="text-xs text-slate-500 italic py-1">프롬프트를 입력하면 구분자에 맞춰 실시간으로 분리되어 표시됩니다.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex items-center justify-between gap-3 pt-1">
+            <label class="flex-1 cursor-pointer border border-dashed border-slate-700 hover:border-purple-500 rounded-xl p-2.5 text-center transition-all bg-slate-950/40">
+              <input type="file" id="batch-file-upload" accept=".txt,.csv" class="hidden">
+              <div class="flex items-center justify-center space-x-2 text-xs text-slate-400">
+                <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
+                <span>.txt / .csv 파일 불러오기</span>
+              </div>
+            </label>
+            <div class="w-32">
+              <label class="block text-xs text-slate-400 mb-1">프롬프트당</label>
+              <select id="batch-qty-per-prompt" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500">
+                <option value="1">1장씩 생성</option>
+                <option value="2">2장씩 생성</option>
+                <option value="4">4장씩 생성</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMMON OPTIONS: Model, Aspect Ratio, Style -->
+        <hr class="border-slate-800">
+
+        <!-- AI Engine Selection -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">AI 모델 엔진</label>
+          <div class="p-2.5 rounded-xl border border-amber-500/50 bg-amber-500/10">
+            <div class="flex items-center space-x-1.5 font-bold text-xs text-amber-300">
+              <span>🍌</span>
+              <span>Nano Banana</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Google Gemini 2.5 Flash Image (gemini-2.5-flash-image)</p>
+          </div>
+        </div>
+
+        <!-- Aspect Ratio Selection -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">화면 비율 (Aspect Ratio)</label>
+          <div class="grid grid-cols-5 gap-1.5" id="aspect-selector">
+            <button type="button" class="aspect-btn py-2 px-1 rounded-lg border border-purple-500 bg-purple-600/20 text-purple-300 font-semibold text-xs text-center transition-all" data-aspect="1:1">
+              <span>1:1</span>
+              <span class="block text-[9px] text-slate-400 font-normal">정사각</span>
+            </button>
+            <button type="button" class="aspect-btn py-2 px-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-xs text-center hover:border-slate-600 transition-all" data-aspect="16:9">
+              <span>16:9</span>
+              <span class="block text-[9px] text-slate-400 font-normal">가로</span>
+            </button>
+            <button type="button" class="aspect-btn py-2 px-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-xs text-center hover:border-slate-600 transition-all" data-aspect="9:16">
+              <span>9:16</span>
+              <span class="block text-[9px] text-slate-400 font-normal">쇼츠/릴스</span>
+            </button>
+            <button type="button" class="aspect-btn py-2 px-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-xs text-center hover:border-slate-600 transition-all" data-aspect="4:3">
+              <span>4:3</span>
+              <span class="block text-[9px] text-slate-400 font-normal">표준</span>
+            </button>
+            <button type="button" class="aspect-btn py-2 px-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 font-medium text-xs text-center hover:border-slate-600 transition-all" data-aspect="3:4">
+              <span>3:4</span>
+              <span class="block text-[9px] text-slate-400 font-normal">인물</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Style Preset Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">화풍 / 스타일</label>
+          <div class="grid grid-cols-4 gap-1.5" id="style-selector">
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-purple-500 bg-purple-600/20 text-purple-300 text-xs font-medium text-center" data-style="none">기본</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="photo">실사 사진</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="3d">3D 렌더</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="anime">애니메이션</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="digital">디지털아트</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="cyberpunk">사이버펑크</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="watercolor">수채화</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="fantasy">판타지</button>
+          </div>
+        </div>
+
+        <!-- GENERATE BUTTON -->
+        <div class="pt-2">
+          <button id="btn-generate" class="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-base shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed group">
+            <i data-lucide="sparkles" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+            <span id="btn-generate-text">이미지 생성하기</span>
+          </button>
+        </div>
+
+        <!-- Progress Bar for Batch / Multi generation -->
+        <div id="progress-container" class="space-y-2 hidden">
+          <div class="flex justify-between items-center text-xs text-slate-400 gap-2">
+            <span id="progress-status-text" class="truncate">이미지 생성 중...</span>
+            <span class="flex items-center space-x-2 shrink-0">
+              <span id="progress-percent-text" class="font-bold text-purple-400">0%</span>
+              <button type="button" id="btn-cancel" class="hidden px-2 py-0.5 rounded-md border border-rose-500/60 text-rose-300 hover:bg-rose-500/20 text-[11px] font-semibold">취소</button>
+            </span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-purple-500 to-amber-400 w-0 transition-all duration-300"></div>
+          </div>
+          <div id="failed-container" class="hidden p-2.5 rounded-xl bg-rose-950/30 border border-rose-800/40 space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-rose-300">생성 실패 항목</span>
+              <button type="button" id="btn-retry-failed" class="px-2 py-0.5 rounded-md bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-semibold">실패만 다시 시도</button>
+            </div>
+            <ul id="failed-list" class="text-[11px] text-rose-200/80 space-y-0.5 max-h-24 overflow-y-auto"></ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Right Column: Gallery & Batch Download Center (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      
+      <!-- Gallery Header & Actions -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="font-bold text-base text-slate-100 flex items-center space-x-2">
+            <i data-lucide="images" class="w-5 h-5 text-purple-400"></i>
+            <span>생성된 이미지 갤러리</span>
+            <span id="gallery-total-count" class="text-xs px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 font-semibold">0장</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">이미지를 클릭하여 크게 보거나 일괄 압축 다운로드할 수 있습니다.</p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <!-- Download All as ZIP Button -->
+          <button id="btn-download-all-zip" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+            <span>전체 ZIP 다운로드</span>
+          </button>
+          <!-- Clear Button -->
+          <button id="btn-clear-gallery" class="p-2 border border-slate-700 hover:border-rose-500 text-slate-400 hover:text-rose-400 rounded-xl transition-all" title="갤러리 비우기">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Image Grid -->
+      <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <!-- Dynamic Image Cards Injected Here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="gallery-empty-state" class="border border-dashed border-slate-800 rounded-2xl p-12 text-center space-y-3">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-900 flex items-center justify-center text-slate-600 text-2xl">
+          🎨
+        </div>
+        <p class="font-medium text-slate-300 text-sm">생성된 이미지가 아직 없습니다</p>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">
+          왼쪽 패널에서 프롬프트를 입력하고 "이미지 생성하기"를 누르면 결과가 이곳에 실시간으로 표시됩니다.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Lightbox Modal for Full View -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2 overflow-hidden">
+          <span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800/50" id="lightbox-badge">Model</span>
+          <span class="text-xs text-slate-300 font-medium truncate" id="lightbox-prompt">Prompt text...</span>
+        </div>
+        <div class="flex items-center space-x-2 shrink-0">
+          <button id="btn-lightbox-download" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium flex items-center space-x-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>다운로드</span>
+          </button>
+          <button id="btn-close-lightbox" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <div class="p-4 flex-1 overflow-auto flex items-center justify-center bg-slate-950/50">
+        <img id="lightbox-img" src="" alt="Enlarged view" class="max-h-[65vh] w-auto object-contain rounded-lg shadow-lg">
+      </div>
+      <div class="p-3 bg-slate-900/90 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+        <span id="lightbox-info">해상도 / 시드 정보</span>
+        <button id="btn-copy-prompt" class="hover:text-purple-400 flex items-center space-x-1">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>프롬프트 복사</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal (Google API Key) -->
+  <div id="settings-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-slate-100 flex items-center space-x-2">
+          <i data-lucide="settings" class="w-5 h-5 text-purple-400"></i>
+          <span>엔진 및 API 설정</span>
+        </h3>
+        <button id="btn-close-settings" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">
+            Google Gemini API 키 (Nano Banana 사용에 필수)
+          </label>
+          <input type="password" id="input-google-api-key" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="AIzaSy...">
+          <p class="text-[11px] text-slate-500 mt-1">
+            * <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-purple-400 hover:underline">Google AI Studio</a>에서 발급할 수 있습니다.
+            <br>* 키는 이 브라우저(localStorage)에만 저장되고 Google API 호출에만 사용됩니다. 공용 PC에서는 사용 후 브라우저 데이터를 삭제하세요.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end space-x-2 border-t border-slate-800">
+        <button id="btn-delete-key" type="button" class="hidden mr-auto px-3 py-2 border border-rose-500/60 text-rose-300 hover:bg-rose-500/20 rounded-xl text-xs font-bold transition-all">
+          저장된 키 삭제
+        </button>
+        <button id="btn-save-settings" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all">
+          저장하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    AI Image Studio • Powered by Nano Banana (Gemini 2.5 Flash Image)
+  </footer>
+
+  
+<script>
+// Standalone 빌드용 어댑터: app.js가 호출하는 /api/* 를 서버 없이 브라우저에서 처리한다.
+// 사용자 API 키는 이 브라우저의 localStorage 에만 저장되고 Google API 로만 전송된다.
+(() => {
+  const MODEL_ID = 'gemini-2.5-flash-image';
+  const MODEL_LABEL = 'Nano Banana';
+  const KEY_STORAGE = 'nano_banana_gemini_api_key';
+  const ASPECT_RATIOS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
+  const STYLE_PROMPTS = {"none":"","photo":", ultra-realistic 8k photograph, highly detailed, realistic lighting, fine textures, photorealism, shot on 35mm lens, f/1.8","anime":", modern anime aesthetic, Makoto Shinkai style, vibrant colors, detailed line art, masterpiece, high quality anime wallpaper","digital":", stunning digital art, trending on ArtStation, dynamic lighting, cinematic composition, intricate details, vivid color palette","3d":", 3D digital render, Pixar style, Unreal Engine 5, smooth ambient occlusion, cute character design, studio softbox lighting","cyberpunk":", cyberpunk neon style, futuristic cityscape, glowing holograms, wet reflective streets, dark moody atmosphere with vivid magenta and cyan","watercolor":", delicate watercolor painting, soft translucent pastel washes, watercolor paper texture, fluid artistic brush strokes","fantasy":", epic fantasy illustration, mythical atmosphere, magical glowing particles, detailed environment, legendary landscape"};
+
+  const realFetch = window.fetch.bind(window);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  const getKey = () => { try { return localStorage.getItem(KEY_STORAGE) || ''; } catch { return ''; } };
+  const setKey = (k) => { try { localStorage.setItem(KEY_STORAGE, k); return true; } catch { return false; } };
+  const clearKey = () => { try { localStorage.removeItem(KEY_STORAGE); } catch { /* ignore */ } };
+
+  const json = (status, payload) =>
+    new Response(JSON.stringify(payload), { status, headers: { 'Content-Type': 'application/json' } });
+
+  function describeHttpError(status, bodyText) {
+    let detail = bodyText;
+    try { detail = JSON.parse(bodyText)?.error?.message || bodyText; } catch { /* raw */ }
+    if (status === 400 && /API key/i.test(detail)) return 'Google API 키가 올바르지 않습니다. 설정에서 키를 다시 확인하세요.';
+    if (status === 401 || status === 403) return `API 키 권한 오류 (${status}): ${detail}`;
+    if (status === 429) return `요청 한도 초과 (429): 잠시 후 다시 시도하거나 쿼터를 확인하세요. ${detail}`;
+    return `Nano Banana API 오류 (${status}): ${detail}`;
+  }
+
+  async function callGemini(prompt, ratio, apiKey, signal, retries = 3) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`;
+    const buildBody = (text) => JSON.stringify({
+      contents: [{ parts: [{ text }] }],
+      generationConfig: { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: ratio } }
+    });
+    let body = buildBody(prompt);
+    let rewritten = false;
+    let lastError;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      let response;
+      try {
+        response = await realFetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+          body,
+          signal
+        });
+      } catch (netErr) {
+        if (netErr.name === 'AbortError') throw netErr;
+        lastError = new Error(`네트워크 오류: ${netErr.message}`);
+        if (attempt < retries) { await sleep(1000 * 2 ** attempt); continue; }
+        throw lastError;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const imgPart = parts.find((p) => (p.inlineData || p.inline_data)?.data);
+        if (imgPart) {
+          const inline = imgPart.inlineData || imgPart.inline_data;
+          return { b64: inline.data, mimeType: inline.mimeType || inline.mime_type || 'image/png' };
+        }
+        const blocked = data.promptFeedback?.blockReason;
+        const finish = data.candidates?.[0]?.finishReason;
+        if (!blocked && !rewritten) { rewritten = true; body = buildBody(`Generate an image: ${prompt}`); attempt--; continue; }
+        const text = parts.map((p) => p.text).filter(Boolean).join(' ').slice(0, 200);
+        throw new Error(`이미지가 생성되지 않았습니다${blocked ? ` (차단: ${blocked})` : ''}${finish ? ` [${finish}]` : ''}${text ? `: ${text}` : ''}`);
+      }
+
+      lastError = new Error(describeHttpError(response.status, await response.text()));
+      if ((response.status === 429 || response.status >= 500) && attempt < retries) {
+        const ra = parseFloat(response.headers.get('retry-after'));
+        await sleep(Number.isFinite(ra) ? ra * 1000 : 1500 * 2 ** attempt);
+        continue;
+      }
+      throw lastError;
+    }
+    throw lastError;
+  }
+
+  function b64ToBlob(b64, mimeType) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: mimeType });
+  }
+
+  const EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp' };
+
+  async function handleGenerate(init) {
+    let req;
+    try { req = JSON.parse(init.body || '{}'); } catch { return json(400, { success: false, error: '잘못된 요청입니다.' }); }
+
+    const prompt = typeof req.prompt === 'string' ? req.prompt.trim() : '';
+    if (!prompt) return json(400, { success: false, error: '프롬프트(텍스트)를 입력해주세요.' });
+
+    const apiKey = getKey();
+    if (!apiKey) {
+      return json(400, { success: false, code: 'NO_API_KEY', error: 'Nano Banana를 사용하려면 Google Gemini API 키가 필요합니다. 설정(API 키)에서 입력하세요.' });
+    }
+
+    const ratio = ASPECT_RATIOS.includes(req.aspectRatio) ? req.aspectRatio : '1:1';
+    const style = req.style in STYLE_PROMPTS ? req.style : 'none';
+    const fullPrompt = prompt + STYLE_PROMPTS[style];
+
+    try {
+      const { b64, mimeType } = await callGemini(fullPrompt, ratio, apiKey, init.signal);
+      const createdAt = Date.now();
+      const safe = prompt.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 30).replace(/\s+/g, '_') || 'image';
+      const filename = `${createdAt}_${safe}_${Math.floor(Math.random() * 1e6)}${EXT[mimeType] || '.png'}`;
+      const url = URL.createObjectURL(b64ToBlob(b64, mimeType));
+      return json(200, {
+        success: true,
+        image: { filename, url, prompt, fullPrompt, aspectRatio: ratio, style, model: MODEL_LABEL, createdAt }
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      return json(500, { success: false, error: err.message || '이미지 생성 중 오류가 발생했습니다.' });
+    }
+  }
+
+  window.fetch = async (input, init = {}) => {
+    const url = typeof input === 'string' ? input : input.url;
+    const method = (init.method || 'GET').toUpperCase();
+
+    if (url === '/api/config') return json(200, { hasGoogleApiKey: !!getKey(), model: MODEL_ID, modelLabel: MODEL_LABEL });
+    if (url === '/api/outputs') return json(200, { success: true, images: [] });
+    if (url === '/api/save-config' && method === 'POST') {
+      let data = {};
+      try { data = JSON.parse(init.body || '{}'); } catch { /* ignore */ }
+      if (data.clearKey) clearKey();
+      else if (typeof data.googleApiKey === 'string' && data.googleApiKey.trim()) setKey(data.googleApiKey.trim());
+      return json(200, { success: true, hasGoogleApiKey: !!getKey() });
+    }
+    if (url === '/api/generate' && method === 'POST') return handleGenerate(init);
+    return realFetch(input, init);
+  };
+})();
+
+</script>
+<script>
+// AI Image Studio Frontend (Nano Banana)
+
+const CONCURRENCY = 2;
+
+const state = {
+  mode: 'single', // 'single' | 'batch'
+  count: 1,
+  aspectRatio: '1:1',
+  style: 'none',
+  hasServerKey: false,
+  delimiterMode: 'auto', // 'auto' | 'newline' | 'comma' | 'semicolon' | 'pipe' | 'numbering' | 'custom'
+  customDelimiter: '',
+  parsedBatchPrompts: [],
+  excluded: new Set(), // indices of parsed prompts the user removed
+  isGenerating: false,
+  cancelRequested: false,
+  abortController: null,
+  failedTasks: [],
+  images: [] // generated + stored image items (newest first)
+};
+
+// DOM Elements
+const $ = (id) => document.getElementById(id);
+
+const tabSingle = $('tab-single');
+const tabBatch = $('tab-batch');
+const singlePanel = $('single-mode-panel');
+const batchPanel = $('batch-mode-panel');
+const singlePromptInput = $('single-prompt');
+const singleMultiDetectBanner = $('single-multi-detect-banner');
+const singleDetectCount = $('single-detect-count');
+const btnSwitchToBatchWithText = $('btn-switch-to-batch-with-text');
+
+const batchPromptsInput = $('batch-prompts');
+const batchCountBadge = $('batch-count-badge');
+const currentDelimLabel = $('current-delim-label');
+const customDelimWrapper = $('custom-delim-wrapper');
+const customDelimInput = $('custom-delim-input');
+const parsedPromptsList = $('parsed-prompts-list');
+const parsedPreviewCount = $('parsed-preview-count');
+const batchFileUpload = $('batch-file-upload');
+const batchQtyPerPrompt = $('batch-qty-per-prompt');
+
+const btnGenerate = $('btn-generate');
+const btnGenerateText = $('btn-generate-text');
+const btnCancel = $('btn-cancel');
+const progressContainer = $('progress-container');
+const progressStatusText = $('progress-status-text');
+const progressPercentText = $('progress-percent-text');
+const progressBarFill = $('progress-bar-fill');
+const failedContainer = $('failed-container');
+const failedList = $('failed-list');
+const btnRetryFailed = $('btn-retry-failed');
+const galleryGrid = $('gallery-grid');
+const galleryEmptyState = $('gallery-empty-state');
+const galleryTotalCount = $('gallery-total-count');
+const btnDownloadAllZip = $('btn-download-all-zip');
+const btnClearGallery = $('btn-clear-gallery');
+const engineStatusDot = $('engine-status-dot');
+const engineStatusText = $('engine-status-text');
+const engineStatusBox = $('engine-status');
+
+// Modals
+const lightboxModal = $('lightbox-modal');
+const lightboxImg = $('lightbox-img');
+const lightboxPrompt = $('lightbox-prompt');
+const lightboxBadge = $('lightbox-badge');
+const lightboxInfo = $('lightbox-info');
+const btnLightboxDownload = $('btn-lightbox-download');
+const btnCloseLightbox = $('btn-close-lightbox');
+const btnCopyPrompt = $('btn-copy-prompt');
+
+const settingsModal = $('settings-modal');
+const btnOpenSettings = $('btn-open-settings');
+const btnCloseSettings = $('btn-close-settings');
+const inputGoogleApiKey = $('input-google-api-key');
+const btnSaveSettings = $('btn-save-settings');
+const btnDeleteKey = $('btn-delete-key');
+
+function refreshIcons() {
+  if (window.lucide) window.lucide.createIcons();
+}
+
+// Small DOM helper: el('div', {className, title}, child1, 'text', ...)
+function el(tag, props = {}, ...children) {
+  const node = document.createElement(tag);
+  Object.assign(node, props);
+  for (const child of children) {
+    if (child == null) continue;
+    node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+  }
+  return node;
+}
+
+function icon(name, className) {
+  const i = document.createElement('i');
+  i.setAttribute('data-lucide', name);
+  i.className = className;
+  return i;
+}
+
+// -------------------------------------------------------------
+// PROMPT PARSER
+// -------------------------------------------------------------
+const NUMBERING_SPLIT = /(?:^|\s+)(?:\d+[\.\)]|\[\d+\]|\(\d+\)|[-*•])\s+/;
+const NUMBERING_GLOBAL = /(?:^|\s+)(?:\d+[\.\)]|\[\d+\]|\(\d+\)|[-*•])\s+/g;
+
+function cleanPromptItem(item) {
+  return item
+    .trim()
+    .replace(/^(?:[-*•]|\d+[\.\)]|\[\d+\]|\(\d+\))\s+/, '')
+    .replace(/^["'`]+|["'`]+$/g, '')
+    .trim();
+}
+
+/**
+ * mode: 'auto' | 'newline' | 'comma' | 'semicolon' | 'pipe' | 'numbering' | 'custom'
+ * safe: true면 자동 감지에서 줄바꿈/번호 목록만 사용 (문장 속 쉼표·세미콜론으로 쪼개지지 않음)
+ */
+function parsePrompts(rawText, mode = 'auto', customDelim = '', safe = false) {
+  if (!rawText || typeof rawText !== 'string' || !rawText.trim()) {
+    return { items: [], detectedMode: mode };
+  }
+
+  const text = rawText.trim();
+  let rawList;
+  let detectedType = mode;
+
+  if (mode === 'newline') rawList = text.split(/\r?\n/);
+  else if (mode === 'comma') rawList = text.split(',');
+  else if (mode === 'semicolon') rawList = text.split(';');
+  else if (mode === 'pipe') rawList = text.split('|');
+  else if (mode === 'numbering') rawList = text.split(NUMBERING_SPLIT);
+  else if (mode === 'custom' && customDelim) rawList = text.split(customDelim);
+  else {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    const numberingMatches = text.match(NUMBERING_GLOBAL) || [];
+
+    if (lines.length > 1) {
+      // 여러 줄이면 한 줄이 한 프롬프트 (줄 안의 쉼표는 프롬프트의 일부)
+      rawList = lines;
+      detectedType = lines.every(l => /^\s*(?:[-*•]|\d+[\.\)]|\[\d+\]|\(\d+\))\s+/.test(l)) ? '번호/불릿 목록' : '줄바꿈 (엔터)';
+    } else if (numberingMatches.length >= 2) {
+      rawList = text.split(NUMBERING_SPLIT);
+      detectedType = '번호/불릿 목록';
+    } else if (!safe && text.includes(';')) {
+      rawList = text.split(';');
+      detectedType = '세미콜론 (;)';
+    } else if (!safe && text.includes('|')) {
+      rawList = text.split('|');
+      detectedType = '파이프 (|)';
+    } else if (!safe && text.includes(',')) {
+      rawList = text.split(',');
+      detectedType = '쉼표 (,)';
+    } else {
+      rawList = [text];
+      detectedType = '단일 문장';
+    }
+  }
+
+  const items = rawList.map(cleanPromptItem).filter(item => item.length > 0);
+  return { items, detectedMode: detectedType };
+}
+
+function activeBatchPrompts() {
+  return state.parsedBatchPrompts.filter((_, idx) => !state.excluded.has(idx));
+}
+
+function updateGenerateLabel() {
+  if (state.mode === 'single') {
+    btnGenerateText.textContent = `이미지 생성하기 (${state.count}장)`;
+  } else {
+    const total = activeBatchPrompts().length * parseInt(batchQtyPerPrompt.value, 10);
+    btnGenerateText.textContent = total > 0 ? `일괄 생성 시작 (총 ${total}장)` : '일괄 생성 시작';
+  }
+}
+
+function updateBatchParsedPrompts({ keepExcluded = false } = {}) {
+  const { items, detectedMode } = parsePrompts(batchPromptsInput.value, state.delimiterMode, state.customDelimiter);
+  if (!keepExcluded) state.excluded = new Set();
+  state.parsedBatchPrompts = items;
+
+  currentDelimLabel.textContent = state.delimiterMode === 'auto'
+    ? `스마트 감지됨: ${detectedMode}`
+    : `지정됨: ${state.delimiterMode.toUpperCase()}`;
+
+  const active = activeBatchPrompts().length;
+  const perPrompt = parseInt(batchQtyPerPrompt.value, 10);
+  batchCountBadge.textContent = `${active}개 인식 (총 ${active * perPrompt}장)`;
+  parsedPreviewCount.textContent = `${active}개 항목`;
+  updateGenerateLabel();
+
+  parsedPromptsList.replaceChildren();
+  if (items.length === 0) {
+    parsedPromptsList.append(el('p', {
+      className: 'text-xs text-slate-500 italic py-1',
+      textContent: '프롬프트를 입력하면 구분자(줄바꿈, 쉼표, 번호 등)에 따라 자동 분리됩니다.'
+    }));
+    return;
+  }
+
+  items.forEach((promptText, idx) => {
+    const excluded = state.excluded.has(idx);
+    const removeBtn = el('button', {
+      type: 'button',
+      className: 'text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition-all shrink-0',
+      title: excluded ? '다시 포함' : '이 프롬프트 제외'
+    }, icon(excluded ? 'rotate-ccw' : 'x', 'w-3.5 h-3.5'));
+    removeBtn.addEventListener('click', () => {
+      if (excluded) state.excluded.delete(idx); else state.excluded.add(idx);
+      updateBatchParsedPrompts({ keepExcluded: true });
+    });
+
+    const chip = el('div', {
+      className: `flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs hover:border-slate-700 transition-all ${excluded ? 'opacity-40' : ''}`
+    },
+      el('div', { className: 'flex items-center space-x-2 truncate pr-2' },
+        el('span', { className: 'w-5 h-5 rounded-md bg-purple-950 text-purple-300 font-bold text-[10px] flex items-center justify-center shrink-0 border border-purple-800/40 font-mono' }, idx + 1),
+        el('span', { className: `text-slate-200 truncate font-medium ${excluded ? 'line-through' : ''}`, title: promptText }, promptText)
+      ),
+      removeBtn
+    );
+    parsedPromptsList.append(chip);
+  });
+
+  refreshIcons();
+}
+
+// Delimiter Buttons
+document.querySelectorAll('.delim-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.delim-btn').forEach(b => {
+      b.classList.remove('border-purple-500', 'bg-purple-600/20', 'text-purple-200');
+      b.classList.add('border-slate-700', 'bg-slate-800', 'text-slate-400');
+    });
+    btn.classList.add('border-purple-500', 'bg-purple-600/20', 'text-purple-200');
+    btn.classList.remove('border-slate-700', 'bg-slate-800', 'text-slate-400');
+
+    state.delimiterMode = btn.dataset.delim;
+    if (state.delimiterMode === 'custom') {
+      customDelimWrapper.classList.remove('hidden');
+      customDelimInput.focus();
+    } else {
+      customDelimWrapper.classList.add('hidden');
+    }
+    updateBatchParsedPrompts();
+  });
+});
+
+customDelimInput.addEventListener('input', (e) => {
+  state.customDelimiter = e.target.value;
+  updateBatchParsedPrompts();
+});
+
+batchPromptsInput.addEventListener('input', () => updateBatchParsedPrompts());
+batchQtyPerPrompt.addEventListener('change', () => updateBatchParsedPrompts({ keepExcluded: true }));
+
+// Single mode: 줄바꿈/번호 목록이 보이면 일괄 모드 전환을 제안 (자동 분리는 하지 않음)
+singlePromptInput.addEventListener('input', () => {
+  const { items } = parsePrompts(singlePromptInput.value, 'auto', '', true);
+  if (items.length > 1) {
+    singleDetectCount.textContent = items.length;
+    singleMultiDetectBanner.classList.remove('hidden');
+  } else {
+    singleMultiDetectBanner.classList.add('hidden');
+  }
+});
+
+btnSwitchToBatchWithText.addEventListener('click', () => {
+  const val = singlePromptInput.value.trim();
+  tabBatch.click();
+  batchPromptsInput.value = val;
+  updateBatchParsedPrompts();
+  singleMultiDetectBanner.classList.add('hidden');
+});
+
+// Mode Switching
+function setActiveTab(active, inactive) {
+  active.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+  active.classList.remove('text-slate-400');
+  inactive.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
+  inactive.classList.add('text-slate-400');
+}
+
+tabSingle.addEventListener('click', () => {
+  state.mode = 'single';
+  setActiveTab(tabSingle, tabBatch);
+  singlePanel.classList.remove('hidden');
+  batchPanel.classList.add('hidden');
+  updateGenerateLabel();
+});
+
+tabBatch.addEventListener('click', () => {
+  state.mode = 'batch';
+  setActiveTab(tabBatch, tabSingle);
+  batchPanel.classList.remove('hidden');
+  singlePanel.classList.add('hidden');
+  updateBatchParsedPrompts({ keepExcluded: true });
+});
+
+// Option selectors (quantity / aspect / style) share the same highlight logic
+function bindSelector(selector, onSelect, { on, off }) {
+  document.querySelectorAll(selector).forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll(selector).forEach(b => {
+        b.classList.remove(...on);
+        b.classList.add(...off);
+      });
+      btn.classList.add(...on);
+      btn.classList.remove(...off);
+      onSelect(btn);
+    });
+  });
+}
+
+bindSelector('.qty-btn', btn => {
+  state.count = parseInt(btn.dataset.count, 10);
+  updateGenerateLabel();
+}, {
+  on: ['border-purple-500', 'bg-purple-600/20', 'text-purple-300', 'font-bold'],
+  off: ['border-slate-700', 'bg-slate-800', 'text-slate-300', 'font-medium']
+});
+
+bindSelector('.aspect-btn', btn => { state.aspectRatio = btn.dataset.aspect; }, {
+  on: ['border-purple-500', 'bg-purple-600/20', 'text-purple-300', 'font-semibold'],
+  off: ['border-slate-700', 'bg-slate-800', 'text-slate-300', 'font-medium']
+});
+
+bindSelector('.style-btn', btn => { state.style = btn.dataset.style; }, {
+  on: ['border-purple-500', 'bg-purple-600/20', 'text-purple-300'],
+  off: ['border-slate-700', 'bg-slate-800', 'text-slate-300']
+});
+
+// Sample prompts
+document.querySelectorAll('.btn-sample').forEach(btn => {
+  btn.addEventListener('click', () => {
+    singlePromptInput.value = btn.dataset.prompt;
+    singlePromptInput.dispatchEvent(new Event('input'));
+    singlePromptInput.focus();
+  });
+});
+
+// File upload for batch
+batchFileUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    batchPromptsInput.value = event.target.result;
+    updateBatchParsedPrompts();
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // 같은 파일을 다시 선택해도 change 이벤트가 발생하도록
+});
+
+// -------------------------------------------------------------
+// ENGINE STATUS / SETTINGS
+// -------------------------------------------------------------
+function renderEngineStatus() {
+  const ready = state.hasServerKey;
+  engineStatusText.textContent = ready ? 'Nano Banana 준비 완료' : 'API 키 필요';
+  engineStatusBox.className = `flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium ${
+    ready ? 'bg-emerald-950/40 border-emerald-800/40 text-emerald-400' : 'bg-amber-950/40 border-amber-800/40 text-amber-300'}`;
+  engineStatusDot.className = `w-2 h-2 rounded-full animate-pulse ${ready ? 'bg-emerald-400' : 'bg-amber-400'}`;
+}
+
+async function loadConfig() {
+  try {
+    const data = await (await fetch('/api/config')).json();
+    state.hasServerKey = !!data.hasGoogleApiKey;
+  } catch (e) {
+    console.warn('Config load error:', e);
+  }
+  renderEngineStatus();
+}
+
+function openSettings() {
+  inputGoogleApiKey.value = '';
+  inputGoogleApiKey.placeholder = state.hasServerKey ? '저장된 키가 있습니다 (바꾸려면 새 키 입력)' : 'AIzaSy...';
+  btnDeleteKey.classList.toggle('hidden', !state.hasServerKey);
+  settingsModal.classList.remove('hidden');
+  inputGoogleApiKey.focus();
+}
+
+btnOpenSettings.addEventListener('click', openSettings);
+btnCloseSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+btnSaveSettings.addEventListener('click', async () => {
+  const key = inputGoogleApiKey.value.trim();
+  if (!key) {
+    settingsModal.classList.add('hidden');
+    return;
+  }
+  try {
+    const res = await fetch('/api/save-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ googleApiKey: key })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || '저장 실패');
+    state.hasServerKey = !!data.hasGoogleApiKey;
+    renderEngineStatus();
+    settingsModal.classList.add('hidden');
+    alert('API 키가 저장되었습니다!');
+  } catch (e) {
+    alert('설정 저장 중 오류: ' + e.message);
+  }
+});
+
+btnDeleteKey.addEventListener('click', async () => {
+  if (!confirm('저장된 API 키를 삭제하시겠습니까? 이후 생성하려면 키를 다시 입력해야 합니다.')) return;
+  try {
+    const res = await fetch('/api/save-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clearKey: true })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || '삭제 실패');
+    state.hasServerKey = !!data.hasGoogleApiKey;
+    renderEngineStatus();
+    settingsModal.classList.add('hidden');
+    alert(state.hasServerKey
+      ? '저장된 키를 삭제했습니다. (환경변수 GEMINI_API_KEY 키는 계속 사용됩니다)'
+      : '저장된 API 키를 삭제했습니다.');
+  } catch (e) {
+    alert('키 삭제 중 오류: ' + e.message);
+  }
+});
+
+// -------------------------------------------------------------
+// LIGHTBOX / DOWNLOAD
+// -------------------------------------------------------------
+let currentLightboxItem = null;
+
+function openLightbox(item) {
+  currentLightboxItem = item;
+  lightboxImg.src = item.url;
+  lightboxPrompt.textContent = item.prompt;
+  lightboxBadge.textContent = (item.model || 'AI').toUpperCase();
+  lightboxInfo.textContent = `비율: ${item.aspectRatio || '-'} | 생성일시: ${new Date(item.createdAt).toLocaleString()}`;
+  lightboxModal.classList.remove('hidden');
+  refreshIcons();
+}
+
+btnCloseLightbox.addEventListener('click', () => lightboxModal.classList.add('hidden'));
+lightboxModal.addEventListener('click', (e) => {
+  if (e.target === lightboxModal) lightboxModal.classList.add('hidden');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    lightboxModal.classList.add('hidden');
+    settingsModal.classList.add('hidden');
+  }
+});
+
+btnLightboxDownload.addEventListener('click', () => {
+  if (currentLightboxItem) downloadSingleImage(currentLightboxItem.url, currentLightboxItem.filename || 'ai-image.png');
+});
+
+btnCopyPrompt.addEventListener('click', async () => {
+  if (!currentLightboxItem) return;
+  try {
+    await navigator.clipboard.writeText(currentLightboxItem.prompt);
+    alert('프롬프트가 클립보드에 복사되었습니다!');
+  } catch {
+    alert('클립보드 복사에 실패했습니다.');
+  }
+});
+
+function downloadSingleImage(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// -------------------------------------------------------------
+// GALLERY
+// -------------------------------------------------------------
+function addImageCard(item, prepend = true) {
+  galleryEmptyState.classList.add('hidden');
+
+  const img = el('img', {
+    src: item.url,
+    alt: item.prompt,
+    loading: 'lazy',
+    className: 'w-full h-full object-cover rounded-xl absolute inset-0 cursor-pointer'
+  });
+  const zoomBtn = el('button', {
+    type: 'button',
+    className: 'p-1.5 rounded-lg bg-slate-900/80 hover:bg-purple-600 text-white transition-all backdrop-blur-sm shadow',
+    title: '크게 보기'
+  }, icon('maximize-2', 'w-3.5 h-3.5'));
+  const dlBtn = el('button', {
+    type: 'button',
+    className: 'px-2.5 py-1 rounded-md bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-semibold flex items-center space-x-1 shadow transition-all'
+  }, icon('download', 'w-3 h-3'), el('span', {}, '다운로드'));
+
+  const card = el('div', {
+    className: 'image-card rounded-xl bg-slate-900 border border-slate-800 shadow-md group aspect-square flex flex-col justify-end'
+  },
+    img,
+    el('div', { className: 'card-overlay absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent p-3 flex flex-col justify-between pointer-events-none' },
+      el('div', { className: 'flex justify-between items-start pointer-events-auto' },
+        el('span', { className: 'text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-purple-300 backdrop-blur-sm border border-purple-500/30' },
+          (item.model || 'AI').toUpperCase()),
+        zoomBtn
+      ),
+      el('div', { className: 'space-y-1.5 pointer-events-auto' },
+        el('p', { className: 'text-xs text-slate-200 font-medium line-clamp-2 drop-shadow-sm' }, item.prompt),
+        el('div', { className: 'flex items-center justify-between pt-1' },
+          el('span', { className: 'text-[10px] text-slate-400' }, item.aspectRatio || '-'),
+          dlBtn
+        )
+      )
+    )
+  );
+
+  img.addEventListener('click', () => openLightbox(item));
+  zoomBtn.addEventListener('click', () => openLightbox(item));
+  dlBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    downloadSingleImage(item.url, item.filename || 'generated-image.png');
+  });
+
+  if (prepend && galleryGrid.firstChild) galleryGrid.insertBefore(card, galleryGrid.firstChild);
+  else galleryGrid.appendChild(card);
+
+  if (prepend) state.images.unshift(item); else state.images.push(item);
+  updateGalleryCount();
+  refreshIcons();
+}
+
+function updateGalleryCount() {
+  const total = state.images.length;
+  galleryTotalCount.textContent = `${total}장`;
+  btnDownloadAllZip.disabled = total === 0;
+}
+
+// -------------------------------------------------------------
+// GENERATION (single & batch share one task queue)
+// -------------------------------------------------------------
+async function apiGenerateImage(prompt, signal) {
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, aspectRatio: state.aspectRatio, style: state.style }),
+    signal
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(`서버 응답을 해석할 수 없습니다 (${response.status})`);
+  }
+  if (!response.ok || !data.success) {
+    const err = new Error(data.error || '생성 실패');
+    err.code = data.code;
+    throw err;
+  }
+  return data.image;
+}
+
+function setGeneratingUI(on) {
+  state.isGenerating = on;
+  btnGenerate.disabled = on;
+  btnCancel.classList.toggle('hidden', !on);
+  if (on) progressContainer.classList.remove('hidden');
+}
+
+function renderFailed() {
+  failedList.replaceChildren();
+  failedContainer.classList.toggle('hidden', state.failedTasks.length === 0);
+  for (const t of state.failedTasks) {
+    failedList.append(el('li', { className: 'truncate', title: `${t.prompt} — ${t.error}` },
+      `• ${t.prompt.slice(0, 30)}${t.prompt.length > 30 ? '…' : ''} — ${t.error}`));
+  }
+}
+
+async function runTasks(tasks) {
+  if (state.isGenerating || tasks.length === 0) return;
+
+  state.cancelRequested = false;
+  state.abortController = new AbortController();
+  state.failedTasks = [];
+  renderFailed();
+  setGeneratingUI(true);
+  progressBarFill.style.width = '0%';
+  progressPercentText.textContent = '0%';
+
+  const total = tasks.length;
+  let next = 0;
+  let completed = 0;
+  let failed = 0;
+  let fatalError = null;
+
+  const updateProgress = () => {
+    const done = completed + failed;
+    const percent = Math.round((done / total) * 100);
+    progressPercentText.textContent = `${percent}%`;
+    progressBarFill.style.width = `${percent}%`;
+    progressStatusText.textContent = `[${done}/${total}] 이미지 생성 중... (성공 ${completed}${failed ? `, 실패 ${failed}` : ''})`;
+  };
+  updateProgress();
+
+  const worker = async () => {
+    while (!state.cancelRequested && !fatalError) {
+      const idx = next++;
+      if (idx >= total) return;
+      const task = tasks[idx];
+      try {
+        const image = await apiGenerateImage(task.prompt, state.abortController.signal);
+        addImageCard(image, true);
+        completed++;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        if (err.code === 'NO_API_KEY') {
+          fatalError = err; // 키가 없으면 나머지도 전부 실패하므로 즉시 중단
+          return;
+        }
+        failed++;
+        state.failedTasks.push({ prompt: task.prompt, error: err.message });
+        renderFailed();
+      }
+      updateProgress();
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
+
+  setGeneratingUI(false);
+  state.abortController = null;
+
+  if (fatalError) {
+    progressStatusText.textContent = 'API 키가 필요합니다.';
+    openSettings();
+    return;
+  }
+
+  const cancelled = state.cancelRequested;
+  progressStatusText.textContent = `${cancelled ? '취소됨' : '완료!'} (성공: ${completed}장${failed > 0 ? `, 실패: ${failed}장` : ''}${cancelled ? `, 미처리: ${total - completed - failed}장` : ''})`;
+  if (failed === 0) setTimeout(() => { if (!state.isGenerating) progressContainer.classList.add('hidden'); }, 3000);
+}
+
+btnGenerate.addEventListener('click', () => {
+  if (state.isGenerating) return;
+
+  if (!state.hasServerKey) {
+    alert('Nano Banana를 사용하려면 Google Gemini API 키가 필요합니다. 설정에서 키를 입력해주세요.');
+    openSettings();
+    return;
+  }
+
+  let prompts;
+  let perPrompt;
+
+  if (state.mode === 'single') {
+    const rawVal = singlePromptInput.value.trim();
+    if (!rawVal) {
+      alert('프롬프트를 입력해주세요!');
+      singlePromptInput.focus();
+      return;
+    }
+    prompts = [rawVal]; // 개별 모드는 입력 전체가 하나의 프롬프트
+    perPrompt = state.count;
+  } else {
+    updateBatchParsedPrompts({ keepExcluded: true });
+    prompts = activeBatchPrompts();
+    if (prompts.length === 0) {
+      alert('일괄 생성할 프롬프트를 입력해주세요!');
+      batchPromptsInput.focus();
+      return;
+    }
+    perPrompt = parseInt(batchQtyPerPrompt.value, 10);
+  }
+
+  const tasks = prompts.flatMap(prompt => Array.from({ length: perPrompt }, () => ({ prompt })));
+  runTasks(tasks);
+});
+
+btnCancel.addEventListener('click', () => {
+  state.cancelRequested = true;
+  progressStatusText.textContent = '취소 중...';
+  state.abortController?.abort();
+});
+
+btnRetryFailed.addEventListener('click', () => {
+  const tasks = state.failedTasks.map(t => ({ prompt: t.prompt }));
+  runTasks(tasks);
+});
+
+// -------------------------------------------------------------
+// ZIP DOWNLOAD
+// -------------------------------------------------------------
+btnDownloadAllZip.addEventListener('click', async () => {
+  if (state.images.length === 0) return;
+
+  const originalChildren = Array.from(btnDownloadAllZip.childNodes);
+  btnDownloadAllZip.disabled = true;
+  btnDownloadAllZip.replaceChildren(
+    el('span', { className: 'w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin' }),
+    el('span', {}, 'ZIP 압축 중...')
+  );
+
+  try {
+    const zip = new JSZip();
+    const folder = zip.folder('ai_images');
+    const manifest = [];
+
+    for (let i = 0; i < state.images.length; i++) {
+      const imgItem = state.images[i];
+      const ext = (imgItem.filename || '').match(/\.(png|jpe?g|webp)$/i)?.[0] || '.png';
+      const safeTitle = (imgItem.prompt || 'image').slice(0, 20).replace(/[^a-zA-Z0-9가-힣]/g, '_');
+      const zipFileName = `${String(i + 1).padStart(3, '0')}_${safeTitle}${ext}`;
+
+      try {
+        const response = await fetch(imgItem.url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        folder.file(zipFileName, await response.blob());
+        manifest.push({
+          file: zipFileName,
+          prompt: imgItem.prompt,
+          model: imgItem.model,
+          aspectRatio: imgItem.aspectRatio,
+          createdAt: new Date(imgItem.createdAt).toISOString()
+        });
+      } catch (err) {
+        console.error(`Failed to fetch image ${imgItem.url} for zip:`, err);
+      }
+    }
+
+    folder.file('prompts_manifest.json', JSON.stringify(manifest, null, 2));
+    saveAs(await zip.generateAsync({ type: 'blob' }), `AI_Images_${Date.now()}.zip`);
+  } catch (err) {
+    console.error('ZIP generation error:', err);
+    alert('ZIP 압축 다운로드 중 오류가 발생했습니다: ' + err.message);
+  } finally {
+    btnDownloadAllZip.disabled = false;
+    btnDownloadAllZip.replaceChildren(...originalChildren);
+    refreshIcons();
+  }
+});
+
+btnClearGallery.addEventListener('click', () => {
+  if (state.images.length === 0) return;
+  if (!confirm('갤러리 표시 목록을 비우시겠습니까? (로컬 디스크 파일은 보존됩니다)')) return;
+  state.images = [];
+  galleryGrid.replaceChildren();
+  galleryEmptyState.classList.remove('hidden');
+  updateGalleryCount();
+});
+
+// Load existing outputs from server on start (메타 사이드카가 있으면 원본 프롬프트/비율 복원)
+async function loadExistingOutputs() {
+  try {
+    const data = await (await fetch('/api/outputs')).json();
+    if (data.success && Array.isArray(data.images)) {
+      data.images.forEach(img => {
+        const fallbackPrompt = img.filename.replace(/^\d+_/, '').replace(/_\d+\.(jpe?g|png|webp)$/i, '').replace(/_/g, ' ');
+        addImageCard({
+          url: img.url,
+          filename: img.filename,
+          prompt: img.prompt || fallbackPrompt,
+          model: img.model || 'STORED',
+          aspectRatio: img.aspectRatio,
+          createdAt: img.createdAt
+        }, false);
+      });
+    }
+  } catch (err) {
+    console.warn('Existing outputs load error:', err);
+  }
+}
+
+// Initial Boot
+refreshIcons();
+loadConfig();
+loadExistingOutputs();
+updateBatchParsedPrompts();
+updateGenerateLabel();
+
+</script>
+</body>
+</html>
+

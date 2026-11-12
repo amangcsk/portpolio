@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원미동 사람들 - 양귀자 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#2f4a5e;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">양귀자 · 원미동 사람들</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="25" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 책은 양귀자 선생의 연작소설 「원미동 사람들」 원문이 아니라, 줄거리를 쉬운 말로 풀어 엮은 이야기책입니다. 열한 편 가운데 여덟 편 이상을 줄거리 중심으로 간추렸고, 세부 장면은 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 내용은 꼭 원작 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "부천 원미동이라는 동네", "quote": "서울에서 밀려난 사람들이 모여 사는 동네였다.", "text": "「원미동 사람들」은 경기도 부천의 원미동이라는 동네에 사는 평범한 사람들의 이야기를 열한 편으로 엮은 연작소설입니다. 연작이란, 이야기마다 따로 읽을 수 있지만 같은 동네와 같은 인물들이 이어서 나오는 소설을 말합니다.\n\n원미동은 서울에서 집값을 감당하지 못한 서민들이 밀려와 자리 잡은 동네입니다. 좁은 골목을 따라 작은 다세대 주택과 가게들이 다닥다닥 붙어 있고, 형제슈퍼, 청과물가게, 부동산, 지물포, 사진관 같은 가게의 주인들이 서로 얼굴을 맞대고 삽니다. 이제부터 그 골목에 사는 사람들의 웃음과 설움을 하나씩 만나 보겠습니다.", "id": 1}, {"title": "멀고 아름다운 동네 (1) 집을 찾아서", "quote": "추운 겨울날, 한 가족이 집을 구하러 다녔다.", "text": "첫 이야기는 은혜네 가족이 원미동으로 이사 오는 이야기입니다. 때는 추운 겨울이었고, 은혜네는 전셋집을 구하려고 여러 곳을 돌아다녔습니다. 그러나 가진 돈으로 구할 수 있는 집은 어디에도 없었습니다.\n\n식구는 노모와 은혜, 은혜 아빠, 그리고 아이를 가져 배가 불러 오는 엄마였습니다. 가족은 서울에서 점점 먼 곳으로 밀려나다가 마침내 부천 원미동에 이르렀습니다. 전세를 구하기 어려워, 무리를 해서 작은 집을 사서 들어가기로 마음먹었습니다.", "id": 2}, {"title": "멀고 아름다운 동네 (2) 새 땅의 희망", "quote": "이사는 새로운 땅으로 떠나는 길이라고 하셨다.", "text": "원미동의 새집에 짐을 풀었지만 집안 곳곳이 말썽이었고, 이웃들과의 관계도 서먹했습니다. 그래도 가족은 이 동네에서 새 삶을 시작해야 했습니다.\n\n집안 어른인 노모는 이사를 새로운 땅을 찾아 떠나는 일에 빗대어 말하며, 힘들어도 희망을 잃지 말자고 식구들을 다독였습니다. 어렵게 마련한 이 집이 가족에게는 정말 멀리 돌아서 온 아름다운 동네가 되어 주기를 모두가 바랐습니다. 이야기의 제목에는 이렇게 고단함과 소망이 함께 담겨 있습니다.", "id": 3}, {"title": "마지막 땅 (1) 남은 밭을 지키는 강노인", "quote": "강노인에게 그 밭은 목숨 같은 땅이었다.", "text": "동네에는 아직 작은 밭이 남아 있었습니다. 주인은 강노인이었습니다. 강노인은 자식들의 일 때문에 가지고 있던 땅을 대부분 팔았고, 이제 남은 얼마 안 되는 땅에서 손수 채소를 가꾸며 지내고 있었습니다.\n\n집들이 빼곡하게 들어선 동네에서 푸르게 남은 마지막 땅이었습니다. 부동산 사람들은 그 땅을 팔라며 틈만 나면 찾아와 권했지만, 강노인에게 그 밭은 평생의 뿌리나 다름없어 쉽게 마음을 열지 않았습니다.", "id": 4}, {"title": "마지막 땅 (2) 밭을 둘러싼 갈등", "quote": "마지막 땅을 지키려는 마음이 흔들리고 있었다.", "text": "강노인이 밭에 인분을 비료로 쓰자 냄새 때문에 이웃들과 다툼이 생겼습니다. 사람들의 눈총을 받으면서도 강노인은 밭 가꾸기를 멈추지 않았습니다. 밭이 피해를 입는 일이 생겨도 팔지 않겠다고 버텼습니다.\n\n그러던 중 땅을 팔았다는 헛소문이 돌아 빚쟁이들이 몰려오고, 집안에서는 부인과 다툼까지 벌어졌습니다. 마음이 복잡해진 강노인은 정든 밭에 물을 주다가, 끝내 부동산 쪽으로 걸음을 옮깁니다. 땅을 지키려는 마음과 현실 사이에서 흔들리는 노인의 쓸쓸한 뒷모습이 오래 남는 이야기입니다.", "id": 5}, {"title": "원미동 시인 (1) 몽달씨와 김반장", "quote": "동네에서 몽달씨는 시를 외우는 이상한 청년이었다.", "text": "이 이야기는 아직 어린 소녀 경옥의 눈으로 본 동네 이야기입니다. 경옥은 출생신고가 늦어져 또래 아이들처럼 학교에 가지 못하고, 낮 동안 동네를 돌아다니며 어른들의 속마음을 날카롭게 지켜봅니다. 아버지는 청소부이고 어머니는 억척스러운 분이며, 언니들도 여럿 있습니다.\n\n경옥은 형제슈퍼의 김반장을 좋아하고, 그가 셋째 언니 선옥과 맺어지기를 바랍니다. 그리고 '몽달씨'라고 불리는 청년과도 친구가 됩니다. 몽달씨는 정신이 조금 이상하다고 여겨지지만, 시를 좋아하고 시로 말을 건네는 순한 사람입니다.", "id": 6}, {"title": "원미동 시인 (2) 폭행당한 밤", "quote": "초여름 밤, 몽달씨가 사내들에게 얻어맞았다.", "text": "어느 초여름 밤, 몽달씨가 낯선 사내들에게 심하게 얻어맞는 일이 벌어졌습니다. 몽달씨는 맞은 몸으로 형제슈퍼로 도망쳐 들어갔습니다. 그러나 김반장은 일에 휘말리기 싫어 몽달씨를 모른다고 하며 가게 밖으로 내보냈습니다.\n\n그때 지나가던 지물포 주씨 아저씨가 나서서 사내들을 쫓아내고 몽달씨를 도왔습니다. 동네 사람들은 몽달씨를 감싸 준 이들을 칭찬했고, 김반장은 오히려 믿음직한 사람이라는 말을 들으며 넘어갔습니다. 이 모든 광경을 경옥은 말없이 지켜보았습니다.", "id": 7}, {"title": "원미동 시인 (3) 시가 적힌 쪽지", "quote": "몽달씨는 끝내 아무 대답도 하지 않았다.", "text": "일을 겪은 뒤, 경옥은 김반장이 좋은 사람인지 알 수 없게 되어 실망했습니다. 김반장은 사건 후 몽달씨를 집까지 바래다주기도 했지만, 경옥에게는 진심으로 보이지 않았습니다.\n\n열흘쯤 뒤, 몽달씨는 다시 가게에서 일하고 있었습니다. 경옥이 그날 밤 일을 꺼내며 김반장이 나쁜 사람이냐고 따져 묻자, 몽달씨는 잠깐 또렷해졌다가 대답을 피했습니다. 대신 몽달씨는 시가 적힌 쪽지를 경옥에게 건넸습니다. 그 서툴지만 따뜻한 마음에 경옥은 눈물이 났습니다.", "id": 8}, {"title": "비 오는 날이면 가리봉동에 가야 한다 (1) 집을 고쳐 준 임씨", "quote": "예상보다 적은 품삯을 받은 임씨였다.", "text": "은혜네 집은 낡아서 욕탕이며 옥상이며 고칠 곳이 많았습니다. 이웃 노인의 소개로 임씨라는 막일꾼이 와서 이것저것을 말끔히 고쳐 주었습니다. 임씨는 한때 연탄 장사를 하던 사람이었습니다.\n\n일을 마친 임씨는 은혜 아빠가 줄 돈을 예상보다 훨씬 적게 받고도 불평하지 않았습니다. 낮에 임씨를 의심했던 은혜 아빠는 그 모습을 보고 얼굴이 뜨거워질 만큼 부끄러웠습니다. 사람을 겉모습으로 의심한 자기 자신이 미안하고 한심했던 것입니다.", "id": 9}, {"title": "비 오는 날이면 가리봉동에 가야 한다 (2) 임씨의 분노", "quote": "비가 오면 임씨는 가리봉동의 그 사람이 생각났다.", "text": "저녁이 되어 은혜 아빠와 임씨는 술자리를 가졌습니다. 술이 몇 잔 돌자 임씨는 속에 쌓인 이야기를 풀어놓았습니다. 연탄을 대 주던 스웨터 공장 사장이 대금을 떼어먹고 사라졌고, 알고 보니 가리봉동에서 더 큰 공장을 차리고 잘 산다는 것이었습니다.\n\n임씨는 비가 오는 날이면 일도 못 하고 그 생각에 잠겨, 가리봉동에 찾아가 따지고 싶은 마음이 솟는다고 했습니다. 취한 임씨가 사장과 같은 사람들을 향해 쏟아내는 욕을 들으며 은혜 아빠는 오히려 자기도 그 '나쁜 사람들'에 속하는 것은 아닐까 하는 불안에 휩싸여 자리를 떠납니다.", "id": 10}, {"title": "찻집 여자 (1) 사진관 주인과 한강인삼찻집", "quote": "증명사진을 찍으러 온 여자가 있었다.", "text": "원미동의 행복사진관 주인 엄씨는 평범하게 살아가는 사람이었습니다. 어느 날 한강인삼찻집에서 일하는 여자가 증명사진을 찍으러 사진관에 들렀습니다.\n\n그 일을 계기로 엄씨는 여자와 자주 이야기를 나누게 되었습니다. 외로워 보이는 여자에게 엄씨는 연민과 호감을 함께 느꼈습니다. 하지만 좁은 동네에서 그런 모습은 금세 사람들 눈에 띄었고, 엄씨의 부인은 크게 화를 냈습니다.", "id": 11}, {"title": "찻집 여자 (2) 떨어진 간판 글자", "quote": "행복사진관의 간판에서 글자 하나가 떨어졌다.", "text": "엄씨의 부인이 날카롭게 따지는 바람에 집안은 한바탕 소동이 벌어졌습니다. 동네 사람들은 입방아를 찧었고, 찻집 여자는 그 눈총을 견디지 못하고 끝내 동네를 떠났습니다. 엄씨는 여자에게 미안하고 안타까웠지만 아무 말도 하지 못했습니다.\n\n그 즈음, 사진관 간판의 글자 하나가 비바람에 떨어져 나갔습니다. 행복사진관의 'ㄱ'자가 떨어져 '행보사진관'이 되어 버린 것입니다. 우스꽝스러우면서도 씁쓸한 그 간판은, 행복을 놓쳐 버린 엄씨의 마음을 보여 주는 듯했습니다.", "id": 12}, {"title": "방울새", "quote": "아이는 동굴이라는 말로 아빠를 상상했다.", "text": "어느 여인은 남편이 사회운동을 하다가 감옥에 들어가 있는 처지였습니다. 그녀는 어떤 아이에게 남편의 이야기를 들려주려 했지만, 어린 아이에게 감옥을 이해시키기는 어려웠습니다.\n\n이야기를 들은 아이는 '그럼 아빠는 동굴에서 살고 있구나' 하고 순진하게 말했습니다. 아이다운 그 말에 여인은 가슴이 울컥했습니다. 아이의 맑은 눈에는 그저 동굴일 뿐인 곳이, 어른들에게는 기다림과 고통이 쌓인 곳이었기 때문입니다. 짧지만 가슴 한쪽이 아려 오는 이야기입니다.", "id": 13}, {"title": "지하 생활자", "quote": "지하 셋방에서는 사소한 일도 큰 고통이 된다.", "text": "이 이야기의 '나'는 화장실도 없는 지하 셋방에 세 들어 사는 사람입니다. 급한 일이 생겨도 마음 편히 해결할 곳이 없어 하루하루가 곤욕이었습니다.\n\n주인집 여자는 화장실을 쓰게는 해 주었지만, 막상 사정이 급할 때는 문을 열어 주지 않아 '나'는 더 괴로웠습니다. 그러다 '나'는 주인집 여자가 남의 남편과 몰래 사귀며 쓸쓸하게 살고 있다는 사정을 알게 됩니다. 화가 나던 마음이 어느새 동정으로 바뀌면서, 사람은 누구나 저마다 말 못 할 사정을 안고 산다는 것을 깨닫습니다.", "id": 14}, {"title": "한계령 (1) 밤무대의 옛 친구", "quote": "옛 친구는 이제 밤무대에서 노래하는 가수였다.", "text": "'나'는 글을 쓰는 사람으로, 어느 날 고향 친구 은자가 원미동 가까운 곳의 클럽에서 노래한다는 소식을 듣게 됩니다. 은자는 학창 시절 함께 어울리던 동창이었는데, 이제는 밤무대 가수가 되어 있었습니다.\n\n'나'는 오랜만에 친구를 만나고 싶은 마음이 있었지만, 달라진 처지의 은자를 마주하기가 왠지 어색하여 선뜻 찾아가지 못하고 망설였습니다. 날은 하루하루 흘러갔고, 마음속에서는 갈까 말까 하는 다툼이 계속되었습니다.", "id": 15}, {"title": "한계령 (2) 노래 속의 큰오빠", "quote": "한계령을 부르는 친구 앞에서 큰오빠가 떠올랐다.", "text": "마침내 마지막 날이 되어서야 '나'는 클럽을 찾아갔습니다. 무대에 선 은자는 '한계령'이라는 노래를 불렀습니다. 노래를 듣던 '나'는 문득 가난과 좌절 속에서 고통받던 큰오빠가 떠올랐고, 은자의 삶과 오빠의 삶이 겹쳐 보여 마음이 아팠습니다.\n\n세월이 지나 은자가 '좋은 나라'라는 새로운 카페를 열었다는 소식이 들려옵니다. 고단한 삶 속에서도 사람들은 어떻게든 작은 희망을 찾아 앞으로 걸어간다는 것을 보여 주는 대목입니다.", "id": 16}, {"title": "일용할 양식 (1) 쌀가게가 슈퍼로, 두 가게의 맞싸움", "quote": "가게 사이의 거리는 백 걸음도 되지 않았다.", "text": "연말 무렵, 사진관 엄씨와 찻집 여자의 소문이 한동안 동네의 이야깃거리였습니다. 그 소문이 잦아들 즈음, 새로운 일이 벌어집니다. 쌀과 연탄을 배달해 주던 김포쌀상회가 간판을 바꾸고 김포슈퍼가 된 것입니다. 경호네가 하는 가게로, 주인인 경호 아버지는 이제 생필품과 채소, 과일까지 함께 팔기 시작했습니다.\n\n가만히 있을 김반장이 아니었습니다. 형제슈퍼의 김반장은 원래 채소와 과일을 팔았는데, 가게 앞 공터에 쌀과 연탄을 쌓아 놓고 이쪽 장사까지 시작했습니다. 두 가게는 백 걸음도 안 되는 거리에 마주 보게 되었고, 서로 값을 내리고 덤을 얹으며 대대적인 세일 경쟁을 벌였습니다. 동네 사람들은 처음에는 싸게 사서 좋았지만, 이웃끼리 편이 갈린 듯한 분위기가 점점 불편하게 느껴졌습니다.", "id": 17}, {"title": "일용할 양식 (2) 싱싱청과물과 두 가게의 동맹", "quote": "먹고사는 일 앞에서는 이웃도 적이 되었다.", "text": "그러던 중 비어 있던 가게 자리에 싱싱청과물이 문을 열었습니다. 동네 사정을 잘 모르는 외지에서 온 사람이 차린 가게였습니다. 장사가 셋으로 나뉘어 손님이 줄게 되자, 경호 엄마의 걱정은 커지고 김반장의 표정도 굳어졌습니다.\n\n서로 으르렁거리던 김포슈퍼와 형제슈퍼는 뜻밖에 손을 잡았습니다. 공동의 경쟁자를 밀어내려고 싱싱청과물이 파는 물건만 골라 아주 싸게 팔기 시작한 것입니다. 사정을 눈치챈 싱싱청과물 주인이 김반장을 찾아가 따졌고, 말다툼이 몸싸움으로 번졌습니다. 주인은 얼굴을 크게 다쳤고, 지물포 주씨 같은 이웃들이 겨우 뜯어말렸습니다. 싱싱청과물은 얼마 못 가 문을 닫았습니다.", "id": 18}, {"title": "일용할 양식 (3) 남은 뒷맛", "quote": "누구를 탓해야 할지 아무도 알 수 없었다.", "text": "싱싱청과물이 문을 닫자 동네 여자들은 모여 앉아 수군거렸습니다. 같은 처지의 장사꾼끼리 너무한 것 아니냐며 김반장의 모질음을 탓하기도 했고, 슬쩍 뒤로 빠져 있던 경호네의 약삭빠름을 나무라기도 했습니다. 다만 지물포 집 여자만은, 김반장도 먹고살려고 그랬을 거라며 감싸 주었습니다.\n\n해가 바뀌어 이월이 되자, 고흥댁이 싱싱청과물 자리가 났다는 소식을 전했습니다. 이번에는 그 자리에 전파상이 들어올지도 모른다는 말이 돌았고, 시내 엄마는 가장 큰 걱정에 사로잡혔습니다. 이웃끼리 다투는 일은 끝나지 않았고, 또 다른 가게가 들어오면 같은 일이 되풀이될지도 모른다는 불안을 남긴 채 이야기가 끝납니다. 제목의 '일용할 양식'은 날마다 먹는 밥을 뜻하는데, 그 밥그릇을 지키려는 마음이 이웃 사이를 얼마나 삭막하게 만드는지를 보여 줍니다.", "id": 19}, {"title": "불씨 (1) 하루아침에 해고된 가장", "quote": "믿었던 직장이 하루아침에 등을 돌렸다.", "text": "「불씨」의 주인공은 한 집안의 가장입니다. 그는 큰 식품회사의 물품관리부에서 오랫동안 성실하게 일했는데, 어느 날 아무 예고도 없이 해고되었습니다. 갑자기 일터를 잃은 그는 새 일자리를 찾아 뛰어다녔지만, 일자리는 쉽게 나타나지 않았고 어느덧 반년이 흘렀습니다.\n\n겨우 구한 일은 전통문화연구회라는 곳의 판매 일이었습니다. 진짜 옛것이 아니라 옛것을 흉내 낸 조각상과 촛대 같은 모조품을 파는 일이었습니다. 번듯한 회사에 다니던 그에게는 자존심이 상하는 일이었지만, 식구를 먹여 살리려면 마다할 수 없었습니다.", "id": 20}, {"title": "불씨 (2) 촛대를 사 준 지게꾼", "quote": "사정을 들어 줄 사람 한 명이 간절했다.", "text": "그는 물건을 팔러 아는 사람들을 찾아다녔습니다. 친구와 옛 동창에게 조심스럽게 권해 보았지만, 돌아온 것은 곤란해하는 얼굴과 거절뿐이었습니다. 그렇다고 모르는 사람에게 다가가 말을 꺼내기는 더욱 어려웠습니다.\n\n그러다 우연히 한 지게꾼과 마주 앉아 말을 주고받게 되었습니다. 지게꾼은 그의 이야기를 묵묵히 들어 주었고, 그 대가로 모조 촛대 하나를 사 주었습니다. 이야기를 들어 주는 사람을 만난 그는 비로소 자기 사정을 가슴에서 꺼내어 털어놓기 시작했습니다. 가진 것 없는 두 사람이 서로의 이야기를 들어 주는 불씨가 되어 주는 장면에서 제목의 뜻이 읽힙니다.", "id": 21}, {"title": "한 마리의 나그네 쥐 (1) 밤마다 산에 오르는 남자", "quote": "그에게 산은 숨 쉴 수 있는 유일한 곳이었다.", "text": "동네에는 밤마다 원미산에 오르는 남자가 있다는 소문이 돌았습니다. 사람들은 그를 이상한 사람이라고 수군거렸지만, 그에게는 그만의 사정이 있었습니다.\n\n회사에 다니는 그는 아침저녁으로 사람이 넘치는 전철에 시달렸습니다. 사람들에게 떠밀려 서 있노라면, 전철이 짐승을 가두어 놓은 쇠 상자처럼 느껴졌다고 합니다. 그런 숨 막히는 하루를 보내고 나면, 그는 어둑한 산에 올라서야 겨우 숨통이 트이는 듯했습니다. 소문과 그의 속마음이 번갈아 이어지며, 사람들이 알지 못하는 한 사람의 외로움이 드러납니다.", "id": 22}, {"title": "한 마리의 나그네 쥐 (2) 산이 된 사람", "quote": "그는 무리에서 떨어져 나온 쥐 한 마리를 보았다.", "text": "나그네쥐는 무리를 지어 먼 길을 떠돌다가 바다로 뛰어든다고 알려진 쥐입니다. 이 이야기의 제목은 거기서 따온 것입니다. 어느 날 산에서 그는 무리에서 떨어져 혼자 헤매는 쥐 한 마리를 발견했고, 속으로 이상한 놈이라고 중얼거렸습니다. 그런데 그 말은 무리를 떠나 산속을 헤매는 자신에게도 해당되는 말이었습니다.\n\n그는 산속에서 길을 잃고 말았습니다. 사람들 사이로 돌아가기는 싫지만, 어디로 가야 하는지도 어떻게 살아야 하는지도 알지 못했습니다. 이야기는 결국 그가 산속으로 사라져 산이 되었다는 말로 끝맺습니다. 세상의 무리 속에서 살아가기 힘들어하는 한 사람의 쓸쓸함이 길게 여운을 남기는 이야기입니다.", "id": 23}, {"title": "원미동 사람들이 남긴 마음", "quote": "남의 사정을 알고 나면 미워하던 마음도 녹는다.", "text": "여러 편을 두루 살펴보면 원미동 사람들은 저마다 아픈 사연을 하나씩 안고 있습니다. 땅을 지키려는 강노인, 몽달씨와 김반장, 연탄값을 떼인 임씨, 해고된 가장, 산으로 간 남자, 간판 글자가 떨어진 엄씨, 밤무대에 선 은자까지 모두 성실하게 살려 애쓰지만 세상은 쉽게 풀리지 않습니다.\n\n그런데 이야기마다 사람들은 처음에는 서로를 의심하고 미워하다가도, 사정을 알게 되면 마음을 풀고 이해하려 애쓰는 모습을 보여 줍니다. 이 연작은 이처럼 작은 골목의 작은 사람들을 따뜻하게 바라보는 소설입니다.", "id": 24}, {"title": "다시 맞는 원미동의 아침", "quote": "골목에는 오늘도 새 하루가 시작되고 있었다.", "text": "원미동 골목에는 오늘도 하루가 시작됩니다. 형제슈퍼는 문을 열고, 청과물 가게에는 과일이 쌓이며, 사진관 주인은 간판을 올려다봅니다. 아이들은 학교에 가고, 어른들은 저마다 일터로 나섭니다.\n\n삶은 여전히 팍팍하고 서로 부대끼는 일도 많지만, 사람들은 포기하지 않고 하루하루를 살아 냅니다. 「원미동 사람들」은 그렇게 우리 이웃이 걸어온 시절을 따뜻하게 기록해 둔 이야기책입니다. 여기까지 읽어 주셔서 고맙습니다.", "id": 25}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 25';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 25 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

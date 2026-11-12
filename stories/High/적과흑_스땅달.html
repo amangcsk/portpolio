@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>적과 흑 - 스탕달 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#7a2e2e;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">스탕달 · 적과 흑</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="20" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 이야기책은 원문이 아니라, 줄거리를 쉬운 말로 풀어 엮은 것입니다. 세부 내용은 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 것은 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "산골 마을 베리에르", "quote": "작은 마을의 목수 아들이 큰 세상을 꿈꾸기 시작한다.", "text": "1820년대, 프랑스가 나폴레옹의 시대를 지나 왕이 다시 나라를 다스리던 때의 이야기입니다. 동쪽 산골 마을 베리에르에 쥘리앵 소렐이라는 열아홉 살 청년이 살고 있습니다. 그는 제재소를 하는 거칠고 욕심 많은 아버지와 힘센 두 형들 사이에서 몸이 가냘프고 책 읽기만 좋아해 늘 천덕꾸러기 취급을 받습니다.\n\n쥘리앵은 한때 영웅이었던 나폴레옹을 마음속으로 우러러보며, 가난한 집안에서도 능력만 있으면 높이 오를 수 있었던 시대를 그리워합니다. 하지만 지금은 성직자가 되어야만 출세할 수 있는 세상입니다. 그는 몰래 성경을 통째로 외우며 야망을 키웁니다.", "id": 1}, {"title": "시장 집의 가정교사", "quote": "그는 사랑이 아니라 승리를 위해 그녀의 손을 잡으려 했다.", "text": "마을의 시장 레날 씨는 자기 집 아이들의 가정교사로 쥘리앵을 들입니다. 시장은 부유한 이웃에게 뽐내려고 라틴어를 잘하는 가정교사를 두려는 것입니다. 쥘리앵은 처음으로 좋은 옷을 입고 부유한 집에 들어서지만, 마음속에는 이 사람들에 대한 반감과 두려움이 뒤섞여 있습니다.\n\n시장 부인 레날 부인은 소박하고 다정한 서른 살 가까운 여인입니다. 그녀는 이 어리고 수줍은 가정교사를 처음에는 아이들에게 거칠게 대하지 않을까 걱정하지만, 곧 따뜻한 마음을 느낍니다. 쥘리앵은 자기도 모르게 이 집에서 자신의 자존심을 지키기 위한 작은 전쟁을 시작합니다.", "id": 2}, {"title": "정원에서 잡은 손", "quote": "자신에게 한 약속을 지키려고, 그는 어둠 속에서 손을 내밀었다.", "text": "쥘리앵은 자신이 이 집의 하인이 아니라는 것을 증명하고 싶어서, 저녁 정원에서 레날 부인의 손을 잡겠다고 스스로 약속합니다. 시계가 열 시를 치기 전에 하겠다고 정해 놓고 그는 가슴을 졸입니다. 마침내 종이 울릴 때 그는 용기를 내어 그녀의 손을 잡습니다.\n\n부인은 놀라 손을 빼려다 그대로 둡니다. 쥘리앵에게 그것은 사랑이라기보다 의무를 다한 기쁨이고 작은 승리였습니다. 하지만 부인의 마음은 그날부터 흔들리기 시작합니다. 평범하고 조용했던 그녀의 삶에 처음으로 낯선 감정이 찾아옵니다.", "id": 3}, {"title": "두 사람의 사랑", "quote": "그녀는 처음으로 사랑이 무엇인지 알게 되었다.", "text": "쥘리앵은 어느 날 밤 용기를 내어 레날 부인의 방을 찾아갑니다. 두 사람은 그렇게 사랑에 빠집니다. 쥘리앵은 처음에는 공명심에서 시작한 일이었으나, 시간이 갈수록 진심으로 그녀를 사랑하게 됩니다. 부인도 죄책감에 시달리면서도 그를 놓지 못합니다.\n\n그러던 중 레날 부인의 막내아들이 중병에 걸려 위독해집니다. 부인은 이것을 자신의 죄에 대한 하느님의 벌이라고 생각하며 괴로워합니다. 아이는 다행히 회복되지만, 부인은 쥘리앵과의 사랑이 죄라는 마음에서 쉽게 벗어나지 못하고 두 사람은 몰래 사랑을 이어 갑니다.", "id": 4}, {"title": "익명의 편지", "quote": "작은 마을에서는 비밀이 오래 가지 못한다.", "text": "마을에는 소문이 돌기 시작합니다. 시장 레날 씨에게 아내의 부정을 알리는 익명의 편지가 날아옵니다. 레날 부인은 영리하게 상황을 모면하지만, 쥘리앵은 마을에 더 머물기가 어려워집니다. 때마침 마을의 신부 셸랑 신부가 그를 신학교에 보내기로 합니다.\n\n쥘리앵은 베리에르를 떠나기 전 마지막으로 한밤중 레날 부인의 방을 찾아가 작별 인사를 나눕니다. 두 사람은 뜨거운 눈물로 이별합니다. 그는 이제 성직자가 되어 출세하는 길로 첫발을 내딛습니다. 그가 떠난 뒤에도 레날 부인의 마음에는 깊은 그리움이 남습니다.", "id": 5}, {"title": "브장송 신학교", "quote": "그는 위선과 질투가 가득한 곳에서 살아남아야 했다.", "text": "쥘리앵은 브장송의 신학교에 들어갑니다. 그곳의 신학생들은 겉으로는 경건하지만 속으로는 권력과 이익을 좇는 사람들이 많습니다. 쥘리앵은 지나치게 똑똑하다는 이유로 미움을 받고 외톨이가 됩니다. 그는 스스로 감정을 감추고 위선을 배우는 법을 익혀 갑니다.\n\n그를 눈여겨본 사람이 엄격하고 정직한 피라르 신부입니다. 피라르 신부는 신학교의 책임자로, 쥘리앵이 보기 드문 재능이 있음을 알아봅니다. 쥘리앵은 어려운 신학 시험에서도 좋은 성적을 거두며 인정을 받기 시작합니다.", "id": 6}, {"title": "파리로 가는 길", "quote": "한 사람의 추천이 그의 운명을 바꾸었다.", "text": "신학교에서 피라르 신부는 정치적 싸움에 휘말려 자리에서 쫓겨나게 됩니다. 그는 떠나기 전, 파리의 권세 높은 귀족 라 몰 후작의 비서로 쥘리앵을 추천합니다. 쥘리앵은 가난한 시골 청년이 갑자기 파리의 큰 저택에 들어가게 되는 행운을 얻습니다.\n\n그는 마차를 타고 파리로 향하며 야망에 부풉니다. 이제 베리에르에서 느꼈던 작은 공명심이 아니라 더 큰 세상에서 성공할 수 있다는 기대로 가득합니다. 그러나 한편으로는 낯선 사교계의 예법과 말투를 배워야 한다는 두려움도 큽니다.", "id": 7}, {"title": "라 몰 후작의 저택", "quote": "하인의 아들이 귀족의 식탁에 앉았다.", "text": "파리 라 몰 후작의 저택에서 쥘리앵은 후작의 비서로 일하며 점차 신임을 얻습니다. 그는 후작의 편지를 대신 쓰고, 영지와 소송 일을 처리하며 일솜씨를 인정받습니다. 후작은 이 청년이 똑똑하고 충직하다는 것을 알아봅니다.\n\n그러나 사교계의 사람들은 쥘리앵을 속으로 비웃기도 하고 경계하기도 합니다. 쥘리앵은 귀족들의 가식과 예법을 지켜보며 자신의 자존심을 지키기 위해 애씁니다. 그는 매일 밤 나폴레옹을 생각하며, 이 높은 세상에서 반드시 성공하고 말겠다고 다짐합니다.", "id": 8}, {"title": "후작의 딸 마틸드", "quote": "그녀는 평범한 사람들과 다른 사랑을 하고 싶었다.", "text": "후작의 딸 마틸드는 아름답고 지적이며 자존심이 센 아가씨입니다. 그녀는 주위의 귀족 청년들이 지루하고 평범하다고 느낍니다. 그러던 그녀의 눈에 쥘리앵이 들어옵니다. 신분은 낮지만 꿋꿋하고 열정적인 이 청년이 다른 이들과 다르다고 생각합니다.\n\n마틸드는 먼 옛날 자신의 조상이 사랑하는 사람 때문에 목이 잘렸다는 이야기를 자랑스러워하며, 자신도 그런 위대한 사랑을 해 보고 싶어 합니다. 쥘리앵도 점차 그녀에게 끌리지만, 한편으로는 이 사랑이 오만한 귀족의 변덕이 아닐까 경계합니다.", "id": 9}, {"title": "사랑의 밀고 당기기", "quote": "그는 그녀를 사랑했는가, 이기고 싶었는가.", "text": "마틸드는 쥘리앵에게 사랑을 고백하는 편지를 보내고, 쥘리앵은 그것이 함정일지 모른다고 의심하면서도 사다리를 타고 그녀의 방으로 올라갑니다. 두 사람은 사랑을 나누지만, 곧 마틸드는 자신이 하인과 다름없는 사람에게 몸을 맡겼다는 생각에 자존심이 상해 차갑게 돌아섭니다.\n\n쥘리앵은 괴로워하며 마틸드의 마음을 되돌리기 위해 러시아 귀족의 조언에 따라 다른 귀부인에게 구애하는 척합니다. 마틸드는 질투에 불타오르고, 두 사람은 서로를 시험하며 사랑과 자존심 사이에서 끝없이 줄다리기를 이어 갑니다.", "id": 10}, {"title": "러시아 공작의 충고", "quote": "사랑을 얻으려면 다른 사람에게 마음이 있는 척하시오.", "text": "마틸드의 마음이 차갑게 식자 쥘리앵은 괴로워하며 친구인 러시아 귀족 코라소프 공작에게 조언을 구합니다. 공작은 파리 사교계의 연애 방식을 잘 아는 사람입니다. 그는 마틸드에게 매달리지 말고, 다른 귀부인에게 열렬히 구애하는 척하여 질투를 일으키라고 알려 줍니다.\n\n쥘리앵은 그 충고대로 한 귀부인에게 사랑의 편지를 보냅니다. 그러자 정말로 마틸드의 마음이 흔들립니다. 그녀는 자존심을 버리고 쥘리앵 앞에서 스스로를 낮추며 그의 사랑을 다시 얻고자 합니다. 쥘리앵은 이 승리에 기뻐하지만, 사랑이 이렇게 자존심의 싸움이 되어 버린 것이 한편으로는 씁쓸합니다.", "id": 11}, {"title": "마틸드의 임신", "quote": "그녀는 아버지 앞에서 자신의 선택을 숨기지 않았다.", "text": "마침내 마틸드는 쥘리앵의 아이를 가졌음을 알게 됩니다. 그녀는 이제 자신이 쥘리앵을 진심으로 사랑하며, 그와 결혼하겠다고 아버지에게 당당히 선언합니다. 라 몰 후작은 크게 분노하고 절망합니다. 자신의 딸이 가난한 목수의 아들과 결혼하겠다니 믿을 수가 없었습니다.\n\n그러나 마틸드의 고집을 꺾기는 쉽지 않습니다. 후작은 고심 끝에 쥘리앵에게 작위와 재산을 주고, 군대의 장교 자리까지 마련해 주기로 합니다. 쥘리앵은 어느새 귀족 신분과 경기병 중위가 되어 이름도 바꾸고, 꿈꾸던 성공의 문턱에 서게 됩니다.", "id": 12}, {"title": "한 통의 편지", "quote": "지난날의 사랑이 그의 출세를 무너뜨렸다.", "text": "결혼 준비가 한창일 때 후작은 쥘리앵의 지난 이력을 알아보려 레날 부인에게 편지를 보냅니다. 레날 부인은 신앙심이 깊은 고해 신부의 강요에 못 이겨 쥘리앵이 야심 때문에 여자를 유혹해 출세하려는 사람이라는 내용의 편지를 써 보냅니다.\n\n후작은 이 편지를 읽고 분노하여 결혼 허락을 거두어들입니다. 쥘리앵은 모든 것이 무너졌다는 생각에 이성을 잃습니다. 그는 곧바로 파리를 떠나 베리에르로 향합니다.", "id": 13}, {"title": "성당의 총소리", "quote": "그는 사랑을 되찾으려던 것이 아니라 복수를 하려 했다.", "text": "베리에르에 도착한 쥘리앵은 권총을 사서 성당으로 갑니다. 일요일 미사 때 레날 부인이 기도하는 모습을 보고 그는 총을 쏩니다. 부인은 쓰러지고, 사람들은 비명을 지르며 달려듭니다. 쥘리앵은 저항하지 않고 그대로 체포됩니다.\n\n그는 감옥으로 끌려가면서도 이상하리만치 마음이 평온합니다. 잃을 것도 이루어야 할 야망도 없다는 생각이 들어서입니다. 그동안 그를 몰아쳤던 불안과 허영이 이 순간 모두 사라진 것 같습니다.", "id": 14}, {"title": "마틸드의 구명 운동", "quote": "그녀는 쥘리앵을 살리기 위해 온 파리를 뛰어다녔다.", "text": "쥘리앵이 감옥에 갇혔다는 소식을 들은 마틸드는 곧바로 베리에르로 달려옵니다. 그녀는 돈과 인맥을 써서 감옥의 간수를 구슬리고, 파리의 높은 사람들을 찾아다니며 쥘리앵을 구하려 애씁니다. 그녀에게는 이것이 마치 자기 조상이 겪었던 사랑의 이야기를 현실에서 잇는 일처럼 느껴집니다.\n\n쥘리앵은 그녀의 열정에 고마움을 느끼면서도 마음은 이미 그녀를 떠나 있습니다. 그는 점점 사람들의 도움을 거절하고 조용히 자신의 일을 마무리하고 싶어 합니다. 마틸드의 노력과 쥘리앵의 담담함 사이에 아픈 거리가 생겨납니다.", "id": 15}, {"title": "감옥에서 깨달은 사랑", "quote": "나는 이제야 진짜 사랑이 누구였는지 알았다.", "text": "감옥에서 쥘리앵은 오래도록 자신을 돌아봅니다. 그는 레날 부인이 목숨을 건졌다는 소식을 듣고 기쁨의 눈물을 흘립니다. 그는 자신이 진심으로 사랑했던 사람이 바로 그녀였음을 깨닫습니다.\n\n마틸드는 그를 구하려고 온갖 수를 쓰며 파리의 권력자들을 찾아다닙니다. 하지만 쥘리앵의 마음은 이미 그녀에게서 멀어져 있습니다. 한편 레날 부인도 감옥을 찾아와 그를 만납니다. 그녀는 편지를 쓴 것을 후회하며 그를 용서하고, 두 사람은 다시 마음을 나눕니다.", "id": 16}, {"title": "재판정에서의 연설", "quote": "나는 낮은 신분이라는 이유로 죄를 받는 것이다.", "text": "재판정에서 쥘리앵은 자신을 변호하지 않습니다. 그는 오히려 배심원들 앞에서 당당히 연설합니다. 자신은 한 여인을 죽이려 했으며 이는 분명 죄이지만, 사실은 가난한 집에서 태어난 사람이 감히 상류 사회로 올라가려 했다는 이유로 벌을 받는 것이라고 말합니다.\n\n그의 말에 방청석의 부인들은 눈물을 흘리지만, 배심원들은 자신들이 그런 비난의 대상이 되었다고 느끼고 분노합니다. 결국 쥘리앵은 사형을 선고받습니다. 그는 오히려 담담히 선고를 받아들이고 항소도 하지 않겠다고 말합니다.", "id": 17}, {"title": "마지막 날들", "quote": "죽음이 가까워져서야 그는 평화를 얻었다.", "text": "사형을 기다리는 동안 쥘리앵은 이전보다 훨씬 평온해 보입니다. 그는 철학과 인생에 대해 곰곰이 생각하고, 지난날의 허영과 야망이 부질없었음을 깨닫습니다. 마틸드는 눈물로 그를 설득하며 살 길을 찾으려 하지만, 그의 결심은 바뀌지 않습니다.\n\n레날 부인은 아이들과 함께 그를 찾아와 마지막 시간을 보냅니다. 쥘리앵은 그녀의 손을 잡고 지난날의 사랑을 되새깁니다. 그는 자신에게 가장 소중한 사람이 누구인지, 어떤 삶이 진짜 행복인지를 깨닫고 평온하게 마지막 날을 맞이합니다.", "id": 18}, {"title": "끝과 남은 사람들", "quote": "그의 죽음 뒤에도 사랑은 남았다.", "text": "쥘리앵은 형장으로 나아가 조용히 최후를 맞이합니다. 마틸드는 그의 머리를 거두어 자신이 직접 땅에 묻어 줍니다. 그것은 오래전 자기 조상 이야기에서 읽은 것처럼, 사랑하는 사람의 머리를 안아 주는 방식이었습니다.\n\n레날 부인은 쥘리앵이 세상을 떠난 지 사흘 뒤, 아이들을 껴안은 채 세상을 떠납니다. 야망과 사랑, 위선과 진실을 두루 겪은 쥘리앵의 짧은 생애는 이렇게 끝이 납니다.", "id": 19}, {"title": "이 이야기가 우리에게 남긴 것", "quote": "붉은 군복과 검은 사제복 사이에서, 한 사람은 끝까지 자기 자신이고 싶었다.", "text": "『적과 흑』이라는 제목은 군인의 붉은 제복과 성직자의 검은 옷을 뜻한다고 흔히 풀이합니다. 나폴레옹의 시대에는 군인이 출세하는 길이었고, 왕정이 돌아온 시대에는 성직자가 출세하는 길이었습니다. 쥘리앵은 그 사이에서 성공을 꿈꿨습니다.\n\n그러나 마지막에 그가 깨달은 것은 출세가 아니라 사랑이었습니다. 스탕달은 신분이 모든 것을 결정하는 사회에서 한 젊은이의 야망과 자존심, 그리고 진실한 마음이 어떻게 부딪치고 무너지는지를 섬세하게 그려 냈습니다.", "id": 20}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 20';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 20 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

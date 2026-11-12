@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suno AI 프롬프트 생성기 v2</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; }
+        .section-title { font-size: 1.2rem; font-weight: 700; color: #1f2937; margin-bottom: 0.8rem; border-left: 5px solid #4f46e5; padding-left: 0.5rem; }
+        .input-label { display: block; font-size: 0.95rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem; }
+        .input-field { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; background-color: white; }
+        .input-field:focus { outline: none; border-color: #4f46e5; ring: 2px solid #4f46e5; }
+        
+        /* 버튼 스타일 */
+        .btn-primary { 
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white; font-weight: 700; padding: 1rem; border-radius: 0.75rem; width: 100%; 
+            transition: all 0.2s; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-copy { 
+            background-color: #374151; color: white; font-size: 0.9rem; padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; transition: background-color 0.2s; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-copy:hover { background-color: #1f2937; }
+
+        /* 악기 선택 버튼 */
+        .inst-btn {
+            padding: 0.5rem 0.8rem; border-radius: 9999px; font-size: 0.9rem; font-weight: 500;
+            border: 1px solid #e5e7eb; transition: all 0.2s; cursor: pointer; user-select: none;
+        }
+        .inst-btn.active {
+            background-color: #e0e7ff; color: #4338ca; border-color: #6366f1; font-weight: 700;
+        }
+        .inst-btn:hover:not(.active) { background-color: #f9fafb; }
+
+        /* 애니메이션 */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- 데이터: 주제(Theme) 리스트 ---
+        const themeCategories = {
+            "감정과 인생": ["첫사랑의 아련한 추억", "지나간 시절에 대한 그리움", "삶의 위로와 희망", "중년의 멋과 여유", "힘든 하루 끝의 위로"],
+            "자연과 풍경": ["밤하늘의 별과 달", "가을 낙엽과 쓸쓸함", "푸른 바다와 파도 소리", "봄꽃이 휘날리는 거리", "비 오는 날의 카페"],
+            "이야기와 상상": ["오랜 친구와의 재회", "고향 집으로 가는 길", "꿈속에서의 여행", "운명적인 만남", "도시의 화려한 야경"],
+            "전통과 한국": ["한옥 마루의 정겨움", "아리랑 고개 넘어", "명절의 북적거림", "소나무 숲의 바람"]
+        };
+
+        // --- 데이터: 악기(Instruments) 리스트 ---
+        const instrumentList = [
+            "Piano (피아노)", "Acoustic Guitar (통기타)", "Electric Guitar (일렉기타)", 
+            "Violin (바이올린)", "Cello (첼로)", "Strings (현악기)", 
+            "Drums (드럼)", "Bass (베이스)", "Synthesizer (신디사이저)",
+            "Saxophone (색소폰)", "Trumpet (트럼펫)", 
+            "Gayageum (가야금)", "Haegum (해금)", "Janggu (장구)"
+        ];
+
+        function App() {
+            // --- 상태 관리 ---
+            const [formData, setFormData] = useState({
+                title: "나의 노래",
+                genre: "Pop Ballad",
+                subGenre: "Emotional",
+                mood: "Hopeful, Warm",
+                tempo: "80",
+                vocalType: "Female, Clear Voice",
+                selectedInstruments: ["Piano (피아노)", "Strings (현악기)"], // 다중 선택 배열
+                theme: "지나간 시절에 대한 그리움",
+                customTheme: "" // 직접 입력용
+            });
+
+            // 결과물 상태 (스타일용 / 가사용 분리)
+            const [styleOutput, setStyleOutput] = useState("");
+            const [lyricsOutput, setLyricsOutput] = useState("");
+            
+            // 복사 버튼 상태
+            const [styleCopyStatus, setStyleCopyStatus] = useState("복사");
+            const [lyricsCopyStatus, setLyricsCopyStatus] = useState("복사");
+
+            // --- 핸들러: 텍스트/셀렉트 변경 ---
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+            };
+
+            // --- 핸들러: 악기 토글 (다중 선택) ---
+            const toggleInstrument = (inst) => {
+                setFormData(prev => {
+                    const current = prev.selectedInstruments;
+                    if (current.includes(inst)) {
+                        return { ...prev, selectedInstruments: current.filter(i => i !== inst) };
+                    } else {
+                        return { ...prev, selectedInstruments: [...current, inst] };
+                    }
+                });
+            };
+
+            // --- 핸들러: 주제 선택 ---
+            const handleThemeChange = (e) => {
+                const value = e.target.value;
+                setFormData(prev => ({ ...prev, theme: value }));
+            };
+
+            // --- 생성 로직 (핵심) ---
+            const generateOutput = () => {
+                // 1. 악기 문자열 정리 (영어 부분만 추출하거나 그대로 사용)
+                // Suno는 영어를 더 잘 알아들으므로 괄호 앞부분만 쓸 수도 있지만, 
+                // 여기서는 전체를 넣되 콤마로 연결합니다.
+                const instrumentString = formData.selectedInstruments.join(", ");
+                const finalTheme = formData.theme === "직접 입력" ? formData.customTheme : formData.theme;
+
+                // 2. Suno 스타일 프롬프트 (간결함 중요)
+                // 예: K-Pop Ballad, Emotional, 80bpm, Piano, Strings, Female Vocals
+                const stylePrompt = `[Genre & Mood]
+${formData.genre} (${formData.subGenre})
+${formData.mood}
+Tempo: ${formData.tempo} BPM
+
+[Instruments]
+${instrumentString}
+
+[Vocals]
+${formData.vocalType}
+Korean Language`;
+
+                // 3. ChatGPT 가사 생성용 프롬프트 (구체적 지시)
+                const lyricsPrompt = `당신은 전문 작사가입니다. 아래 정보를 바탕으로 노래 가사를 작성해주세요.
+
+1. 곡 제목: "${formData.title}"
+2. 장르 및 분위기: ${formData.genre}, ${formData.mood}
+3. 주제(테마): ${finalTheme}
+4. 사용 악기: ${instrumentString} (이 악기 분위기에 맞는 가사)
+5. 구조:
+   - Verse 1 (이야기의 시작, 서정적)
+   - Pre-Chorus (감정 고조)
+   - Chorus (핵심 메시지, 반복되는 훅)
+   - Verse 2 (이야기의 심화)
+   - Chorus (반복)
+   - Bridge (분위기 전환 또는 감정 폭발)
+   - Outro (여운을 남기며 마무리)
+
+[요청사항]
+- 너무 뻔한 표현보다는 시각적이고 감각적인 표현(예: '차가운 바람' 대신 '옷깃을 여미게 하는 새벽 공기')을 사용해주세요.
+- 자연스러운 한국어 구어체를 사용해주세요.
+- 영어 랩이나 불필요한 영어 단어는 제외해주세요(혹은 적절히 섞어주세요).`;
+                
+                setStyleOutput(stylePrompt);
+                setLyricsOutput(lyricsPrompt);
+            };
+
+            // 초기 로딩 시 1회 생성
+            useEffect(() => {
+                generateOutput();
+            }, []);
+
+            // --- 복사 기능 (공통 함수) ---
+            const copyText = (text, setStatusFunc) => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    setStatusFunc("완료! ✅");
+                } catch (err) {
+                    setStatusFunc("실패 ❌");
+                }
+                document.body.removeChild(textArea);
+                setTimeout(() => setStatusFunc("복사"), 2000);
+            };
+
+            return (
+                <div className="max-w-6xl mx-auto p-4 md:p-6 pb-20">
+                    <header className="mb-8 text-center">
+                        <h1 className="text-3xl font-bold text-indigo-700 mb-2">🎹 Suno AI 마스터 빌더 v2</h1>
+                        <p className="text-gray-600">스타일은 Suno에, 가사 명령은 ChatGPT에 넣어보세요.</p>
+                    </header>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        {/* [왼쪽] 입력 패널 (너비 7/12) */}
+                        <div className="lg:col-span-7 space-y-6">
+                            
+                            {/* 1. 기본 설정 */}
+                            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                                <h2 className="section-title">1. 곡의 기본 설정</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="input-label">곡 제목</label>
+                                        <input type="text" name="title" value={formData.title} onChange={handleChange} className="input-field" />
+                                    </div>
+                                    <div>
+                                        <label className="input-label">장르</label>
+                                        <select name="genre" value={formData.genre} onChange={handleChange} className="input-field">
+                                            <option value="Pop Ballad">팝 발라드</option>
+                                            <option value="Trot">정통 트로트</option>
+                                            <option value="Semi Trot">세미 트로트</option>
+                                            <option value="Folk">통기타 포크</option>
+                                            <option value="OST Style">드라마 OST 스타일</option>
+                                            <option value="Jazz">재즈/블루스</option>
+                                            <option value="Synth Pop">신스 팝 (80년대 느낌)</option>
+                                            <option value="Classical Crossover">성악/클래식 크로스오버</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="input-label">분위기</label>
+                                        <select name="mood" value={formData.mood} onChange={handleChange} className="input-field">
+                                            <option value="Hopeful, Warm">희망차고 따뜻한</option>
+                                            <option value="Sad, Emotional">슬프고 애절한</option>
+                                            <option value="Exciting, Upbeat">신나고 흥겨운</option>
+                                            <option value="Dreamy, Mysterious">몽환적이고 신비로운</option>
+                                            <option value="Calm, Relaxing">차분하고 편안한</option>
+                                            <option value="Grand, Epic">웅장하고 가슴 벅찬</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="input-label">템포 (속도): {formData.tempo}</label>
+                                        <input type="range" name="tempo" min="60" max="160" value={formData.tempo} onChange={handleChange} className="w-full accent-indigo-600 mt-2" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. 주제 선택 (업그레이드) */}
+                            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                                <h2 className="section-title">2. 노래 주제 (무엇을 노래할까요?)</h2>
+                                <div className="space-y-3">
+                                    <select name="theme" value={formData.theme} onChange={handleThemeChange} className="input-field">
+                                        {Object.entries(themeCategories).map(([category, themes]) => (
+                                            <optgroup label={category} key={category}>
+                                                {themes.map(t => <option key={t} value={t}>{t}</option>)}
+                                            </optgroup>
+                                        ))}
+                                        <option value="직접 입력">✨ 직접 입력하기</option>
+                                    </select>
+                                    
+                                    {formData.theme === "직접 입력" && (
+                                        <input type="text" name="customTheme" value={formData.customTheme} onChange={handleChange} 
+                                            className="input-field fade-in" placeholder="원하는 주제를 적어주세요 (예: 은퇴 후의 새로운 도전)" />
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* 3. 악기 선택 (다중 선택 업그레이드) */}
+                            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                                <h2 className="section-title">3. 악기 구성 (여러 개 선택 가능)</h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {instrumentList.map(inst => (
+                                        <button 
+                                            key={inst} 
+                                            onClick={() => toggleInstrument(inst)}
+                                            className={`inst-btn ${formData.selectedInstruments.includes(inst) ? 'active' : ''}`}
+                                        >
+                                            {inst.split('(')[1].replace(')', '')} 
+                                            {/* 한글 이름만 버튼에 표시 */}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="mt-3 text-sm text-gray-500">
+                                    * 현재 선택됨: <span className="text-indigo-600 font-medium">{formData.selectedInstruments.map(i => i.split('(')[1].replace(')', '')).join(', ')}</span>
+                                </div>
+                            </div>
+
+                             {/* 4. 보컬 설정 */}
+                             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                                <h2 className="section-title">4. 목소리 (Vocal)</h2>
+                                <select name="vocalType" value={formData.vocalType} onChange={handleChange} className="input-field">
+                                    <option value="Female, Clear Voice">여성, 맑고 청아한 목소리</option>
+                                    <option value="Female, Husky Voice">여성, 허스키하고 중저음</option>
+                                    <option value="Male, Deep Voice">남성, 중후한 저음</option>
+                                    <option value="Male, High Note">남성, 시원한 고음</option>
+                                    <option value="Duet">남녀 듀엣</option>
+                                    <option value="Children Choir">어린이 합창단</option>
+                                </select>
+                            </div>
+
+                            {/* 생성 버튼 */}
+                            <button onClick={generateOutput} className="btn-primary">
+                                ✨ 프롬프트 생성하기 (클릭)
+                            </button>
+                        </div>
+
+                        {/* [오른쪽] 결과 패널 (너비 5/12) */}
+                        <div className="lg:col-span-5 space-y-6">
+                            
+                            {/* 결과 1: Suno 스타일 */}
+                            <div className="bg-gray-800 text-white p-5 rounded-xl shadow-lg flex flex-col fade-in">
+                                <div className="flex justify-between items-center mb-3">
+                                    <div>
+                                        <h3 className="font-bold text-lg text-yellow-400">🎵 Suno 스타일 (Style)</h3>
+                                        <p className="text-xs text-gray-400">Suno의 [Style of Music] 칸에 붙여넣으세요.</p>
+                                    </div>
+                                    <button onClick={() => copyText(styleOutput, setStyleCopyStatus)} className="btn-copy">
+                                        {styleCopyStatus}
+                                    </button>
+                                </div>
+                                <textarea 
+                                    className="w-full h-40 bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm leading-relaxed border border-gray-700 focus:outline-none resize-none"
+                                    value={styleOutput}
+                                    readOnly
+                                ></textarea>
+                            </div>
+
+                            {/* 결과 2: 가사 생성 명령어 */}
+                            <div className="bg-gray-800 text-white p-5 rounded-xl shadow-lg flex flex-col fade-in">
+                                <div className="flex justify-between items-center mb-3">
+                                    <div>
+                                        <h3 className="font-bold text-lg text-green-400">📝 가사 생성용 (Lyrics)</h3>
+                                        <p className="text-xs text-gray-400">ChatGPT에게 붙여넣어 가사를 받으세요.</p>
+                                    </div>
+                                    <button onClick={() => copyText(lyricsOutput, setLyricsCopyStatus)} className="btn-copy">
+                                        {lyricsCopyStatus}
+                                    </button>
+                                </div>
+                                <textarea 
+                                    className="w-full h-64 bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm leading-relaxed border border-gray-700 focus:outline-none resize-none"
+                                    value={lyricsOutput}
+                                    readOnly
+                                ></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

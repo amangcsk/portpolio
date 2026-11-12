@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>노인과 바다 - 어니스트 헤밍웨이 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#2f4a5e;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">어니스트 헤밍웨이 · 노인과 바다</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="15" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 이야기책은 헤밍웨이의 『노인과 바다』를 줄거리 중심으로 쉽게 풀어 엮은 것으로, 원문 그대로가 아닙니다. 세부는 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 내용은 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "팔십사 일째 빈손", "quote": "바다는 노인에게서 고기를 거두어 갔지만, 그의 눈빛만은 거두어 가지 못했다.", "text": "쿠바의 작은 어촌에 산티아고라는 늙은 어부가 살았습니다. 그는 혼자 작은 배를 타고 멕시코 만류가 흐르는 바다로 나가 고기를 잡아 왔는데, 어느새 팔십사 일 동안 단 한 마리도 잡지 못했습니다.\n\n처음 사십 일 동안은 한 소년이 노인과 함께 배를 탔습니다. 그러나 한 달이 지나도록 허탕이 이어지자 소년의 부모는 '이 노인은 지독하게 운이 나쁘다'며 아들을 다른 배로 옮겨 태웠습니다. 소년은 마음이 아팠지만 어른들의 말을 거스를 수 없었습니다.\n\n노인의 몸은 야위었고 목덜미에는 깊은 주름이 패었으며, 손에는 낚싯줄에 쓸린 오랜 상처가 가득했습니다. 돛은 밀가루 부대로 여기저기 기워서, 마치 영영 지고 만 깃발처럼 보였습니다. 그래도 바다 빛을 닮은 그의 눈만은 지치지 않고 밝았습니다.", "id": 1}, {"title": "소년과 나눈 저녁", "quote": "소년의 마음 씀이 노인에게는 바다만큼이나 큰 힘이었다.", "text": "저녁이 되면 소년은 노인의 오두막으로 찾아왔습니다. 배에서 내려 낚시 도구를 챙겨 주고, 먹을 것과 미끼로 쓸 정어리를 구해다 주었습니다. 노인의 집은 가난해서 침대와 의자가 겨우 있을 뿐이었지만, 소년은 그곳이 늘 편안했습니다.\n\n두 사람은 함께 저녁을 먹으며 야구 이야기를 나누었습니다. 노인이 가장 좋아하는 선수는 디마지오라는 이름의 대단한 타자였고, 노인은 발뒤꿈치가 아픈데도 끝내 잘 뛰는 그 선수를 마음속 본보기로 삼고 있었습니다. 소년이 다시 같이 배를 타고 싶다고 속삭이자, 노인은 웃으며 지금 다른 배에서 잘 배우고 있지 않느냐고 달랬습니다.\n\n노인은 내일 아주 먼 바다까지 나가 보겠다고 마음먹었습니다. 팔십오 일째 되는 날이었는데, 그 숫자가 왠지 행운을 불러올 것 같았습니다. 밤이 깊자 노인은 아프리카 해변에서 뛰놀던 젊은 시절의 사자들을 꿈에서 만났습니다.", "id": 2}, {"title": "동트기 전 먼 바다로", "quote": "노인은 바다를 다정한 여인처럼 여기며 새벽 물길 위로 노를 저었다.", "text": "새벽 어둠 속에서 노인은 소년을 깨우지 않고 혼자 나서려 했지만, 소년이 먼저 와서 따뜻한 커피를 구해 주고 낚시 도구를 배까지 날라 주었습니다. 소년은 노인에게 행운을 빌어 주고 손을 흔들었습니다.\n\n노인은 노를 저어 항구를 빠져나갔습니다. 어둠 속에서 날치 떼가 물 위로 튀어 오르는 소리가 들렸고, 노인은 쉴 곳 없는 작은 바닷새들을 가엾게 여겼습니다. 스페인 말을 쓰는 사람들은 바다를 정다운 여인의 이름처럼 부르곤 했는데, 노인도 바다를 그렇게 생각했습니다.\n\n날이 밝자 다른 배들이 보이지 않을 만큼 멀리 나왔습니다. 노인은 낚싯줄을 서로 다른 깊이에 하나씩 드리웠습니다. 한 줄은 얕게, 한 줄은 깊게, 또 한 줄은 아주 깊게. 정어리 미끼가 물속에서 가지런히 흔들리도록 정성껏 매달았습니다. 하늘을 맴도는 새를 따라가 작은 다랑어도 한 마리 잡아 미끼와 먹을거리로 챙겨 두었습니다.", "id": 3}, {"title": "깊은 곳에서 온 입질", "quote": "한낮의 고요한 바다 밑에서 노인이 평생 기다려 온 손님이 찾아왔다.", "text": "해가 높이 뜬 한낮, 가장 깊이 내려 둔 낚싯줄이 살짝 가라앉았습니다. 노인은 줄을 손끝으로 가만히 잡고 기다렸습니다. 큰 고기가 미끼를 살펴보는 몸짓이라는 것을 그는 오랜 경험으로 알고 있었습니다.\n\n고기는 미끼를 한 번 건드렸다가 다시 한 번 건드렸고, 마침내 덥석 물었습니다. 노인은 서두르지 않고 고기가 미끼를 충분히 삼키기를 기다린 뒤 줄을 힘껏 당겼습니다. 그런데 줄은 꿈쩍도 하지 않았습니다. 물 밑에서 느껴지는 무게는 노인이 한 번도 만져 본 적 없을 만큼 묵직했고, 고기는 수면으로 올라오지도 않은 채 천천히 먼바다를 향해 움직이기 시작했습니다.\n\n노인은 줄을 어깨에 둘러메고 온몸으로 버텼습니다. 작은 배가 천천히 끌려가기 시작했습니다. 노인은 이 녀석이 마음을 바꾸지 않는 한 우리는 꽤 오래 함께 가겠구나 하고 생각했습니다.", "id": 4}, {"title": "끌려가는 작은 배", "quote": "고기를 잡는 사람인지, 고기에게 끌려가는 사람인지 알 수 없는 싸움이 시작되었다.", "text": "고기는 북서쪽으로 꾸준히 헤엄쳤고, 노인의 작은 배는 하루 종일 끌려갔습니다. 해는 서쪽으로 기울었지만 고기는 지치는 기색도 없이 줄을 팽팽하게 당겼습니다. 노인은 줄이 끊어지지 않도록 늦췄다 조였다 하며 조심조심 버텼습니다.\n\n그는 혼자인 것이 아쉬웠습니다. 소년이 곁에 있다면 줄을 함께 잡아 주고 이야기 상대도 되어 줄 텐데 하고 생각했습니다. 그래서 노인은 소리 내어 혼잣말을 하기 시작했습니다. 바다 위에서 혼잣말은 이상한 일이 아니었습니다. 그는 고기에게도 말을 걸었습니다. 네가 얼마나 큰지 보고 싶구나, 하지만 나는 너를 꼭 잡고 말겠다고.\n\n노인은 준비해 둔 먹을 것을 조금 꺼내 먹고 물을 마시며 힘을 아꼈습니다. 고기가 자기를 점점 더 먼 바다로 끌고 간다는 것을 알았지만, 그는 결코 줄을 놓지 않았습니다.", "id": 5}, {"title": "첫 밤, 별 아래서", "quote": "하늘의 별은 오늘 밤에도 같은 자리에서 노인을 지켜보고 있었다.", "text": "해가 지고 밤이 오자 바다는 검어졌고 별이 하나둘 나타났습니다. 노인은 줄이 어깨를 파고들지 않도록 자루를 덧대고 배 바닥에 몸을 웅크렸습니다. 고기는 여전히 같은 속도로 배를 끌었습니다. 밤이 되자 찬 기운이 몰려왔지만 노인은 참고 견뎠습니다.\n\n별빛 아래에서 노인은 여러 일을 떠올렸습니다. 젊은 시절 아프리카 해안에서 보았던 사자들, 거북잡이 배를 타던 날들, 바다에서 만난 여러 생물들. 그는 고기도 자기 바다에서 자기와 같은 일을 하고 있다고 생각하며, 점점 이 고기를 존경하는 마음으로 바라보게 되었습니다.\n\n노인은 밤바다를 향해 고기를 형제라고 부르며 속삭였습니다. 너를 죽여야 하지만 그것은 네가 미워서가 아니라고. 고기를 이기고 싶은 마음과 고기를 아끼는 마음이 한 몸 안에서 함께 자라고 있었습니다. 한밤중에 잠깐 졸다가도 줄이 당겨질 때마다 노인은 번쩍 눈을 떴습니다.", "id": 6}, {"title": "둘째 날 아침, 솟구친 고기", "quote": "물 위로 솟은 고기는 노인이 상상한 어떤 모습보다도 컸다.", "text": "동이 틀 무렵 줄이 갑자기 꿈틀했고, 이어 고기가 바다 위로 힘차게 솟구쳤습니다. 은빛 물보라가 하늘로 튀었고, 노인은 숨을 멈추었습니다. 고기는 노인의 작은 배보다도 더 길었습니다. 청새치였고, 몸은 자줏빛 줄무늬와 옅은 은빛으로 반짝였으며, 창처럼 긴 주둥이가 하늘을 찔렀습니다.\n\n고기는 물속으로 다시 사라졌지만 줄은 더욱 팽팽해졌습니다. 노인은 이 고기가 이제까지 본 어떤 것보다 크고 아름답고 의연하다는 것을 알았습니다. 그리고 이 고기가 자기보다 더 큰 힘과 기개를 지녔을지도 모른다고 생각했습니다.\n\n그러나 이틀째 아침, 노인의 왼손이 쥐가 나서 오그라들기 시작했습니다. 손가락이 굽은 채 펴지지 않았습니다. 노인은 자기 손이 자기를 배신했다고 투덜댔지만, 곧 마음을 가다듬고 먹어야 힘을 쓴다며 남겨 둔 생선살을 씹어 삼켰습니다.", "id": 7}, {"title": "작은 새와 왼손의 쥐", "quote": "지친 몸으로도 노인은 더 지친 작은 새에게 쉴 자리를 내주었다.", "text": "이튿날 어느 때쯤, 바다 한가운데에서 작은 새 한 마리가 노인의 배 위로 날아와 낚싯줄에 앉았습니다. 새는 너무 지쳐서 날개가 떨리고 있었습니다. 노인은 놀랍고도 반가워서 푹 쉬라고, 이 바다에서 몸 하나 지키기가 얼마나 어려운지 자기도 안다고 말해 주었습니다.\n\n새는 한참 줄 위에서 쉬다가 고기가 줄을 세게 당기자 놀라 날아갔습니다. 그 바람에 노인의 손이 줄에 쓸려 상처가 났습니다. 노인은 아픔을 참으며 새가 무사히 육지에 닿기를 마음속으로 빌었습니다.\n\n노인은 혼자 중얼거렸습니다. 육지가 보이지 않을 만큼 멀리 나왔구나, 하지만 후회하지는 않는다고. 그는 오그라든 왼손을 바닷물에 담그고 주무르며 풀리기를 기다렸습니다. 고기를 놓치지 않으려면 손 하나도 소중했습니다.", "id": 8}, {"title": "사람과 고기의 팔씨름", "quote": "노인은 젊은 날의 승리를 떠올리며 자기 힘이 아직 다하지 않았음을 믿었다.", "text": "시간이 흘러 노인은 오래전 일을 떠올렸습니다. 카사블랑카라는 마을의 술집에서 힘이 장사로 이름난 사내와 팔씨름을 벌였던 일이었습니다. 두 사람은 하루 낮과 하룻밤이 지나도록 서로 팔을 놓지 않았고, 끝내 노인이 이겼습니다. 그 뒤로 사람들은 노인을 챔피언이라 불렀습니다.\n\n노인은 그날의 기억을 붙잡고 바다 위에서 힘을 얻었습니다. 지금 싸우는 상대는 사람이 아니라 거대한 고기였지만, 버티는 일은 같았습니다. 이 고기가 자기보다 얼마나 더 오래 버틸지 알 수 없었으나, 자기가 먼저 포기하지는 않겠다고 다짐했습니다.\n\n그는 야구 선수 디마지오를 다시 떠올렸습니다. 발뒤꿈치뼈가 아파도 경기를 쉬지 않는 그 사람처럼 되겠다는 생각이었습니다. 소년이 곁에 있다면 얼마나 좋을까 하는 그리움도 파도처럼 밀려왔다가 사라졌습니다.", "id": 9}, {"title": "둘째 밤의 졸음과 꿈", "quote": "졸음 속에서도 노인의 마음은 사자 있는 해변을 거닐고 있었다.", "text": "두 번째 밤이 되었습니다. 달이 뜨고 별이 반짝였지만, 노인은 이제 몹시 지쳐 있었습니다. 어깨와 등은 줄에 짓눌려 쑤셨고, 두 손은 상처투성이였습니다. 그래도 고기가 아직 곁에 있다는 사실이 이상하게 위안이 되었습니다.\n\n노인은 잠깐 졸다가 사자 꿈을 꾸었습니다. 아프리카 해변에서 황금빛 사자들이 놀고 있었고, 저녁 바람이 불어오고, 노인은 닻을 내린 배 위에서 사자들의 모습을 바라보았습니다. 짧은 꿈은 그에게 새 힘을 주었습니다.\n\n그러다 줄이 갑자기 팽 하고 당겨져 노인은 얼굴을 부딪쳤습니다. 고기가 다시 뛰어오르며 줄이 확 풀려 나간 것입니다. 손에는 또 다른 상처가 났습니다. 노인은 마음을 다잡았습니다. 이 고기를 잡아 육지로 데려가려면 먼저 내가 살아 있어야 한다고. 그는 남아 있는 먹을 것을 억지로 삼켜 몸을 지켰습니다.", "id": 10}, {"title": "셋째 날, 맴도는 고기", "quote": "고기가 원을 그리기 시작하자 마지막 싸움의 시간이 가까워졌다.", "text": "사흘째 되는 날, 고기는 방향을 바꾸어 커다란 원을 그리며 맴돌기 시작했습니다. 노인은 그것이 고기도 지쳤다는 신호임을 알았습니다. 그러나 그 자신도 눈앞이 아찔했고, 어지러워 검은 점이 어른거렸습니다. 노인은 정신을 차리라고 스스로를 다그쳤습니다.\n\n노인은 줄을 조금씩 끌어당기며 원이 점점 작아지도록 애썼습니다. 한 바퀴, 두 바퀴, 세 바퀴. 고기는 수면 가까이 올라올 때마다 커다란 몸을 드러냈고, 노인은 그때마다 숨을 몰아쉬며 줄을 감았습니다. 고기가 너무 커서 이 고기를 어떻게 배에 올릴지도 아득했지만, 그것은 나중 일이었습니다.\n\n그는 작살을 단단히 손에 쥐었습니다. 마지막 힘을 모두 쏟을 순간이 가까웠습니다. 너와 나 중 누가 이기든, 우리는 끝까지 가자. 노인은 마음속으로 고기에게 그렇게 말하는 것 같았습니다.", "id": 11}, {"title": "작살 한 방", "quote": "노인은 고기를 죽이면서도 고기를 형제처럼 여겼다.", "text": "마침내 고기가 노인의 배 가까이 옆으로 다가왔습니다. 노인은 온 힘을 다해 작살을 높이 들었다가 고기의 심장 가까운 곳에 깊이 꽂았습니다. 고기는 마지막으로 크게 몸을 솟구쳤다가 힘이 빠지며 바다 위에 하얗게 배를 드러냈습니다.\n\n노인은 한참 동안 어지러워 쓰러질 것 같았지만 곧 정신을 차려 고기를 배 옆구리에 줄로 단단히 붙들어 맸습니다. 고기는 배보다 길었고 무게는 천오백 파운드가 넘을 것 같았습니다. 이만 한 고기를 시장에 가져가면 얼마나 큰 값을 받을지 노인은 잠깐 떠올렸으나, 그보다 이 고기에게 미안한 마음이 더 컸습니다.\n\n노인은 돛을 올리고 집이 있는 쪽으로 방향을 잡았습니다. 이제 돌아가기만 하면 됩니다. 팔십오 일째, 그는 마침내 이겼다는 기분이 들었습니다. 그러나 바다는 아직 노인에게 마지막 시련을 남겨 두고 있었습니다.", "id": 12}, {"title": "첫 번째 상어", "quote": "피 냄새를 맡은 바다는 노인에게서 승리를 다시 빼앗으러 왔다.", "text": "고기의 피가 바다에 번지자 얼마 지나지 않아 상어 한 마리가 나타났습니다. 날카로운 이빨을 가진 마코 상어였습니다. 상어는 곧장 고기의 몸통에 달려들어 살을 크게 물어뜯었습니다.\n\n노인은 작살을 들어 상어의 머리를 찔렀습니다. 상어는 죽어서 가라앉았지만, 작살과 줄을 함께 가져가 버렸고, 고기의 몸 한쪽은 이미 크게 뜯겨 있었습니다. 노인은 한탄했습니다. 내가 너무 멀리 나왔구나, 너를 이렇게 만든 것이 미안하다고.\n\n그는 칼을 노 끝에 묶어 새 무기를 만들었습니다. 그리고 다시 올 상어를 기다렸습니다. 한 번 맡은 피 냄새를 바다는 쉽게 잊지 않을 것임을 그는 알았습니다. 얼마 안 가 다른 상어들이 나타났고, 노인은 칼과 몽둥이를 번갈아 휘두르며 맞서 싸웠습니다.", "id": 13}, {"title": "뜯기는 보물", "quote": "사람은 부서질 수는 있어도, 그렇다고 진 것은 아니다.", "text": "해가 지고 밤이 되자 상어 떼가 한꺼번에 몰려왔습니다. 노인은 어둠 속에서 칼 달린 노와 키 손잡이, 몽둥이를 닥치는 대로 휘둘렀습니다. 상어가 한 마리 죽으면 또 한 마리가 달려들었고, 고기는 조금씩 뜯겨 가벼워졌습니다.\n\n노인은 지쳐서 손이 아프고 가슴속이 쓰라렸습니다. 그는 고기에게 말했습니다. 너를 너무 멀리까지 끌고 왔고, 끝내 지켜 주지 못하는구나. 그리고 자기 자신에게도 말했습니다. 사람은 이럴 때에도 쉽게 지지 않는 법이라고.\n\n밤이 깊어 마지막 상어마저 살점을 모두 뜯어 가고 나자, 배 옆에 남은 것은 커다란 뼈대와 꼬리뿐이었습니다. 노인은 모든 것을 잃었지만 불평하지 않았습니다. 멀리 항구의 불빛이 반짝이는 것을 바라보며 바람을 따라 천천히 돌아갔습니다. 자신이 이겼는지 졌는지는 이제 중요하지 않았습니다.", "id": 14}, {"title": "뼈만 남은 고기와 사자 꿈", "quote": "빈손으로 돌아온 노인 곁에는 그래도 한 아이가 기다리고 있었다.", "text": "노인이 항구에 닿았을 때는 한밤중이었고 마을은 잠들어 있었습니다. 노인은 배를 매어 두고 돛대를 어깨에 멘 채 비틀거리며 오두막으로 올라가 침대에 엎어져 깊이 잠들었습니다.\n\n아침이 되어 어부들이 배 옆에 묶인 어마어마한 뼈를 보고 깜짝 놀랐습니다. 길이가 열여덟 자나 된다며 저마다 한마디씩 했습니다. 소년은 오두막에 찾아가 잠든 노인의 손에 난 상처를 보고 울음을 터뜨렸습니다. 그리고 따뜻한 커피를 구해 와 노인 곁을 지켰습니다.\n\n노인이 깨어나자 소년은 이제 다시 같이 배를 타겠다고 말했습니다. 노인은 아이가 운이 나빠질까 걱정했지만, 소년은 운 같은 건 상관없다고, 자기가 함께 가겠다고 말했습니다. 그날 바닷가에서는 한 관광객이 그 뼈를 보고 상어 뼈인 줄 알았지만, 노인은 그런 이야기를 알 리 없이 다시 잠에 들어 꿈속에서 사자들을 보고 있었습니다.", "id": 15}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 15';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 15 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

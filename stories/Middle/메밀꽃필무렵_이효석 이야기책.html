@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>메밀꽃 필 무렵 - 이효석 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#4a5d3a;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">이효석 · 메밀꽃 필 무렵</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="10" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 책은 이효석 선생의 「메밀꽃 필 무렵」 원문이 아니라, 줄거리를 쉬운 말로 풀어 엮은 이야기책입니다. 세부 장면은 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 내용은 꼭 원작 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "봉평 장터의 파장 무렵", "quote": "장돌뱅이에게는 장터가 곧 집이었다.", "text": "여름 한낮, 강원도 봉평 장터는 파장이 가까워 한산해지고 있었습니다. 장돌뱅이 허생원은 팔다 남은 물건을 정리하며 한숨을 쉬었습니다. 허생원은 이십 년이 넘도록 이 장 저 장을 떠돌며 옷감을 팔아 온 사람으로, 얼굴이 얽은 데다 이렇다 할 가족도 없이 살아왔습니다.\n\n곁에는 오랜 길동무 조선달이 있었습니다. 장사는 시원치 않았지만, 두 사람은 장이 끝나면 다음 장터로 함께 옮겨 다니는 사이였습니다. 허생원의 곁을 늘 지켜 주는 것은 늙은 당나귀 한 마리뿐이었습니다.", "id": 1}, {"title": "충줏집에서 벌어진 일", "quote": "젊은 놈이 계집과 놀고 있는 꼴을 보니 속이 끓어올랐다.", "text": "조선달이 허생원에게 충줏집에 가서 한잔하자고 했습니다. 충줏집은 장터에서 술을 파는 주막으로, 그곳에는 허생원이 마음에 두고 있던 여인이 있었습니다.\n\n그런데 가서 보니 허생원과 같은 장돌뱅이인 젊은 동이가 그 여인과 흥겹게 어울리고 있었습니다. 허생원은 부럽기도 하고 화가 나기도 해서, 아직 어린 것이 장돌뱅이 선배도 몰라보고 계집이나 따른다고 호통을 쳤습니다. 그러고는 동이의 뺨을 후려갈겼습니다. 동이는 아무 대꾸도 하지 않고 말없이 밖으로 나갔고, 허생원은 곧 마음이 불편해졌습니다.", "id": 2}, {"title": "달려온 동이", "quote": "생원, 나귀가 줄을 끊고 야단입니다!", "text": "허생원이 술맛이 가신 채 앉아 있는데, 잠시 후 동이가 헐레벌떡 달려왔습니다. 허생원의 당나귀가 줄을 끊고 날뛰고 있으니 얼른 가 보라는 것이었습니다.\n\n방금 뺨을 맞고 쫓겨난 동이가 원망하는 기색도 없이 자기 나귀를 걱정해 알려 주러 온 것을 보고, 허생원은 마음이 뭉클했습니다. 나귀는 허생원에게 가족이나 다름없는 존재였으니까요. 미안하고 고마운 마음이 한꺼번에 밀려와, 허생원은 동이를 다시 보게 되었습니다. 그렇게 둘의 어색한 사이는 풀리기 시작했습니다.", "id": 3}, {"title": "달밤의 메밀꽃 길", "quote": "소금을 뿌린 듯이 흐뭇한 달빛 아래 메밀꽃이 하얗게 피어 있었다.", "text": "장이 끝난 그날 밤, 허생원과 조선달과 동이는 다음 장이 서는 대화로 가기 위해 나귀를 끌고 길을 나섰습니다. 봉평에서 대화까지는 팔십 리나 되는 밤길입니다.\n\n산길 옆에는 메밀꽃이 한창이었습니다. 달빛을 받은 메밀꽃은 마치 소금을 흩뿌려 놓은 듯 하얗게 빛났고, 숨 막힐 만큼 아름다웠습니다. 나귀의 방울 소리가 고요한 밤공기 속에 울렸습니다. 이런 밤이면 허생원은 마음이 말랑해져, 오래 간직해 온 이야기를 꺼내 놓고 싶어지곤 했습니다.", "id": 4}, {"title": "물방앗간의 하룻밤", "quote": "그날 밤의 일은 평생에 단 한 번 있었던 일이었소.", "text": "허생원은 달빛 아래 걸으며 조선달과 동이에게 젊은 시절의 이야기를 들려주었습니다. 이미 조선달은 여러 번 들은 이야기였지만, 허생원은 이야기할 때마다 새로운 듯 눈을 반짝였습니다.\n\n옛날 어느 여름밤, 허생원은 더위를 피해 물방앗간으로 갔다가 그곳에서 울고 있는 처녀를 만났습니다. 봉평에서 제일가는 미인이라던 성 서방네 처녀였습니다. 집안 사정이 어려워 괴로워하던 그녀와 허생원은 그날 밤 서로의 마음을 나누었습니다. 허생원에게는 일생에 단 한 번 있었던 따뜻한 밤이었습니다.", "id": 5}, {"title": "그날 이후의 허생원", "quote": "그 뒤로 허생원은 봉평 장을 한 번도 빼놓지 않았다.", "text": "다음 날 허생원이 다시 처녀를 찾으려 했을 때, 성 서방네는 이미 집안이 기울어 어디론가 떠나 버린 뒤였습니다. 그 뒤로 허생원은 그 처녀를 다시 만나지 못했습니다.\n\n그래도 허생원은 이 장 저 장을 떠돌다가도 봉평 장만은 빠뜨리지 않고 찾아왔습니다. 혹시라도 그녀를 만날 수 있을까 하는 작은 희망 때문이었습니다. 이십 년이 지나도록 허생원의 마음속에는 그 하룻밤의 기억이 꺼지지 않는 등불처럼 남아 있었던 것입니다. 동이는 말없이 그 이야기를 귀 기울여 들었습니다.", "id": 6}, {"title": "동이가 들려준 어머니 이야기", "quote": "저는 아버지 얼굴을 한 번도 못 봤습니다.", "text": "이야기를 다 들은 동이도 가만히 자기 이야기를 꺼냈습니다. 동이는 태어날 때부터 아버지가 누구인지 모르고 자랐다고 했습니다. 어머니는 아버지를 알 수 없는 아이를 가진 채 고향 집에서 쫓겨나 제천으로 가서 살게 되었다고 합니다.\n\n새아버지는 술만 마시면 어머니와 동이에게 행패를 부렸고, 어머니는 그 때문에 집을 나와 따로 살게 되었습니다. 동이는 그런 어머니를 모시기 위해 어린 나이부터 장돌뱅이가 되었다고 했습니다. 달빛 아래서 동이의 목소리는 담담했지만 쓸쓸했습니다.", "id": 7}, {"title": "가슴 뛰는 짐작", "quote": "허생원은 동이의 얼굴을 다시 한번 바라보았다.", "text": "동이의 이야기를 듣던 허생원은 가슴이 쿵쿵 뛰기 시작했습니다. 동이 어머니가 봉평에서 쫓겨났다는 이야기가, 자기가 이십 년 전 물방앗간에서 만난 처녀의 사연과 겹쳐 보였기 때문입니다.\n\n혹시 이 젊은이가 그 처녀가 낳은 아이는 아닐까. 허생원은 감히 입 밖으로 물어보지 못하고, 속으로만 되뇌며 걸었습니다. 달빛 아래 동이의 옆모습이 낯설지 않게 느껴졌습니다. 평생을 외롭게 살아온 허생원에게는 꿈만 같고 두려울 만큼 큰 기대였습니다.", "id": 8}, {"title": "개울에서 업힌 허생원", "quote": "동이의 등은 생각보다 넓고 따뜻했다.", "text": "길을 가다 개울을 건너야 했습니다. 허생원은 이것저것 생각에 빠져 있다가 발을 헛디뎌 그만 물에 빠지고 말았습니다. 늙은 몸이 차가운 물에 젖어 허둥대자, 동이가 얼른 달려와 허생원을 등에 업고 개울을 건넜습니다.\n\n허생원은 동이의 등에 업혀 가며 오랜만에 느끼는 따뜻함에 마음이 뭉클해졌습니다. 평생 누구에게도 기대어 보지 못한 몸이었는데, 젊은이의 등은 넓고 든든했습니다. 물소리와 나귀의 방울 소리가 한데 섞여 밤길에 퍼져 나갔습니다.", "id": 9}, {"title": "왼손잡이 동이", "quote": "다음 장은 대화가 아니라 제천이다.", "text": "개울을 건너고 나서 허생원은 동이가 왼손으로 나귀의 고삐를 쥐고 끄는 모습을 보았습니다. 순간 허생원은 숨이 멎는 듯했습니다. 허생원도 왼손잡이였기 때문입니다. 흔치 않은 그 닮은 점이, 허생원의 가슴속 짐작을 더욱 굳게 만들었습니다.\n\n동이는 다음에는 제천에 계신 어머니를 뵈러 간다고 했습니다. 그러자 허생원은 조용히 말했습니다. 이번에는 자기도 대화장에서 방향을 바꿔 제천으로 가 보겠다고요. 작품은 그 이상을 분명히 말하지 않지만, 달빛 속을 걸어가는 두 사람의 뒷모습에서 오랜 외로움이 끝나 가고 있음을 느낄 수 있습니다.", "id": 10}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 10';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 10 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

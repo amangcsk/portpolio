@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자전거 도둑 - 박완서 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#2f4a5e;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.terms:empty{display:none}.terms{margin-top:1.6rem;background:#FAF3E0;border:1px dashed #d9c08a;border-radius:10px;padding:1rem 1.2rem}
+.terms h3{font-family:var(--font-story);font-size:1.1rem;margin-bottom:.4rem;color:var(--primary-color)}
+.terms li{font-size:1.1rem;line-height:1.8;margin-left:1.2rem}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div class="brand"><span>📖</span> <span class="brand-title">박완서 자전거 도둑</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span><span id="bookSub"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label" id="bookQLabel"></div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p>
+<div class="terms" id="bookTerms"></div></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" id="btnTts" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="13" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 책은 박완서 선생님(1931~2011)의 소설 「자전거 도둑」(1979)의 줄거리를 제가 풀어 13부분으로 엮은 것입니다. 원작은 저작권이 남아 있어 원문을 그대로 옮기지 않았고, 장면의 세부와 마무리는 이야기를 잇기 위해 보태 쓴 부분이 있어 원작과 다를 수 있습니다. 정확한 내용은 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"id": 1, "sub": "자전거 도둑", "title": "세운상가의 아침", "qlabel": "이 장면의 한마디", "quote": "전기용품 가게 문이 열리기도 전에 수남이는 이미 일어나 있었다.", "text": "서울 한복판, 전기용품 가게들이 빽빽이 들어선 상가 골목에 아침이 찾아옵니다. 셔터가 올라가기 전, 가장 먼저 눈을 뜨는 이는 이 가게의 점원 수남이입니다. 수남이는 열여섯 살, 시골에서 혈혈단신 서울로 올라와 이 가게에 몸을 의탁한 소년입니다.\n\n수남이는 먼저 걸레를 빨아 진열대의 먼지를 닦고 바닥을 쓴 다음, 가게 앞 길바닥에 물을 뿌립니다. 전구와 전선, 스위치와 소켓이 줄지어 놓인 선반을 하나하나 정리하고, 잘 팔리는 물건은 눈에 띄는 자리로 옮겨 놓습니다. 손놀림은 빠르고 틀림이 없습니다.\n\n가게 안의 일이 끝나면 수남이는 가게 앞에 서서 오가는 손님을 맞습니다. 키는 작아도 눈치가 빠르고 말씨가 싹싹해서 손님들은 한번 그 아이를 알고 나면 다시 이 가게를 찾습니다. 골목의 다른 가게 점원들도 수남이를 눈여겨보며 '저 녀석은 참 야무지다' 하고 속으로 감탄합니다.", "terms": []}, {"id": 2, "sub": "자전거 도둑", "title": "주인 영감", "qlabel": "이 장면의 한마디", "quote": "영감님은 인색하지만 수남이를 야간 학교에 보내 주는 사람이었다.", "text": "가게 주인은 환갑이 가까운 영감입니다. 깡마른 몸에 눈이 날카롭고, 돈 계산에 한 치도 빈틈이 없는 사람입니다. 거래처와 흥정할 때는 한 푼도 양보하지 않고, 팔 때는 한 푼이라도 더 받으려고 애쓰는 구두쇠로 소문이 나 있습니다.\n\n그러나 수남이에게만은 다른 구석이 있습니다. 주인 영감은 수남이를 밤에 다니는 학교에 보내 주었습니다. 낮에는 가게에서 일하고 밤에는 학교에서 공부하는 수남이는 영감에게 늘 고마운 마음을 품고 있습니다. '이 은혜를 갚으려면 누구보다 열심히 일해야지.' 수남이는 그렇게 마음먹고 하루도 게으름을 피우지 않습니다.\n\n영감도 수남이가 마음에 듭니다. 일을 시키면 군소리 없이 해내고, 거스름돈을 틀리는 법이 없으며, 손님에게 공손한 것이 마음에 들었기 때문입니다. 가끔은 칭찬 비슷한 말을 건네기도 하는데, 그럴 때마다 수남이는 얼굴이 빨개져서 고개를 숙입니다.", "terms": []}, {"id": 3, "sub": "자전거 도둑", "title": "야간 학교의 꿈", "qlabel": "이 장면의 한마디", "quote": "낮에는 점원, 밤에는 학생. 수남이의 하루는 그렇게 이어졌다.", "text": "가게 문을 닫고 저녁을 먹으면 수남이는 서둘러 책가방을 챙겨 학교로 달려갑니다. 밤에 여는 학교의 교실에는 낮 동안 공장이나 가게에서 일하다 온 아이들이 졸린 눈을 비비며 앉아 있습니다. 수남이도 그 가운데 하나입니다.\n\n졸음이 쏟아져도 수남이는 칠판에서 눈을 떼지 않습니다. 수남이에게 공부는 단순한 숙제가 아닙니다. 남들처럼 번듯한 어른이 되기 위한, 유일하게 열려 있는 문입니다. 가난한 시골 출신이라는 이유로 사람들에게 무시당하지 않으려면 배워야 한다고 수남이는 믿습니다.\n\n수업이 끝나고 돌아오는 밤길에서 수남이는 곧잘 혼잣말을 합니다. '열심히 하면 나도 언젠가는 내 가게를 가질 수 있을 거야.' 그 꿈이 너무 멀리 있어 때로는 아득하지만, 다음 날 아침이면 다시 일어나 걸레를 빨며 마음을 다잡습니다.", "terms": []}, {"id": 4, "sub": "자전거 도둑", "title": "바람 부는 날의 배달", "qlabel": "이 장면의 한마디", "quote": "그날은 유난히 바람이 거센 날이었다.", "text": "봄이 한창이던 어느 날, 서울 거리에는 먼지가 뿌옇게 날릴 만큼 세찬 바람이 불었습니다. 간판들이 덜컹거리고 사람들은 옷깃을 여미며 걸었습니다. 그날 수남이는 주인 영감에게서 배달 심부름을 맡았습니다.\n\n배달할 물건은 전선 한 묶음과 몇 가지 부속품입니다. 수남이는 가게 앞에 세워 둔 짐 자전거의 뒷자리에 물건을 단단히 동여매고 올라탔습니다. 페달을 밟자 자전거는 바람을 가르며 큰길로 나섰습니다. 자동차 소리, 전차 소리, 행상들의 외침이 한꺼번에 귀를 때립니다.\n\n수남이는 서울의 복잡한 길에 이미 익숙해져 있었습니다. 어디서 차가 튀어나오는지, 어느 골목에서 사람이 쏟아지는지를 몸이 먼저 알았습니다. 그래서 그날도 별 걱정 없이 한 손으로 핸들을 잡고 바람 속을 달렸습니다. 그러나 그날 오후의 바람은 전혀 다른 운명을 수남이 앞에 몰고 오고 있었습니다.", "terms": []}, {"id": 5, "sub": "자전거 도둑", "title": "쓰러진 자전거", "qlabel": "이 장면의 한마디", "quote": "잠깐 세워 둔 자전거가 바람에 쓰러졌다.", "text": "목적지에 거의 다 와서 수남이는 길가에 자전거를 세우고 잠깐 물건을 확인하려 했습니다. 마침 그 옆에는 번쩍이는 승용차 한 대가 주차되어 있었습니다. 당시에는 자가용이 흔하지 않아서, 그 차는 지나가는 이들의 눈길을 끌 만큼 값나가는 물건이었습니다.\n\n수남이가 자전거 뒷자리의 끈을 다시 묶으려 몸을 숙이는 순간, 갑자기 돌풍이 몰아쳤습니다. 자전거가 휘청하더니 중심을 잃고 옆으로 쓰러졌습니다. 쓰러지면서 핸들이 승용차의 옆구리를 긁고 지나갔습니다. 쿵 하는 소리와 함께 차의 반들반들하던 도장에 가늘고 긴 흠집이 길게 났습니다.\n\n수남이는 얼굴이 하얗게 질렸습니다. '큰일 났다.' 급히 자전거를 일으켜 세웠지만 이미 일은 벌어진 뒤였습니다. 주위에 있던 사람들이 하나둘 고개를 돌리며 이쪽을 쳐다보기 시작했습니다. 수남이는 심장이 쿵쿵 뛰는 것을 느끼며 그 자리에 얼어붙었습니다.", "terms": []}, {"id": 6, "sub": "자전거 도둑", "title": "차 주인의 호통", "qlabel": "이 장면의 한마디", "quote": "신사는 흠집 난 차를 보더니 얼굴빛이 달라졌다.", "text": "잠시 뒤 차 주인이 나타났습니다. 말쑥하게 양복을 입은 중년의 신사였습니다. 그는 자기 차에 난 흠집을 보더니 눈을 부릅뜨고 소리쳤습니다. \"이게 누구 짓이야!\" 수남이는 입이 떨어지지 않았지만 간신히 말했습니다. \"제가... 제 자전거가 바람에 쓰러져서... 죄송합니다.\"\n\n신사는 차 옆구리를 어루만지며 혀를 찼습니다. \"이 흠집 지우려면 도장을 새로 해야 해. 오천 원은 받아야겠다.\" 오천 원이라면 수남이가 몇 달을 일해도 만지기 힘든 큰돈입니다. 수남이는 주눅 든 목소리로 \"저는 그런 돈이 없습니다\" 하고 사정했습니다.\n\n신사는 코웃음을 쳤습니다. \"돈이 없으면 자전거를 놓고 가. 돈 가져오면 돌려주지.\" 그러더니 수남이의 자전거 바퀴에 자물쇠를 채워 버렸습니다. 이 자전거를 잃는다면 가게로 돌아가 영감에게 무엇이라고 말할 수 있을까요. 수남이의 눈앞이 아득해졌습니다.", "terms": []}, {"id": 7, "sub": "자전거 도둑", "title": "구경꾼들의 속삭임", "qlabel": "이 장면의 한마디", "quote": "사람들은 서로 눈짓하며 소년을 부추기기 시작했다.", "text": "어느새 둘러선 구경꾼들이 큰 원을 이루었습니다. 아무도 선뜻 나서서 도와주지는 않지만, 모두 흥미진진한 눈으로 이 일을 지켜봅니다. 사람들은 서로 수군거렸습니다. \"저 애가 불쌍하네.\" \"그래도 차를 긁었으니 물어 줘야지.\" 편을 들어 주는 사람도 없고 말려 주는 사람도 없습니다.\n\n그러다 어디선가 낮은 목소리가 수남이의 귀에 흘러들었습니다. \"야, 그냥 자전거 들고 튀어.\" 수남이는 깜짝 놀라 고개를 들었지만 누가 그렇게 말했는지 알 수 없었습니다. 또 다른 누군가가 속삭였습니다. \"저 신사, 돈 많아 보이는데 뭐 어때. 얼른 도망가.\"\n\n수남이의 가슴이 쿵쿵 방망이질했습니다. 신사는 잠시 한눈을 팔고 구경꾼들 쪽을 향해 무어라 떠들고 있었습니다. 자전거에는 아직 자물쇠가 제대로 채워지지 않은 듯했습니다. 마음속에서 두 개의 목소리가 서로 싸웠습니다. 하나는 '그러면 안 된다'였고, 다른 하나는 '지금이 아니면 끝이다'였습니다.", "terms": []}, {"id": 8, "sub": "자전거 도둑", "title": "줄행랑", "qlabel": "이 장면의 한마디", "quote": "수남이는 자전거를 번쩍 들고 사람들 틈을 뚫고 달렸다.", "text": "그 순간 수남이는 생각하기를 멈추었습니다. 몸이 먼저 움직였습니다. 자전거를 두 손으로 번쩍 들어 올리고, 구경꾼들 사이로 어깨를 비집고 뛰쳐나갔습니다. \"저놈 잡아라!\" 뒤에서 신사의 고함이 터졌지만, 사람들은 일부러 길을 터 주는 듯 몸을 비켜 주었습니다.\n\n수남이는 골목으로 뛰어들었습니다. 낯익은 좁은 길을 지나고 계단을 건너뛰고 빨래가 널린 담벼락을 따라 달렸습니다. 숨이 턱까지 차올랐지만 멈출 수 없었습니다. 등 뒤에서 누군가 쫓아오는 것만 같아 자꾸 뒤를 돌아보았습니다.\n\n한참을 달린 뒤에야 수남이는 어느 건물 뒤편 그늘에 쓰러지듯 주저앉았습니다. 심장은 터질 듯 뛰고 다리는 후들거렸습니다. 그런데 이상한 일이 일어났습니다. 숨을 고르는 동안 가슴속에서 짜릿하고 시원한 느낌이 솟아올랐습니다. 이겼다는 기분, 큰 어른을 한 방 먹였다는 쾌감이었습니다. 그러나 그 기쁨 뒤에는 서늘한 불안이 함께 따라와 있었습니다.", "terms": []}, {"id": 9, "sub": "자전거 도둑", "title": "영감의 칭찬", "qlabel": "이 장면의 한마디", "quote": "'잘했다.' 영감은 수남이의 어깨를 두드리며 웃었다.", "text": "수남이는 한참 뒤에야 가게로 돌아왔습니다. 가게 앞에서 어정거리다가 마지못해 들어서자, 주인 영감이 기다렸다는 듯 물었습니다. \"왜 이렇게 늦었어? 자전거는?\" 수남이는 우물쭈물하다가 낮에 있었던 일을 더듬더듬 털어놓았습니다.\n\n이야기를 다 들은 영감은 호탕하게 웃음을 터뜨렸습니다. \"잘했다, 아주 잘했어! 그런 차 가진 놈이 오천 원 정도에 눈 하나 깜짝하겠니? 괜히 물어 줬다가는 손해만 보지. 암, 그렇게 눈치 빠르게 굴어야 서울서 살아남는 거야.\" 영감은 수남이의 어깨를 여러 번 두드렸습니다.\n\n수남이는 어색하게 웃었습니다. 칭찬을 들었으니 기뻐야 할 텐데 가슴 한쪽이 시큰했습니다. 평소 정직하게 일하라고 가르치던 영감이 도둑질 같은 일을 이렇게 쉽게 칭찬하는 것이 낯설었습니다. 수남이는 영감의 웃음이 마치 다른 사람의 것인 양 느껴졌습니다.", "terms": []}, {"id": 10, "sub": "자전거 도둑", "title": "잠 못 드는 밤", "qlabel": "이 장면의 한마디", "quote": "이불 속에서 수남이는 같은 장면을 몇 번이고 떠올렸다.", "text": "그날 밤 수남이는 학교에 갔다 돌아와 잠자리에 누웠지만 좀처럼 잠이 오지 않았습니다. 눈을 감으면 자전거를 들고 달리던 장면이 되풀이해서 떠올랐습니다. 신사의 고함, 구경꾼들의 얼굴, 숨이 막히던 골목길이 차례로 스쳐 갔습니다.\n\n수남이는 스스로에게 물었습니다. '내가 한 일은 도둑질인가?' 자전거는 분명 자기 것이었습니다. 하지만 남의 차에 흠집을 내고 책임을 지지 않은 채 도망쳐 온 것은 분명했습니다. 그 신사가 아무리 부자라 해도, 흠집은 흠집이고 잘못은 잘못이었습니다.\n\n더 마음에 걸린 것은 쾌감이었습니다. 도망칠 때 느꼈던 그 짜릿함이 부끄러웠습니다. '내가 이런 사람이었나?' 수남이는 이불을 뒤집어쓰고 얼굴을 파묻었습니다. 자신이 점점 어딘가 다른 곳으로 끌려가고 있다는 두려움이 밀려왔습니다.", "terms": []}, {"id": 11, "sub": "자전거 도둑", "title": "고향의 기억", "qlabel": "이 장면의 한마디", "quote": "형이 해 주던 말이 귓가에 되살아났다.", "text": "뒤척이던 수남이는 문득 고향의 풍경을 떠올렸습니다. 산자락 아래 초가집, 마당 가득한 햇살, 그리고 남의 것을 탐내지 말라고 타이르던 어른들의 목소리였습니다. 시골에서는 아무리 가난해도 남의 물건에 손대는 일을 가장 부끄러운 일로 여겼습니다.\n\n특히 형의 모습이 선명하게 떠올랐습니다. 형은 늘 \"사람은 가난해도 정직해야 한다\"고 말하곤 했습니다. 수남이가 서울로 떠나던 날도 형은 정류장까지 따라 나와 같은 말을 되풀이했습니다. \"수남아, 서울 가서도 부끄러운 짓은 하지 마라.\"\n\n그 말이 오늘 밤따라 가슴을 아프게 찔렀습니다. 형이 지금의 자기를 본다면 뭐라고 할까, 생각하자 눈물이 핑 돌았습니다. 영감의 칭찬 속에서 자기도 모르게 길들어 가는 마음이 몹시 두려웠습니다. 수남이는 마음속으로 하나의 결심을 굳혀 가고 있었습니다.", "terms": []}, {"id": 12, "sub": "자전거 도둑", "title": "새벽의 짐 꾸리기", "qlabel": "이 장면의 한마디", "quote": "동이 트기 전, 수남이는 조용히 보따리를 쌌다.", "text": "창밖이 희뿌옇게 밝아 올 무렵, 수남이는 살그머니 일어났습니다. 가게 한구석 다락방에서 자는 영감이 깨지 않도록 숨을 죽이고 옷가지와 책 몇 권을 보따리에 쌌습니다. 가진 것이라고는 그것뿐이었습니다.\n\n짐을 싸면서도 수남이는 몇 번이나 손을 멈추었습니다. 이 가게에서 보낸 날들이 눈앞에 스쳤습니다. 하루 종일 일하고 밤에 공부하던 시간, 영감이 어쩌다 건네던 따뜻한 말 한마디, 거래처 사람들의 호의. 그 모든 것이 하루아침에 사라지려 하고 있었습니다.\n\n그러나 마음은 달라지지 않았습니다. 수남이는 이 가게에 머무는 한, 자기가 점점 다른 사람이 되어 가리라는 것을 알았습니다. '도둑질을 잘했다고 칭찬하는 곳에서는 살 수 없다.' 소년의 결심은 작았지만 단단했습니다. 마지막으로 가게 안을 한 번 둘러본 뒤 수남이는 조용히 문을 열었습니다.", "terms": []}, {"id": 13, "sub": "자전거 도둑", "title": "떠나는 소년", "qlabel": "이 장면의 한마디", "quote": "수남이는 자기 발로 걸어 나갔다.", "text": "문을 나서자 새벽 공기가 차갑게 얼굴을 스쳤습니다. 거리에는 아직 사람이 드물었고, 가로등 불빛이 막 꺼지려는 참이었습니다. 수남이는 보따리를 어깨에 메고 큰길을 향해 걸었습니다. 어디로 가야 할지는 정확히 알지 못했지만 한 가지는 분명했습니다. 이제는 부끄러움 없이 살아가고 싶다는 것입니다.\n\n가게 간판이 뒤로 멀어져 갑니다. 영감의 얼굴이 떠올라 마음이 흔들렸지만 수남이는 뒤를 돌아보지 않았습니다. 앞으로 어려움이 얼마나 많을지 알 수 없습니다. 일자리도 잃고 잠잘 곳도 잃었으며, 돈이 될 만한 것도 없습니다. 그러나 수남이의 가슴에는 오랜만에 맑은 바람이 지나가는 듯했습니다.\n\n해가 서서히 떠오르며 도시의 하늘이 붉게 물들기 시작했습니다. 한 소년이 자기 양심을 지키기 위해 모든 것을 내려놓고 걸어가는 모습이 아침 햇살 속에 작게 비칩니다. 그 걸음은 느렸지만 방향만은 흔들림이 없었습니다. 이렇게 이야기는 끝이 납니다.", "terms": []}];
+let currentIndex=0, synth=window.speechSynthesis, isSpeaking=false;
+function termsHtml(s){return s.terms&&s.terms.length?'<h3>📝 낱말 풀이</h3><ul>'+s.terms.map(t=>'<li>'+t+'</li>').join('')+'</ul>':'';}
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')renderBookSpread(currentIndex);else{synth.cancel();isSpeaking=false;}}
+function renderBookSpread(i){if(i<0||i>=SCENES.length)return;currentIndex=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 13';
+document.getElementById('bookSub').textContent=s.sub;
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQLabel').textContent=s.qlabel;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookTerms').innerHTML=termsHtml(s);
+document.getElementById('bookPageIndicator').textContent=s.id+' / 13 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();isSpeaking=false;window.scrollTo(0,0);}
+function prevScene(){if(currentIndex>0)renderBookSpread(currentIndex-1);}
+function nextScene(){if(currentIndex<SCENES.length-1)renderBookSpread(currentIndex+1);}
+function onSliderChange(v){renderBookSpread(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700">제 '+s.id+' 부 · '+s.sub+'</div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p><div class="terms"></div>';
+d.querySelector('.gallery-title').textContent=s.title;d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';
+d.querySelector('.gallery-text').textContent=s.text;d.querySelector('.terms').innerHTML=termsHtml(s);c.appendChild(d);});}
+function toggleTtsCurrent(){if(isSpeaking){synth.cancel();isSpeaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[currentIndex].title+'. '+SCENES[currentIndex].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{isSpeaking=false;};synth.speak(u);isSpeaking=true;}}
+let audioCtx=null,isMusicPlaying=false,musicTimer=null;
+function toggleMusic(){if(isMusicPlaying){isMusicPlaying=false;clearTimeout(musicTimer);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();
+isMusicPlaying=true;document.getElementById('btnMusic').classList.add('active');
+const notes=[523.25,587.33,659.25,783.99,880,1046.5];let idx=0;
+function play(){if(!isMusicPlaying)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+o.frequency.setValueAtTime(notes[idx++%notes.length],audioCtx.currentTime);
+g.gain.setValueAtTime(.001,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.06,audioCtx.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+1.8);o.connect(g);g.connect(audioCtx.destination);
+o.start();o.stop(audioCtx.currentTime+1.9);musicTimer=setTimeout(play,900);}play();}}
+window.onload=()=>{renderBookSpread(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

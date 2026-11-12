@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국 정통 트로트 프롬프트 생성기 (고급형)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0fdf4; /* 배경색을 아주 연한 초록색으로 변경 */
+        }
+        .section-card {
+            transition: all 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        /* 체크박스/라디오 선택 시 스타일 */
+        input[type="checkbox"]:checked + label,
+        input[type="radio"]:checked + label {
+            background-color: #ecfdf5;
+            border-color: #059669;
+            color: #047857;
+            font-weight: 700;
+            box-shadow: 0 0 0 1px #059669;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen pb-20">
+
+    <!-- 헤더 영역 -->
+    <header class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 shadow-lg">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold mb-2"><i class="fas fa-music mr-2"></i>트로트 작곡 도우미 (고급)</h1>
+            <p class="text-emerald-100 text-lg">더 다양해진 옵션으로 나만의 명곡을 만들어보세요.</p>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-4 space-y-6">
+
+        <!-- 1. 분위기 (Mood) -->
+        <section class="section-card bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-theater-masks mr-2 text-emerald-600"></i>1. 곡의 분위기 (Mood)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div>
+                    <input type="radio" name="mood" id="mood_sad" value="Sorrowful, Melancholic, Han(Resentment), Minor Key" class="hidden" checked>
+                    <label for="mood_sad" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        😢 애절/한(恨)
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="mood" id="mood_happy" value="Joyful, Upbeat, Festive, Major Key" class="hidden">
+                    <label for="mood_happy" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        😄 신나는/축제
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="mood" id="mood_romantic" value="Sentimental, Romantic, Warm atmosphere, Acoustic feel" class="hidden">
+                    <label for="mood_romantic" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        💖 낭만/감성
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="mood" id="mood_power" value="Powerful, Passionate, Dramatic, Grand sound" class="hidden">
+                    <label for="mood_power" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        🔥 강렬/파워
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="mood" id="mood_comical" value="Humorous, Witty, Playful, Bouncy" class="hidden">
+                    <label for="mood_comical" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        🤣 해학/익살
+                    </label>
+                </div>
+                 <div>
+                    <input type="radio" name="mood" id="mood_dreamy" value="Dreamy, Misty, Old-fashioned memory" class="hidden">
+                    <label for="mood_dreamy" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        ☁️ 몽환/추억
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 속도와 리듬 (Tempo) -->
+        <section class="section-card bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-tachometer-alt mr-2 text-emerald-600"></i>2. 속도와 리듬 (Tempo)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <input type="radio" name="tempo" id="tempo_slow" value="Slow Ballad Tempo 65-70 BPM, 4/4 time" class="hidden">
+                    <label for="tempo_slow" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        🐢 정통 느린 템포 <span class="text-xs text-slate-500">(발라드풍)</span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="tempo" id="tempo_std" value="Standard Trot Tempo 75-85 BPM, Trot Shuffle rhythm" class="hidden" checked>
+                    <label for="tempo_std" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        🚶 표준 트로트 <span class="text-xs text-slate-500">(쿵짝쿵짝)</span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="tempo" id="tempo_disco" value="Fast Disco Trot 125-135 BPM, High Energy, Highway Medley Style" class="hidden">
+                    <label for="tempo_disco" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        💃 관광버스 디스코 <span class="text-xs text-slate-500">(신나는 뽕짝)</span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="tempo" id="tempo_edm" value="Modern EDM Trot, Electronic Dance Beat, 130 BPM, Club style" class="hidden">
+                    <label for="tempo_edm" class="block w-full text-center border rounded-lg p-3 cursor-pointer hover:bg-slate-50 transition">
+                        ⚡ 최신 EDM 트로트 <span class="text-xs text-slate-500">(미스터트롯 스타일)</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 악기 구성 (Instrumentation) -->
+        <section class="section-card bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-guitar mr-2 text-emerald-600"></i>3. 악기 구성 (선택)</h2>
+            
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div>
+                        <input type="checkbox" id="inst_brass" value="Brass section, Saxophone Solo, Trumpet hit" class="hidden" checked>
+                        <label for="inst_brass" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎷 색소폰/브라스
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_accordion" value="Accordion pad, Emotional Accordion melody" class="hidden" checked>
+                        <label for="inst_accordion" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎹 아코디언
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_eguitar" value="Electric Guitar Solo, Tremolo picking" class="hidden">
+                        <label for="inst_eguitar" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎸 일렉기타
+                        </label>
+                    </div>
+                     <div>
+                        <input type="checkbox" id="inst_synth" value="Synthesizer lead, Electronic sound effects" class="hidden">
+                        <label for="inst_synth" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎹 전자 신디사이저
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_strings" value="Orchestral Strings, Violin ensemble" class="hidden">
+                        <label for="inst_strings" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎻 웅장한 스트링
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_janggu" value="Korean traditional percussion Janggu rhythm overlay" class="hidden">
+                        <label for="inst_janggu" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🥁 장구/국악기
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_aguitar" value="Acoustic Guitar Strumming" class="hidden">
+                        <label for="inst_aguitar" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎸 통기타
+                        </label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="inst_piano" value="Piano accompaniment" class="hidden">
+                        <label for="inst_piano" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                            🎹 피아노
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 보컬 스타일 (Vocal) -->
+        <section class="section-card bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-microphone-alt mr-2 text-emerald-600"></i>4. 보컬 및 기교 (상세 설정)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-medium text-slate-700 mb-2">🎤 목소리 톤 & 성별</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                         <div>
+                            <input type="radio" name="v_gender" id="vg_male" value="Male Vocals" class="hidden">
+                            <label for="vg_male" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                                👨 남성
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="v_gender" id="vg_female" value="Female Vocals" class="hidden">
+                            <label for="vg_female" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                                👩 여성
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="v_gender" id="vg_duet" value="Male and Female Duet" class="hidden" checked>
+                            <label for="vg_duet" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                                👫 남녀 듀엣
+                            </label>
+                        </div>
+                         <div>
+                            <input type="radio" name="v_gender" id="vg_chorus" value="Group Chorus, Gang-gang-sullae style backing vocals" class="hidden">
+                            <label for="vg_chorus" class="block text-center border rounded-lg p-2 cursor-pointer hover:bg-slate-50 text-sm">
+                                👨‍👩‍👧‍👦 떼창/코러스
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium text-slate-700 mb-2">✨ 기교 및 특징</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="v_kkkeokgi" value="Extreme Kkkeokgi (Breaking voice technique)" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" checked>
+                            <label for="v_kkkeokgi" class="ml-2 text-slate-700">꺾기 창법 (강하게)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="v_nasal" value="Nasal voice tone, Charming style" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500">
+                            <label for="v_nasal" class="ml-2 text-slate-700">콧소리/비성 (애교)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="v_power" value="Power Belting, High note climaxes, Goseong" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500">
+                            <label for="v_power" class="ml-2 text-slate-700">파워 고음 (사이다 보컬)</label>
+                        </div>
+                         <div class="flex items-center">
+                            <input type="checkbox" id="v_narration" value="Includes spoken narration, Monologue intro" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500">
+                            <label for="v_narration" class="ml-2 text-slate-700">내레이션/대사 포함</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 결과 영역 -->
+        <section class="bg-emerald-50 rounded-xl p-6 border border-emerald-200 shadow-inner">
+            <h2 class="text-lg font-bold text-emerald-800 mb-2">✨ 완성된 프롬프트</h2>
+            <p class="text-sm text-emerald-600 mb-3">Suno AI의 'Style of Music' 칸에 붙여넣으세요.</p>
+            
+            <textarea id="resultArea" class="w-full h-40 p-4 border border-emerald-300 rounded-lg font-mono text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" readonly></textarea>
+            
+            <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                <button onclick="generatePrompt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow transition flex items-center justify-center text-lg">
+                    <i class="fas fa-magic mr-2"></i> 프롬프트 생성
+                </button>
+                <button onclick="copyToClipboard()" class="flex-1 bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-lg shadow transition flex items-center justify-center text-lg">
+                    <i class="fas fa-copy mr-2"></i> 복사하기
+                </button>
+            </div>
+             <div id="toast" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl z-50 transition-opacity duration-300">
+                ✅ 복사 완료!
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function generatePrompt() {
+            let styleParts = ["Korean Traditional Trot"];
+            
+            // 1. 분위기
+            const mood = document.querySelector('input[name="mood"]:checked').value;
+            styleParts.push(mood);
+
+            // 2. 템포
+            const tempo = document.querySelector('input[name="tempo"]:checked').value;
+            styleParts.push(tempo);
+
+            // 3. 악기
+            const instrumentCheckboxes = [
+                'inst_brass', 'inst_accordion', 'inst_eguitar', 
+                'inst_synth', 'inst_strings', 'inst_janggu',
+                'inst_aguitar', 'inst_piano'
+            ];
+            
+            let instruments = [];
+            instrumentCheckboxes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.checked) {
+                    instruments.push(el.value);
+                }
+            });
+
+            // 4. 보컬
+            // 성별
+            const gender = document.querySelector('input[name="v_gender"]:checked').value;
+            
+            // 기교
+            const vocalCheckboxes = ['v_kkkeokgi', 'v_nasal', 'v_power', 'v_narration'];
+            let vocalTraits = [gender]; // 성별을 먼저 넣음
+            
+            vocalCheckboxes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.checked) {
+                    vocalTraits.push(el.value);
+                }
+            });
+
+            // 5. 기본 이론 (화성학 등)
+            const harmony = "Secondary Dominant, I-VI-II-V progression";
+
+            // 조합
+            let finalPrompt = "";
+            finalPrompt += styleParts.join(", ") + ", \n";
+            if(instruments.length > 0) finalPrompt += instruments.join(", ") + ", \n";
+            if(vocalTraits.length > 0) finalPrompt += vocalTraits.join(", ") + ", \n";
+            finalPrompt += harmony;
+
+            document.getElementById('resultArea').value = finalPrompt;
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('resultArea');
+            if (!textarea.value) {
+                generatePrompt(); // 비어있으면 생성 먼저 시도
+            }
+            
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                alert('복사 실패. 직접 긁어서 복사해주세요.');
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            toast.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 2000);
+        }
+
+        window.onload = generatePrompt;
+    </script>
+</body>
+</html>

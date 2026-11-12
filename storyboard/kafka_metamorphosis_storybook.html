@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카프카의 <변신> - 인터랙티브 스토리북</title>
+    <style>
+        :root {
+            --bg-color: #121316;
+            --card-bg: #1e2025;
+            --accent-color: #d4a373;
+            --accent-hover: #faedcd;
+            --text-main: #e9ecef;
+            --text-sub: #adb5bd;
+            --border-color: #2c3038;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: rgba(24, 26, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: #262930;
+        }
+
+        button.active {
+            background-color: var(--accent-color);
+            color: #121316;
+            font-weight: 700;
+            border-color: var(--accent-color);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1240px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        /* 뷰어 모드 스타일 */
+        .viewer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            align-items: center;
+        }
+
+        .image-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #15161a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #343a40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-fallback-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.75);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #ced4da;
+            border: 1px solid #495057;
+        }
+
+        .content-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scene-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scene-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #fff;
+        }
+
+        .scene-quote {
+            font-style: italic;
+            color: #d1b89d;
+            background: rgba(212, 163, 115, 0.08);
+            border-left: 3px solid var(--accent-color);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+        }
+
+        .scene-narrative {
+            font-size: 1rem;
+            color: #d5d9de;
+            white-space: pre-line;
+            line-height: 1.85;
+        }
+
+        .scene-symbol {
+            margin-top: 10px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        /* 내비게이션 바 */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 24px;
+        }
+
+        .page-indicator {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        /* 전체 리스트 모드 스타일 */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .viewer-container {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            .list-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <span>📖</span> 카프카 <변신> 스토리북
+        </div>
+        <div class="header-controls">
+            <button id="btnBgMusic" onclick="toggleBGM()">🎵 오르골 BGM</button>
+            <button id="btnTts" onclick="toggleTTS()">🔊 낭독 (TTS)</button>
+            <button id="btnViewToggle" onclick="toggleViewMode()">📑 전체 리스트 보기</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- 단일 책장 넘김 뷰어 -->
+        <div id="singleViewerArea">
+            <div class="viewer-container">
+                <div class="image-box">
+                    <img id="viewerImage" src="" alt="장면 일러스트" onerror="handleImageError(this)">
+                    <div class="image-fallback-badge" id="imagePathLabel">D:\claude\book-to-story\변신_Franz Kafka\images</div>
+                </div>
+                <div class="content-box">
+                    <div class="scene-badge" id="sceneNumber">SCENE 01 / 10</div>
+                    <h2 class="scene-title" id="sceneTitle">어느 날 아침의 경악스러운 각성</h2>
+                    <div class="scene-quote" id="sceneQuote">"어느 날 아침, 불안한 꿈에서 깨어났을 때 그레고르는 자신이 흉측한 벌레로 변해 있음을 발견했다."</div>
+                    <div class="scene-narrative" id="sceneNarrative">내용 로딩 중...</div>
+                    <div class="scene-symbol" id="sceneSymbol">상징 분석...</div>
+                </div>
+            </div>
+
+            <div class="nav-controls">
+                <button onclick="prevPage()">◀ 이전 장면 (←)</button>
+                <div class="page-indicator" id="pageIndicator">1 / 10</div>
+                <button onclick="nextPage()">다음 장면 (→) ▶</button>
+            </div>
+        </div>
+
+        <!-- 전체 목록 뷰어 (숨김 모드) -->
+        <div id="listViewArea" class="list-container" style="display: none;"></div>
+    </main>
+
+    <script>
+        const scenesData = [
+            {
+                cut: 1,
+                title: "어느 날 아침의 각성과 알람시계의 공포",
+                engTitle: "The Awakening and Terror of Time",
+                fileName: "01_awakening.jpg",
+                altFileName: "01.jpg",
+                quote: "어느 날 아침 그레고르 잠자가 불안한 꿈에서 깨어났을 때, 그는 자신이 침대 속에서 한 마리의 흉측한 갑충으로 변해 있는 것을 발견했다.",
+                narrative: `어느 날 아침, 불편하고 뒤숭숭한 꿈에서 깨어난 그레고르 잠자는 자신의 몸이 딱딱한 갑옷 같은 등껍질로 변해 누워 있는 것을 발견했습니다.
+배를 조금만 들어 올려도 활 모양으로 굽은 갈색의 마디들이 보였고, 그 위태로운 둥근 배 위로는 이불이 흘러내리기 직전이었습니다.
+자신의 가련하게 얇은 수많은 다리들은 어찌할 바를 모른 채 그의 눈앞에서 무력하게 허우적거리고 있었습니다.
+하지만 놀랍게도 그가 가장 먼저 느낀 감정은 자신의 망가진 육체에 대한 공포가 아닌, 협탁 위에서 째깍거리는 알람시계에 대한 소름 돋는 경악이었습니다.
+시곗바늘은 이미 새벽 여섯 시 반을 가리키며 무심히 흘러가고 있었고, 그가 매일 타야만 했던 새벽 다섯 시 첫 기차는 이미 떠난 지 오래였습니다.
+이 끔찍한 신체적 파국 앞에서도 그는 직장에 늦어 지배인에게 당할 문책과 부모님의 빚을 갚지 못할까 봐 덜컥 두려움에 사로잡혔습니다.
+인간으로서의 영혼과 존엄보다 생계 유지와 출근 규율이 한 사람의 의식을 얼마나 처절하게 잠식했는지를 보여주는 서늘한 아침이었습니다.
+그는 문밖에서 부드럽게 자신을 부르는 어머니의 목소리를 들으며 어떻게든 이 괴물 같은 몸을 침대 밖으로 굴려 내기 위해 필사적으로 발버둥 쳤습니다.`,
+                symbol: "시간 규율과 자본주의 노동 규율이 인간의 실존보다 우위에 놓여 있음을 보여주는 비극적 각성."
+            },
+            {
+                cut: 2,
+                title: "지배인의 기습 방문과 가혹한 관료 시스템",
+                engTitle: "The Chief Clerk's Ruthless Visit",
+                fileName: "02_manager.jpg",
+                altFileName: "02.jpg",
+                quote: "회사의 모든 사원들은 죄다 불한당이란 말인가? 단 한 시간이라도 직무를 게을리하면 곧바로 의심을 받아야 한단 말인가?",
+                narrative: `출근 시각을 겨우 한 시간 남짓 넘겼을 뿐인데, 현관문 너머로 회사의 지배인이 직접 집까지 들이닥쳤다는 불길한 구두 굽 소리가 울렸습니다.
+지배인은 아픈 사원에 대한 일말의 염려 대신, 거실 한복판에서 냉혹하게 목소리를 높이며 최근의 실적 부진과 심지어 공금 횡령 의혹까지 들이댔습니다.
+한 인간이 수년간 헌신하며 바친 노동의 가치는 단 한 번의 지각 앞에서 쓰레기처럼 내팽개쳐졌고, 오직 기계적인 쓸모만이 저울질당했습니다.
+닫힌 방문 너머로 어머니는 아들이 병에 걸린 것이라며 울먹이며 애원했고, 아버지는 지배인 앞에서 연신 굽실거리며 체면을 차리기 바빴습니다.
+방 안의 그레고르는 어떻게든 오해를 풀고 자신의 성실함을 증명하고자 턱과 온몸의 무게를 실어 굳게 잠긴 열쇠를 필사적으로 돌리기 시작했습니다.
+그에게 회사는 단순한 일터가 아니라 온 가족의 생계를 짊어진 거대한 사슬이었기에, 그는 이 모욕적인 방문 속에서도 오직 용서를 구해야 한다고 믿었습니다.
+개인의 내밀한 고통이나 건강 따위는 안중에도 없는 자본주의 관료 시스템의 비정함이 차가운 현관 복도를 가득 채웠습니다.
+마침내 문이 서서히 열렸을 때, 문틈 너머로 비친 지배인의 얼굴은 경악과 혐오로 일그러지며 뒷걸음질 치기 시작했습니다.`,
+                symbol: "효용성과 실적으로만 인간을 평가하는 잔혹한 자본주의 관료제의 민낯."
+            },
+            {
+                cut: 3,
+                title: "언어의 상실과 굳게 잠긴 소통의 문",
+                engTitle: "Loss of Voice and Total Isolation",
+                fileName: "03_language_lost.jpg",
+                altFileName: "03.jpg",
+                quote: "그것은 인간의 목소리가 아니었다. 단어 밑바닥에서 고통스러운 쇳소리와 동물적인 갉아먹는 소음이 섞여 나왔다.",
+                narrative: `그레고르는 지배인과 가족들을 안심시키기 위해 문틈으로 필사적인 해명의 말을 쏟아붓기 시작했습니다.
+그는 곧 옷을 갈아입고 기차를 탈 것이며, 이번 분기의 수주 실적은 자신이 반드시 책임지고 메꾸겠노라고 눈물겹게 맹세했습니다.
+그러나 그의 뇌리를 떠난 간절한 문장들은 입술을 거치며 흉측한 쇳소리와 거친 긁힘, 동물적 삑삑거림으로 짓이겨져 터져 나왔습니다.
+방 밖의 사람들에게 그의 절규는 이성적인 인간의 말이 아니라, 귀를 찢는 끔찍한 괴물의 괴성으로 들릴 뿐이었습니다.
+어머니는 두 손으로 얼굴을 감싼 채 바닥에 주저앉아 비명을 질렀고, 지배인은 계단을 허둥지둥 뛰어내려 가며 코트와 모자마저 내팽개쳤습니다.
+인간 사회와의 유일한 연결 고리였던 '언어'가 박탈당한 순간, 그레고르는 영원한 소통의 암흑 속으로 유배되었습니다.
+아버지는 지배인이 떨어뜨린 지팡이와 두꺼운 신문지를 휘두르며, 마치 유해한 짐승을 몰듯 발을 구르며 그레고르를 어두운 방 안으로 몰아세웠습니다.
+문이 쾅 닫히고 빗장이 단단히 걸리는 둔탁한 소리와 함께, 그레고르는 완벽한 독방의 적막 속에 내동댕이쳐졌습니다.`,
+                symbol: "언어 상실을 통해 묘사된 인간적 소통의 영구적 단절과 실존적 고립."
+            },
+            {
+                cut: 4,
+                title: "제복을 입은 아버지와 등껍질에 박힌 사과",
+                engTitle: "The Patriarch's Rage and the Embedded Apple",
+                fileName: "04_father_apple.jpg",
+                altFileName: "04.jpg",
+                quote: "던져진 사과 하나가 그레고르의 등에 파고들었다. 아무도 그것을 뽑아줄 생각을 하지 않았고, 썩은 사과는 치명상이 되었다.",
+                narrative: `무기력하게 침대에만 누워 있던 늙은 아버지는 그레고르가 무너지자 은행 경비원의 빳빳한 청색 제복을 입고 가장의 권력을 되찾았습니다.
+황금 단추가 번쩍이는 제복을 입은 아버지는 더 이상 부드러웠던 노인이 아니라, 엄격하고 잔인한 가부장적 심판관의 모습이었습니다.
+거실로 잠시 기어 나온 그레고르를 향해 아버지는 주머니에서 식탁 위의 사과들을 꺼내어 맹렬한 기세로 던지기 시작했습니다.
+공중을 가르며 날아온 붉은 사과 하나가 그레고르의 약한 등껍질 틈새에 정확히 틀어박히며 둔탁한 파열음을 냈습니다.
+상상조차 할 수 없는 극심한 고통이 온 신경을 관통했고, 그레고르는 바닥에 납작하게 엎드린 채 신음하며 정신을 잃어갔습니다.
+가족 중 그 누구도 그의 살 속에 박혀 썩어 들어가는 사과를 뽑아주거나 상처를 닦아주려 하지 않았습니다.
+살 속 깊이 파고들어 문드러지는 사과는 더 이상 쓸모를 잃고 가족의 적으로 낙인찍힌 자에게 가해진 지워지지 않는 형벌이었습니다.
+그는 상처의 염증과 열병 속에서 꼼짝도 하지 못한 채, 가족들이 식탁에서 나누는 차가운 대화를 문틈으로 엿들어야만 했습니다.`,
+                symbol: "권력을 회복한 가부장의 폭력과 쓸모를 잃은 구성원에게 새겨진 영구한 소외의 낙인."
+            },
+            {
+                cut: 5,
+                title: "추억의 박탈과 쓰레기장으로 전락한 방",
+                engTitle: "Deprivation of Humanity and the Junk Room",
+                fileName: "05_furniture_loss.jpg",
+                altFileName: "05.jpg",
+                quote: "방 안에 있던 인간의 손때 묻은 물건들이 하나씩 사라질 때마다, 그의 인간성 또한 한 조각씩 깎여 나갔다.",
+                narrative: `그레고르가 벽과 천장을 기어 다니기 편하게 해준다는 명목 아래, 어머니와 여동생은 그의 방 안 가구들을 치우기 시작했습니다.
+자신이 손수 실톱으로 정성껏 조각했던 옷장과 학교 시절부터 써오던 책상이 차례로 방 밖으로 끌려 나갔습니다.
+가구가 빠져나간 방은 텅 비어 삭막해졌고, 그것은 그가 인간으로 살아왔던 과거의 모든 기억과 존엄성을 박탈당하는 과정이었습니다.
+인간 시절의 흔적이 사라진 자리는 이내 가족들이 쓰지 않는 잡동사니, 먼지투성이 상자, 버려진 재떨이와 쓰레기들로 채워졌습니다.
+가장 아늑해야 할 그의 보금자리는 집안의 잉여 존재를 가두어두는 혐오스러운 폐기물 창고로 완벽하게 전락했습니다.
+먼지와 오물 속에서 기어 다니며 그레고르는 자신의 몸에 묻은 먼지와 음식 찌꺼기조차 털어낼 기력을 잃어버렸습니다.
+가족들은 이제 그 방의 문을 열 때조차 혐오 섞인 눈길로 대걸레를 들이밀 뿐, 한때 그 방의 주인이었던 아들의 얼굴을 보려 하지 않았습니다.
+그는 방구석의 차가운 쓰레기 더미 밑으로 기어들어가 웅크리며, 서서히 지워져 가는 자신의 존재를 견뎌냈습니다.`,
+                symbol: "물질적 공간의 박탈과 잡동사니화를 통해 형상화된 사회적 죽음과 존재의 쓰레기화."
+            },
+            {
+                cut: 6,
+                title: "모피를 두른 여인의 그림과 마지막 집착",
+                engTitle: "The Lady in Fur and the Last Spark of Soul",
+                fileName: "06_picture_frame.jpg",
+                altFileName: "06.jpg",
+                quote: "그는 차가운 액자의 유리 위로 온몸을 밀착시켰다. 이 마지막 그림만큼은 그 누구에게도 빼앗길 수 없었다.",
+                narrative: `벽에 걸린 모든 것이 철거되던 순간, 그레고르는 벽에 걸린 잡지에서 오려내어 금박 액자에 끼워둔 '모피를 두른 여인의 그림'을 보았습니다.
+그림 속 여인은 두꺼운 모피 목도리를 두른 채 관능적이고 우아한 자태로 화폭 너머를 응시하고 있었습니다.
+그 그림은 그가 인간이었을 때 품었던 세속적인 욕망과 아름다움, 그리고 따스한 인간적 체온에 대한 마지막 상징이었습니다.
+그는 가구를 끌어내던 어머니와 여동생의 눈을 피해 필사적으로 벽을 기어올라 차가운 유리 액자 위로 온몸을 내던졌습니다.
+뜨겁게 달아오른 벌레의 배를 차가운 유리에 밀착시키며, 그는 자신의 생명을 다해서라도 이 마지막 흔적을 지켜내겠다고 맹세했습니다.
+방으로 돌아온 어머니는 벽에 들러붙은 거대한 괴물의 형상을 목격하고는 비명을 지르며 바닥으로 쓰러졌습니다.
+여동생 그레테는 주먹을 불끈 쥐고 그레고르를 매섭게 노려보며 '오빠, 이제 그만둬!'라고 증오에 찬 일갈을 퍼부었습니다.
+온몸으로 그림을 끌어안은 그레고르의 모습은, 비록 껍질은 흉측한 벌레일지라도 영혼만은 인간으로 남고자 몸부림친 처절한 절규였습니다.`,
+                symbol: "인간 시절의 감각과 심미적 욕망을 지켜내려는 실존의 처절한 최후 방어선."
+            },
+            {
+                cut: 7,
+                title: "바이올린 선율과 되살아난 인간의 영혼",
+                engTitle: "The Violin Melody and Sublime Human Spirit",
+                fileName: "07_violin_music.jpg",
+                altFileName: "07.jpg",
+                quote: "음악에 이토록 마음이 흔들리는데도 자신이 짐승이란 말인가? 그에게 감추어진 미지의 영양이 손짓하는 듯했다.",
+                narrative: `방세를 내는 거만한 세 명의 하숙인들을 위해 거실에서 여동생 그레테의 서툰 바이올린 연주가 울려 퍼졌습니다.
+하숙인들은 처음에는 흥미를 보이는 듯하더니, 이내 지루한 기색을 보이며 담배 연기만 뿜어대고 연주를 무시했습니다.
+그러나 어두운 방구석에 홀로 갇혀 있던 그레고르는 그 가냘픈 선율에 온몸의 세포가 전율하는 깊은 감동을 받았습니다.
+그는 먼지와 오물을 몸에 주렁주렁 매단 채, 자신도 모르게 마법에 홀린 듯 거실의 밝은 불빛 속으로 천천히 기어 나왔습니다.
+*"음악에 이토록 깊이 영혼이 흔들리는데도 내가 정녕 짐승이란 말인가?"*라는 독백이 그의 가슴을 뜨겁게 적셨습니다.
+그는 동생의 목덜미로 다가가 그녀가 꿈꾸던 음악원에 보내주겠노라 귓가에 속삭이고 싶은 숭고한 사랑을 느꼈습니다.
+세상의 모든 물질적 조건과 노동 능력을 박탈당한 최악의 비천함 속에서도, 그의 내면에는 초월적인 예술을 갈망하는 영혼이 살아 숨 쉬고 있었습니다.
+하지만 거실 바닥에 모습을 드러낸 거대한 벌레를 발견한 하숙인들은 기겁하여 계약 파기와 손해배상을 외치며 난동을 부렸습니다.`,
+                symbol: "물질주의를 초월하여 예술적 감동에 전율하는 인간 영혼의 불멸성 증명."
+            },
+            {
+                cut: 8,
+                title: "동생의 절연 선언과 '괴물'로의 최종 배제",
+                engTitle: "Grete's Betrayal and Final Banishment",
+                fileName: "08_sister_betrayal.jpg",
+                altFileName: "08.jpg",
+                quote: "우리는 저것을 없애버려야 해요! 저것이 오빠일 리 없어요. 정말 오빠였다면 진작 스스로 떠났을 거예요!",
+                narrative: `소동이 가라앉은 거실에서 가장 가혹한 파멸의 비수가 날아든 곳은 그가 목숨처럼 아꼈던 여동생 그레테의 입이었습니다.
+여동생은 식탁을 주먹으로 내리치며 눈물을 흘렸고, 더 이상 저 끔찍한 벌레를 '오빠'로 불러선 안 되며 '저것(괴물)'이라 불러야 한다고 단언했습니다.
+만약 저 괴물에게 일말의 인간적 이성이 남아있었다면 가족들이 고통받는 것을 보고 진작 스스로 목숨을 끊거나 떠났을 것이라며 울부짖었습니다.
+지친 부모는 딸의 서슬 퍼런 결의에 묵묵히 고개를 끄덕이며, 침묵으로 그레고르에 대한 최종적인 사형 선고에 동의했습니다.
+문턱 너머에서 이 모든 말을 똑똑히 들은 그레고르는 한 가닥 남았던 삶에 대한 의지와 애착의 끈을 스스로 조용히 내려놓았습니다.
+그는 가족들에게 조금의 위협도 되지 않으려는 듯, 앙상하고 마비된 다리를 질질 끌며 고통스럽게 몸을 돌려 어두운 방으로 향했습니다.
+방 안으로 겨우 기어 들어가자마자 여동생은 문을 거칠게 닫아걸고 열쇠 구멍 속으로 빗장을 쾅 소리 나게 질러버렸습니다.
+세상에서 가장 사랑했던 이로부터 완벽하게 괴물로 규정당한 그레고르는 칠흑 같은 어둠 속에 홀로 버려졌습니다.`,
+                symbol: "가장 친밀했던 가족 관계마저 경제적 효용성의 파탄 앞에서 비정하게 해체되는 잔인성."
+            },
+            {
+                cut: 9,
+                title: "새벽 여명 속의 평화로운 소멸",
+                engTitle: "Peaceful Demise in the Dawn's Light",
+                fileName: "09_peaceful_death.jpg",
+                altFileName: "09.jpg",
+                quote: "가족에 대한 그의 회상은 감동과 사랑으로 가득 차 있었다. 탑 시계가 새벽 세 시를 칠 때 그의 숨이 잦아들었다.",
+                narrative: `차가운 방바닥에 납작하게 엎드린 그레고르는 이제 더 이상 자신의 몸뚱이를 한 치도 움직일 수 없음을 깨달았습니다.
+등에 깊이 박힌 썩은 사과의 염증은 온몸으로 번졌고, 몇 달 동안 아무것도 먹지 못한 그의 육체는 종잇장처럼 바짝 말라 있었습니다.
+하지만 기이하게도 통증은 서서히 잦아들었고, 그의 내면에는 오랜 방황 끝에 다다른 깊고 잔잔한 평화가 깃들기 시작했습니다.
+그는 자신을 매정하게 버린 가족들을 향해 단 한 줌의 원망이나 저주도 품지 않았습니다.
+오히려 그는 지나온 날들의 부모님과 어린 여동생을 향한 애틋한 사랑과 연민으로 가슴을 가득 채우며 그들의 행복을 빌었습니다.
+창밖의 교회 탑 시계가 고요한 새벽 세 시를 알리는 맑은 타종 소리를 울릴 때, 지평선 너머로 희미한 여명이 번져왔습니다.
+그레고르는 자신이 완전히 사라져 주는 것만이 남겨진 가족들을 진정으로 구원하는 길임을 확신하며 조용히 고개를 떨구었습니다.
+그의 콧구멍에서 마지막 가녀린 숨결이 새어 나왔고, 고단했던 한 인간의 영혼은 마침내 영원하고 평온한 안식의 품에 안겼습니다.`,
+                symbol: "희생양의 자발적 죽음을 통해 드러나는 숭고한 사랑과 소외된 실존의 초월적 해방."
+            },
+            {
+                cut: 10,
+                title: "눈부신 봄 햇살과 가족들의 잔인한 재생산",
+                engTitle: "Blinding Spring Sunlight and the Brutal Cycle",
+                fileName: "10_spring_tram.jpg",
+                altFileName: "10.jpg",
+                quote: "전차가 목적지에 다다랐을 때 딸이 가장 먼저 일어서서 그녀의 젊고 탄력 있는 몸을 기지개 켰다.",
+                narrative: `아침이 되자 청소부 노파는 말라비틀어진 벌레의 시체를 아무렇지도 않게 빗자루로 쓸어 담아 쓰레기 수레에 던져버렸습니다.
+그레고르의 완전한 죽음을 확인한 부모와 여동생은 몇 달 만에 처음으로 일터를 쉬기로 결정하고, 오랜만에 화창한 교외행 전차에 올랐습니다.
+전차의 커다란 차창으로는 찬란하고 따스한 봄 햇살이 축복처럼 쏟아져 내렸고, 그들의 표정에는 해방감과 활기가 넘쳤습니다.
+그레고르가 자신의 온 생애를 갈아 넣어 갚으려 했던 부채와 가난의 그림자는 이미 사라지고, 가족들은 각자의 새로운 일자리와 안정된 미래를 이야기했습니다.
+전차가 종점에 가까워졌을 때, 부부는 어느덧 건강하고 육감적인 처녀로 눈부시게 자라난 딸 그레테의 몸을 바라보았습니다.
+부부는 이제 곧 딸에게 좋은 사위를 찾아줄 때가 되었다는 달콤한 새로운 기대를 품으며 은밀한 미소를 주고받았습니다.
+목적지에 도착하자 그레테는 눈부신 봄 햇살 속에서 가장 먼저 자리에서 일어나 젊고 싱그러운 육신을 활짝 펴며 기지개를 켰습니다.
+한 인간의 처절한 희생과 소멸을 아무렇지도 않게 딛고 일어서서 태연히 굴러가는 가족과 사회의 냉혹한 생명력이 눈부시도록 잔인하게 빛났습니다.`,
+                symbol: "개인의 비극적 소모 위에 구축되는 사회·가족 공동체의 냉혹하고 일상적인 재생산 메커니즘."
+            }
+        ];
+
+        let currentIndex = 0;
+        let isListView = false;
+        let audioCtx = null;
+        let bgmInterval = null;
+        let isBgmPlaying = false;
+
+        function renderViewer(idx) {
+            const data = scenesData[idx];
+            document.getElementById('sceneNumber').innerText = `SCENE ${String(data.cut).padStart(2, '0')} / ${scenesData.length}`;
+            document.getElementById('sceneTitle').innerText = data.title;
+            document.getElementById('sceneQuote').innerText = data.quote;
+            document.getElementById('sceneNarrative').innerText = data.narrative;
+            document.getElementById('sceneSymbol').innerHTML = `<strong>상징적 의미:</strong> ${data.symbol}`;
+            document.getElementById('pageIndicator').innerText = `${data.cut} / ${scenesData.length}`;
+
+            // 이미지 소스 설정 (로컬 파일 참조 우선)
+            const imgEl = document.getElementById('viewerImage');
+            imgEl.dataset.fileName = data.fileName;
+            imgEl.dataset.altFileName = data.altFileName;
+            imgEl.src = data.fileName;
+            document.getElementById('imagePathLabel').innerText = `D:\claude\book-to-story\변신_Franz Kafka\images\${data.fileName}`;
+        }
+
+        function handleImageError(img) {
+            if (!img.dataset.triedAlt) {
+                img.dataset.triedAlt = "true";
+                img.src = img.dataset.altFileName;
+                return;
+            }
+            // 둘 다 실패 시 안내용 감성적 SVG 플레이스홀더로 교체
+            const title = scenesData[currentIndex].title;
+            const cut = scenesData[currentIndex].cut;
+            img.onerror = null;
+            img.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540"><rect width="100%" height="100%" fill="%231a1c23"/><text x="50%" y="45%" font-family="sans-serif" font-size="24" fill="%23d4a373" text-anchor="middle" font-weight="bold">장면 ${cut}: ${encodeURIComponent(title)}</text><text x="50%" y="55%" font-family="sans-serif" font-size="15" fill="%23868e96" text-anchor="middle">로컬 폴더의 이미지를 확인해주세요: images/${img.dataset.fileName}</text></svg>`;
+        }
+
+        function prevPage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderViewer(currentIndex);
+            }
+        }
+
+        function nextPage() {
+            if (currentIndex < scenesData.length - 1) {
+                currentIndex++;
+                renderViewer(currentIndex);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (isListView) return;
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+        });
+
+        function toggleViewMode() {
+            isListView = !isListView;
+            const singleViewer = document.getElementById('singleViewerArea');
+            const listView = document.getElementById('listViewArea');
+            const btn = document.getElementById('btnViewToggle');
+
+            if (isListView) {
+                singleViewer.style.display = 'none';
+                listView.style.display = 'flex';
+                btn.innerText = '📖 한 장씩 책 넘겨보기';
+                renderListView();
+            } else {
+                singleViewer.style.display = 'block';
+                listView.style.display = 'none';
+                btn.innerText = '📑 전체 리스트 보기';
+                renderViewer(currentIndex);
+            }
+        }
+
+        function renderListView() {
+            const container = document.getElementById('listViewArea');
+            container.innerHTML = '';
+            scenesData.forEach((data) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="image-box">
+                        <img src="${data.fileName}" alt="${data.title}" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'360\' height=\'202\' fill=\'%231a1c23\'><rect width=\'100%\' height=\'100%\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'14\' fill=\'%23d4a373\' text-anchor=\'middle\'>장면 ${data.cut}</text></svg>';">
+                    </div>
+                    <div class="content-box">
+                        <div class="scene-badge">SCENE ${String(data.cut).padStart(2, '0')}</div>
+                        <h3 class="scene-title" style="font-size: 1.3rem;">${data.title}</h3>
+                        <div class="scene-quote" style="font-size: 0.88rem;">${data.quote}</div>
+                        <div class="scene-narrative" style="font-size: 0.93rem;">${data.narrative}</div>
+                        <div class="scene-symbol">${data.symbol}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Web Audio API 기반 오르골 사운드 신디사이저
+        function toggleBGM() {
+            const btn = document.getElementById('btnBgMusic');
+            if (!isBgmPlaying) {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                startMusicBox();
+                isBgmPlaying = true;
+                btn.classList.add('active');
+                btn.innerText = '⏹ 오르골 BGM 끄기';
+            } else {
+                stopMusicBox();
+                isBgmPlaying = false;
+                btn.classList.remove('active');
+                btn.innerText = '🎵 오르골 BGM';
+            }
+        }
+
+        function playMusicBoxNote(freq, time, duration = 1.2) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, time);
+
+            // 오르골 맑은 타격음 엔벨로프
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.18, time + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        function startMusicBox() {
+            const melody = [
+                523.25, 659.25, 783.99, 659.25,
+                587.33, 698.46, 880.00, 698.46,
+                523.25, 659.25, 1046.50, 783.99,
+                493.88, 587.33, 783.99, 587.33
+            ];
+            let noteStep = 0;
+            bgmInterval = setInterval(() => {
+                if (!audioCtx) return;
+                const note = melody[noteStep % melody.length];
+                playMusicBoxNote(note, audioCtx.currentTime);
+                // 잔잔한 서브 화음
+                if (noteStep % 4 === 0) {
+                    playMusicBoxNote(note / 2, audioCtx.currentTime, 2.0);
+                }
+                noteStep++;
+            }, 650);
+        }
+
+        function stopMusicBox() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        // Web Speech API 기반 한국어 TTS 낭독
+        let isSpeaking = false;
+        function toggleTTS() {
+            const btn = document.getElementById('btnTts');
+            if (!('speechSynthesis' in window)) {
+                alert('현재 브라우저가 음성 낭독(TTS) 기능을 지원하지 않습니다.');
+                return;
+            }
+
+            if (!isSpeaking) {
+                window.speechSynthesis.cancel();
+                const cur = scenesData[currentIndex];
+                const textToRead = `${cur.title}. ${cur.quote}. ${cur.narrative}`;
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = 'ko-KR';
+                utterance.rate = 0.92;
+                utterance.pitch = 0.95;
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    btn.classList.remove('active');
+                    btn.innerText = '🔊 낭독 (TTS)';
+                };
+
+                window.speechSynthesis.speak(utterance);
+                isSpeaking = true;
+                btn.classList.add('active');
+                btn.innerText = '⏹ 낭독 정지';
+            } else {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                btn.classList.remove('active');
+                btn.innerText = '🔊 낭독 (TTS)';
+            }
+        }
+
+        // 초기 실행
+        renderViewer(currentIndex);
+    </script>
+</body>
+</html>

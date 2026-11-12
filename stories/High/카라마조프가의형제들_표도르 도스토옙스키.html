@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>카라마조프가의 형제들 - 표도르 도스토옙스키 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#4a3a5e;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">표도르 도스토옙스키 · 카라마조프가의 형제들</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="22" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 이야기책은 원문이 아니라, 줄거리를 쉬운 말로 풀어 엮은 것입니다. 세부 내용은 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 것은 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "카라마조프 집안의 아버지", "quote": "자식들에게 아버지는 어떤 사람이었을까.", "text": "러시아의 작은 도시에 표도르 파블로비치 카라마조프라는 지주가 살았습니다. 그는 돈에 욕심이 많고 방탕하며 남을 놀리기를 좋아하는 사람입니다. 두 번 결혼했으나 아내들이 일찍 죽자, 아이들을 제대로 돌보지 않고 남에게 맡겨 버렸습니다.\n\n그에게는 세 아들이 있습니다. 첫째 드미트리는 정열적이고 거친 군인 출신, 둘째 이반은 차갑고 지적인 학자, 셋째 알료샤는 마음이 따뜻하고 신앙이 깊은 청년입니다. 그리고 집안에는 간질을 앓는 요리사 스메르쟈코프가 하인으로 살고 있는데, 사람들은 그가 표도르의 숨은 아들이라고 수군거립니다.", "id": 1}, {"title": "세 아들과 아버지", "quote": "돈과 사랑이 아버지와 아들을 갈라놓았다.", "text": "오랜만에 아들들이 아버지의 집에 모입니다. 맏아들 드미트리는 죽은 어머니의 유산을 두고 아버지와 다투고 있습니다. 아버지는 이미 유산을 다 주었다고 하고, 드미트리는 아직 받을 돈이 남았다고 주장합니다.\n\n문제는 돈뿐이 아닙니다. 아버지와 드미트리는 모두 그루센카라는 아름답고 당돌한 여인을 마음에 두고 있습니다. 한편 드미트리에게는 카테리나라는 약혼녀가 있어 그의 마음은 더욱 복잡합니다. 아버지와 아들이 한 여인을 두고 다투는 이 집안은 폭풍 직전의 바다처럼 위태롭습니다.", "id": 2}, {"title": "조시마 장로의 암자", "quote": "사람은 누구나 모든 사람 앞에서 모든 일에 대해 죄가 있다.", "text": "알료샤는 수도원에서 조시마 장로를 스승으로 모시고 지냅니다. 조시마 장로는 사람들의 고민을 듣고 위로해 주는 덕망 높은 성직자입니다. 아버지와 드미트리의 싸움을 중재하려는 카라마조프 집안 사람들이 장로의 암자에 모여듭니다.\n\n그 자리에서도 표도르는 일부러 광대 짓을 하고 사람들을 불쾌하게 합니다. 조시마 장로는 그의 속마음을 꿰뚫어 보고 부드럽게 타이르며, 드미트리 앞에서는 땅에 엎드려 큰절을 합니다. 사람들은 이 이상한 행동에 놀라지만 장로는 드미트리가 겪게 될 큰 고통을 미리 내다본 것이었습니다.", "id": 3}, {"title": "알료샤의 고민", "quote": "착한 사람도 세상 앞에서는 흔들린다.", "text": "알료샤는 형 드미트리와 이야기를 나누며 형의 뜨거운 고백을 듣습니다. 드미트리는 자신이 아름다움과 추함, 하느님과 악마가 싸우는 전쟁터 같다고 털어놓습니다. 그는 약혼녀 카테리나의 돈을 쓰고 갚지 못했다는 부끄러운 이야기도 합니다.\n\n알료샤는 형의 고민을 들어 주고 아버지와 형 사이를 이어 보려 애쓰지만, 두 사람의 감정은 쉽게 풀리지 않습니다. 그는 수도원에 머물고 싶으면서도 집안의 비극을 막아야 한다는 책임감에 괴로워합니다.", "id": 4}, {"title": "이반과 알료샤, 술집에서", "quote": "나는 하느님을 부정하는 것이 아니라 그가 만든 세상을 받아들이지 않겠다.", "text": "이반은 동생 알료샤를 술집으로 불러 속마음을 이야기합니다. 그는 하느님을 믿는다고 하면서도, 아무 죄 없는 어린아이들이 고통받는 세상은 도저히 받아들일 수 없다고 말합니다. 그는 실제로 있었던 끔찍한 사건들을 이야기하며 어린 영혼이 흘리는 눈물의 값을 따집니다.\n\n그 눈물의 대가로 얻는 조화로운 세상이라면 자신은 그 입장권을 하느님께 돌려 드리겠다고 말합니다. 알료샤는 그리스도가 모든 사람을 위해 고통받았음을 말하며 맞섭니다. 이 대화는 이 소설에서 가장 깊은 신앙의 물음이 됩니다.", "id": 5}, {"title": "대심문관", "quote": "사람들은 자유보다 빵과 기적과 권위를 더 원한다.", "text": "이반은 자신이 지은 이야기 시를 알료샤에게 들려줍니다. 16세기 스페인, 그리스도가 다시 세상에 내려오지만 늙은 대심문관이 그를 체포합니다. 대심문관은 오히려 그리스도를 꾸짖습니다. 당신이 인간에게 준 자유는 너무 무거운 짐이라 사람들은 그것을 견디지 못하고, 빵과 기적과 권위를 주는 사람에게 자유를 넘긴다는 것입니다.\n\n그리스도는 아무 말 없이 노인에게 입을 맞춥니다. 알료샤는 형의 이야기에 큰 충격을 받지만, 그것이 신앙에 대한 하나의 물음일 뿐 답은 아니라고 생각하며 형에게 입을 맞춥니다.", "id": 6}, {"title": "조시마 장로의 죽음", "quote": "사람들은 성인의 시신에서 향기가 나리라 기대했다.", "text": "조시마 장로는 마지막으로 사람들에게 가르침을 남깁니다. 모든 이를 사랑하고, 서로에게 죄가 있음을 알며, 용서를 구하라는 이야기입니다. 그리고 세상을 떠납니다. 수도원 사람들은 장로가 성인이라면 시신이 썩지 않고 향기가 날 것이라 믿습니다.\n\n그런데 시신에서 오히려 이른 부패의 냄새가 납니다. 이를 시기하던 수도사들은 장로를 비웃고, 알료샤는 큰 충격과 혼란에 빠집니다. 믿음이 크게 흔들린 그는 수도원을 나서 마을로 향합니다.", "id": 7}, {"title": "양파 한 뿌리", "quote": "나는 작은 선행 하나로도 사람이 구원받을 수 있다고 믿는다.", "text": "알료샤는 마음이 크게 흔들린 채 그루센카의 집을 찾아갑니다. 그루센카는 알료샤를 유혹하려 했지만, 장로의 죽음을 슬퍼하는 그의 순수한 모습을 보고 마음을 돌립니다. 그녀는 알료샤에게 양파 한 뿌리의 옛이야기를 들려줍니다.\n\n지옥에 떨어진 한 악한 여인이 평생 단 한 번 양파 한 뿌리를 거지에게 준 선행 덕분에 천사가 그 양파를 내밀어 구하려 했으나, 다른 죄인들이 매달리자 여인이 그들을 발로 차는 바람에 결국 양파가 끊어졌다는 이야기입니다. 두 사람은 서로의 마음을 열고 친구가 됩니다.", "id": 8}, {"title": "가나의 혼인 잔치", "quote": "그는 땅에 엎드려 입을 맞추고 울었다.", "text": "수도원으로 돌아온 알료샤는 장로의 관 앞에서 복음서의 '가나의 혼인 잔치' 대목을 듣다 잠이 듭니다. 꿈에서 죽은 장로가 나타나 사람들과 함께 잔치를 즐기고 있다고 알려 줍니다.\n\n잠에서 깬 알료샤는 밖으로 나와 별이 가득한 하늘을 올려다보다가 감동에 복받쳐 땅에 엎드려 입을 맞추고 눈물을 흘립니다. 그는 모든 것을 용서하고 사랑하겠다는 결심을 합니다. 이제 그는 수도원을 떠나 세상 속으로 나아갈 준비를 합니다.", "id": 9}, {"title": "드미트리의 돈 구하기", "quote": "삼천 루블이면 모든 문제가 풀릴 것 같았다.", "text": "드미트리는 카테리나에게 빚진 삼천 루블을 갚지 못해 괴로워합니다. 그는 아버지가 그루센카를 얻으려 준비해 둔 삼천 루블이 사실 자기가 받아야 할 유산의 일부라고 생각합니다. 그는 여러 사람들을 찾아다니며 돈을 구해 보지만 모두 실패합니다.\n\n그러는 동안 그루센카가 아버지에게 가겠다는 소문이 돕니다. 질투와 분노에 휩싸인 드미트리는 아버지의 집 정원으로 몰래 숨어듭니다. 그는 창문 너머로 아버지의 모습을 보고 마음이 격해집니다.", "id": 10}, {"title": "아버지의 죽음", "quote": "그날 밤 표도르는 머리를 맞고 쓰러져 죽었다.", "text": "그날 밤 드미트리는 아버지의 창문 밖에서 신호를 보냅니다. 그는 그루센카가 집 안에 있는지 확인하려 한 것입니다. 곧 아버지가 창문을 열자 분노한 드미트리는 무거운 놋쇠 공이를 손에 쥐고 있었지만 아버지를 죽이지 않고 달아납니다.\n\n그러나 그 직후 표도르는 머리를 맞고 죽은 채 발견됩니다. 돈이 든 봉투가 찢겨 바닥에 나뒹굴고 있었습니다. 모든 정황은 드미트리가 아버지를 죽였다는 것을 가리키고 있었습니다.", "id": 11}, {"title": "모크로예의 밤", "quote": "그는 인생의 마지막 향연을 벌이려 했다.", "text": "드미트리는 피 묻은 옷차림으로 큰돈을 쥐고 그루센카가 있는 모크로예 마을로 달려갑니다. 그는 마지막 하룻밤의 향연을 벌이려 합니다. 그곳에서 그루센카는 드미트리를 향한 마음을 확인하고, 두 사람은 사랑을 나눕니다.\n\n그러나 그 행복도 오래가지 못합니다. 경찰이 들이닥쳐 아버지를 살해한 혐의로 드미트리를 체포합니다. 드미트리는 자기는 결코 죽이지 않았다고 외치지만 아무도 믿지 않습니다.", "id": 12}, {"title": "예심과 드미트리의 항변", "quote": "나는 아버지를 죽이지 않았다. 그러나 나는 죄인이다.", "text": "예심에서 드미트리는 하나하나 심문을 받습니다. 돈의 출처를 둘러싼 이야기가 이어지고, 그가 이전에 아버지를 죽이겠다고 말한 것이 증거가 됩니다. 그가 쓴 돈과 가진 돈 사이의 이상한 간격도 의심을 키웁니다.\n\n그러나 드미트리는 끝까지 자신이 아버지를 죽이지 않았다고 주장합니다. 하지만 마음속으로는 아버지를 죽이고 싶다는 증오를 품었던 자신의 죄를 인정합니다. 그는 감옥에서 새로운 삶에 대한 꿈을 꾸게 됩니다.", "id": 13}, {"title": "일류샤와 소년들", "quote": "사람은 어린 시절의 좋은 추억 하나로 평생을 살아간다.", "text": "알료샤는 마을의 가난한 소년 일류샤를 알게 됩니다. 일류샤의 아버지 스네기료프 대위는 드미트리에게 수염을 잡혀 끌려다니는 수모를 당한 사람이었습니다. 일류샤는 아버지를 위해 용감히 싸우다 병이 들어 죽어 갑니다.\n\n알료샤는 소년들을 모아 일류샤의 곁에 있게 하고, 아이들은 일류샤를 위로하며 우정을 나눕니다. 일류샤의 이야기는 작은 선행과 따뜻한 마음이 사람을 어떻게 바꾸는지를 보여 줍니다.", "id": 14}, {"title": "이반의 고뇌", "quote": "그는 자신의 사상이 어떤 결과를 낳았는지 두려워했다.", "text": "이반은 아버지 죽음 이후 마음의 병을 얻습니다. 그는 모든 것이 허용된다는 자신의 생각이 누군가에게 영향을 주었을지도 모른다는 두려움에 시달립니다. 그는 몇 번이나 하인 스메르쟈코프를 찾아가 이야기를 나눕니다.\n\n스메르쟈코프는 이반의 사상에 깊이 영향을 받은 사람입니다. 그는 이반에게 암시를 던지고, 이반은 그의 뜻을 짐작하면서도 모른 척 마을을 떠났던 자신의 책임을 느낍니다.", "id": 15}, {"title": "스메르쟈코프의 고백", "quote": "당신이 죽이게 했고, 내가 죽였습니다.", "text": "이반은 마침내 스메르쟈코프를 찾아가 모든 진실을 듣게 됩니다. 스메르쟈코프는 자신이 간질 발작을 가장해 계획을 세우고 표도르를 죽였으며, 돈도 가져갔다고 털어놓습니다. 그는 이반의 말과 사상 때문에 그렇게 했다고 말합니다.\n\n충격을 받은 이반은 자신이 간접적인 살인자라는 사실에 괴로워합니다. 그는 재판에서 진실을 밝히기로 결심하지만 마음은 이미 무너져 가고 있었습니다.", "id": 16}, {"title": "이반 앞에 나타난 악마", "quote": "나는 네 안의 생각일 뿐이야.", "text": "이반은 극심한 열병과 환각에 빠집니다. 그의 앞에 초라한 차림의 신사가 나타나 말을 겁니다. 그는 자신이 악마라고 말하며 이반의 생각과 의심을 하나하나 비웃고 조롱합니다. 이반은 소리를 지르며 컵을 던지지만 악마는 사라지지 않습니다.\n\n이 악마는 이반이 마음속에서 부정하고 싶던 자신의 또 다른 모습이었습니다. 이반이 환각에서 깨어났을 때 알료샤가 와서 스메르쟈코프가 목을 매어 죽었다는 소식을 전합니다.", "id": 17}, {"title": "재판의 날", "quote": "온 마을이 드미트리의 운명을 지켜보았다.", "text": "드미트리의 재판이 열립니다. 법정에는 많은 사람이 몰려들고, 카테리나와 그루센카, 이반과 알료샤도 증언대에 섭니다. 이반은 열병에 떨며 법정에 나와 자신이 진짜 범인은 스메르쟈코프이며 자신도 책임이 있다고 외치지만, 사람들은 그를 정신이 이상해진 것으로 여깁니다.\n\n카테리나는 마지막에 드미트리가 쓴 예전 편지를 증거로 내놓습니다. 그 편지에는 그가 아버지를 죽이겠다는 말을 쓴 흔적이 있었습니다. 상황은 드미트리에게 더욱 불리해집니다.", "id": 18}, {"title": "판결", "quote": "그는 아버지를 죽이지 않았으나 유죄 판결을 받았다.", "text": "검사와 변호사가 각각 긴 연설을 합니다. 검사는 사건의 정황과 드미트리의 성격을 들어 그의 유죄를 주장하고, 변호사는 증거의 허점을 짚으며 무죄를 호소합니다. 배심원들은 오랜 시간 의논합니다.\n\n그러나 판결은 유죄였습니다. 드미트리는 시베리아에서 20년 강제 노역형을 받게 됩니다. 그는 아버지를 죽이지 않았지만, 마음속에 남은 죄의식 때문에 이 벌을 받아들이기로 합니다.", "id": 19}, {"title": "탈출의 제안과 사랑", "quote": "그는 고통을 통해 새사람이 되려 했다.", "text": "드미트리를 탈출시키려는 계획이 세워집니다. 이반과 카테리나가 도우려 하고, 그루센카는 드미트리와 함께 가기로 합니다. 드미트리는 고통을 받아들이는 것이 자신의 길이라고 생각하면서도 마음이 갈라집니다.\n\n카테리나는 드미트리를 용서하고 그를 향한 복잡한 사랑을 인정합니다. 그루센카와도 서로를 이해하고 화해합니다. 사랑과 질투와 용서가 한데 얽힌 이 모든 이야기는 사람의 마음이 얼마나 깊고 복잡한지를 보여 줍니다.", "id": 20}, {"title": "일류샤의 장례", "quote": "우리는 서로를 영원히 기억하자.", "text": "일류샤가 세상을 떠납니다. 알료샤는 소년들과 함께 일류샤의 무덤 앞에 모입니다. 그는 소년들에게 마지막 연설을 합니다. 앞으로 어떤 어려운 일이 있어도 이 순간의 소중한 기억을 잊지 말라는 말입니다.\n\n좋은 추억 하나가 한 사람의 평생을 지켜 줄 수 있다고 말하고, 소년들은 눈물을 흘리며 알료샤에게 만세를 외칩니다. 이 장면은 소설에서 가장 따뜻한 끝맺음이 됩니다.", "id": 21}, {"title": "이 이야기가 우리에게 남긴 것", "quote": "신이 없다면 모든 것이 허용되는가.", "text": "『카라마조프가의 형제들』은 한 아버지의 죽음을 둘러싼 이야기이지만, 그 속에는 신과 자유, 악과 고통, 죄와 용서에 대한 가장 깊은 물음이 담겨 있습니다. 드미트리는 열정, 이반은 이성, 알료샤는 신앙을 대표하는 듯 보입니다.\n\n도스토옙스키는 이 긴 이야기에서 어느 한쪽이 옳다고 단정하지 않고, 사람이 어떻게 서로 사랑하고 용서하며 살아야 하는지를 보여 줍니다. 일류샤의 무덤 앞에서 소년들이 나눈 약속이 이 책이 건네는 마지막 위로입니다.", "id": 22}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 22';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 22 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

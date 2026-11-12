@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼포 가는 길 - 황석영 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#5b3a29;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">황석영 · 삼포 가는 길</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="10" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 책은 황석영 선생의 「삼포 가는 길」 원문이 아니라, 줄거리를 쉬운 말로 풀어 엮은 이야기책입니다. 세부 장면은 보태거나 줄인 곳이 있어 원작과 다를 수 있으니, 자세한 내용은 꼭 원작 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "눈 덮인 길을 걷는 영달", "quote": "갈 곳이 없어도 사람은 일단 걸어야 합니다.", "text": "겨울 아침, 눈이 덮인 들길을 영달이 혼자 걸어가고 있었습니다. 영달은 공사판을 떠돌며 그날그날 품삯을 받고 일하는 날품팔이 일꾼입니다. 일하던 공사판이 끝난 데다, 머물던 집 여주인과의 일이 들통나는 바람에 서둘러 그곳을 빠져나온 참이었습니다.\n\n주머니에는 돈도 얼마 없고, 가야 할 곳도 딱히 정해 두지 못했습니다. 찬바람이 옷 속을 파고들어 손을 비비며 걷던 영달은, 길 저쪽에서 누군가 걸어오는 것을 보았습니다. 이 만남이 영달의 겨울 길을 바꾸어 놓게 됩니다.", "id": 1}, {"title": "길동무 정씨를 만나다", "quote": "나는 고향 삼포로 가는 길이오.", "text": "길에서 만난 사람은 정씨였습니다. 정씨는 마흔 안팎의 중년 사내로, 한때 교도소에서 목수 일을 배운 사람입니다. 같은 공사판에서 일한 적이 있어 두 사람은 금방 서로를 알아보았고, 일이 끊긴 처지도 똑같아 말이 잘 통했습니다.\n\n정씨는 고향인 삼포로 간다고 했습니다. 영달이 삼포가 어디냐고 묻자, 정씨는 바닷가에 있는 작은 섬마을이라고 했습니다. 오랜 세월 떠돌다 이제야 고향에 돌아간다는 정씨의 얼굴에는 모처럼 따뜻한 빛이 돌았습니다. 영달도 그 말을 듣고 마음이 끌려, 두 사람은 함께 길을 걷기로 했습니다.", "id": 2}, {"title": "찬샘 마을 국밥집", "quote": "도망친 색시를 잡아 오면 돈을 준다더군.", "text": "두 사람은 출출해져서 찬샘이라는 마을의 국밥집에 들렀습니다. 뜨거운 국밥으로 언 몸을 녹이는데, 가게 안 사람들이 수군거리는 소리가 들려왔습니다.\n\n술집에서 일하던 작부 백화가 빚을 진 채 몰래 도망을 쳤다는 이야기였습니다. 술집 주인이 사방에 사람을 풀어서, 그녀를 잡아 오는 사람에게는 사례금을 주겠다고 했다는 것입니다. 영달과 정씨는 그저 남의 일로 듣고 흘렸지만, 곧 그 이야기가 남의 일이 아니게 됩니다.", "id": 3}, {"title": "감천 가는 길에서 만난 백화", "quote": "눈길 저편에서 보따리를 든 여자가 걸어오고 있었다.", "text": "정씨와 영달은 기차를 타려고 감천이라는 곳을 향해 다시 길을 나섰습니다. 눈이 쌓인 둑길을 한참 걷던 두 사람 앞에, 보따리를 든 젊은 여자가 나타났습니다. 바로 국밥집에서 소문으로만 들었던 백화였습니다.\n\n백화는 처음에는 두 사람을 경계했습니다. 혹시 자기를 잡으러 온 사람들인가 싶었던 것입니다. 하지만 영달과 정씨가 자기를 잡을 마음이 없다는 것을 알게 되자, 그녀도 조금씩 경계를 풀었습니다. 그렇게 세 사람은 한 줄로 서서 감천 쪽으로 같이 걷게 되었습니다.", "id": 4}, {"title": "백화의 지난날", "quote": "처음부터 이런 곳에서 살려던 건 아니었어요.", "text": "걸으면서 백화는 자기가 살아온 이야기를 털어놓았습니다. 어린 나이에 돈을 벌겠다고 서울로 올라갔는데, 그곳에서 만난 업자에게 속아 술집으로 팔려 갔다고 했습니다.\n\n그 뒤로 이 고장 저 고장의 술집을 옮겨 다니며 살았고, 빚은 줄지 않고 몸만 상했습니다. 이번에도 더는 견딜 수 없어서 도망쳐 나왔다는 것입니다. 영달과 정씨는 말없이 그 이야기를 들었습니다. 두 사람도 떠돌이였기에 백화의 설움이 남의 일 같지 않았고, 그녀를 술집에 넘기지 않기로 마음속으로 정했습니다.", "id": 5}, {"title": "눈길 위에서 쌓인 정", "quote": "한 줄로 걸으며 서먹함은 어느새 녹아 있었다.", "text": "처음에는 서먹하던 세 사람이었지만, 눈길을 오래 같이 걷는 동안 어느덧 한 식구처럼 가까워졌습니다. 정씨는 백화의 짐을 들어 주고 발걸음이 느려지면 기다려 주었습니다. 영달은 백화에게 말을 걸며 농담도 건넸습니다.\n\n영달은 어느새 백화에게 마음이 쏠렸고, 백화도 그런 영달에게 마음을 열었습니다. 가진 것 없는 사람들이 서로를 알아보고 따뜻함을 나누는 길이었습니다. 찬바람이 불어도 세 사람의 걸음에는 모처럼 훈기가 돌았습니다.", "id": 6}, {"title": "감천역에서 한 부탁", "quote": "나랑 같이 우리 고향에 가 주실래요?", "text": "세 사람은 마침내 감천 기차역에 닿았습니다. 백화는 기차를 타고 고향 쪽으로 갈 생각이었습니다. 역에 이르자 백화는 영달에게 같이 자기 고향으로 가 줄 수 없겠느냐고 조심스럽게 청했습니다.\n\n영달은 마음이 흔들렸지만, 그 청을 받아들이지 못했습니다. 자기 앞가림도 못 하는 떠돌이가 함께 간다고 백화에게 도움이 될 것 같지 않았고, 정씨와 가기로 한 길도 있었기 때문입니다. 영달의 거절을 들은 백화는 서운한 마음을 감추고 조용히 고개를 끄덕였습니다.", "id": 7}, {"title": "영달이 사 준 기차표와 먹을 것", "quote": "영달은 가진 돈을 털어 차표를 샀다.", "text": "영달은 말없이 자기 주머니의 돈을 털어 백화의 기차표를 샀습니다. 그리고 기차 안에서 먹으라며 삼립빵과 삶은 달걀도 사서 백화의 손에 쥐여 주었습니다. 돈이 넉넉지 않은 영달이 낼 수 있는 가장 큰 정성이었습니다.\n\n기차가 들어오자 백화는 차에 오르기 전에 영달에게 자기 본래 이름을 가만히 일러 주었습니다. 술집에서 불리던 이름이 아니라, 부모님이 지어 준 진짜 이름이었습니다. 기차는 연기를 내뿜으며 천천히 떠났고, 영달은 플랫폼에 서서 한참 동안 기차가 사라진 쪽을 바라보았습니다.", "id": 8}, {"title": "대합실에서 들은 삼포 소식", "quote": "삼포요? 거긴 이제 공사판이 되었다오.", "text": "백화를 보내고 나서 영달과 정씨는 역 대합실에서 몸을 녹였습니다. 마침 거기 앉아 있던 한 노인이 삼포에서 오는 길이라고 했습니다.\n\n정씨가 반갑게 삼포 소식을 묻자 노인은 뜻밖의 말을 했습니다. 삼포는 이제 예전 섬마을이 아니라는 것입니다. 바다를 막아 육지와 이어 놓는 큰 공사가 한창이고, 그곳에 호텔과 공장이 들어선다고 했습니다. 정씨가 마음속에 그려 오던 고향의 모습은 이미 사라지고 없었던 것입니다.", "id": 9}, {"title": "눈발 속으로 걸어가는 두 사람", "quote": "고향을 잃은 사람에게도 걸어갈 길은 남아 있었다.", "text": "삼포에 큰 공사가 벌어진다는 말을 듣고 영달은 오히려 반가워했습니다. 공사판이 있으면 일자리가 있다는 뜻이니까요. 하지만 정씨는 말을 잃었습니다. 평생 가슴에 품고 온 고향이 돌아갈 수 없는 곳이 되었기 때문입니다.\n\n잠시 후 정씨는 힘없이 일어섰습니다. 두 사람은 대합실을 나와 다시 눈발이 날리는 길로 걸어 나갔습니다. 정씨는 이제 어디로 가야 할지 알 수 없었지만, 그 곁에는 영달이 있었습니다. 눈 쌓인 길 위에 두 사람의 발자국이 나란히 길게 이어졌습니다.", "id": 10}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 10';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 10 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

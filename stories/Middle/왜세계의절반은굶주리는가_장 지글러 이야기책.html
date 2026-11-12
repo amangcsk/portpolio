@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>왜 세계의 절반은 굶주리는가? - 장 지글러 이야기책</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#5b3a29;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang',serif;--font-body:'Gowun Batang',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">장 지글러 · 왜 세계의 절반은 굶주리는가?</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="21" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 이야기책은 장 지글러의 『왜 세계의 절반은 굶주리는가?』를 차례와 책 소개를 바탕으로 큰 줄기만 쉽게 풀어 엮은 것으로, 원문이 아닙니다. 책 전체를 읽고 쓴 것이 아니라서 세부 내용이나 숫자는 원작과 다를 수 있으니, 자세한 내용은 꼭 책으로 확인해 주세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "아들이 묻고 아버지가 답하다", "quote": "이 책은 세계에서 가장 어려운 질문을 가장 쉬운 말로 풀어 보려는 대화입니다.", "text": "저자 장 지글러는 스위스 사람으로, 오랫동안 유엔에서 세계의 굶주림 문제를 조사하는 일을 맡았던 학자입니다. 이 책은 그가 아들과 나누는 대화 형식으로 쓰였습니다. 어려운 학술 책이 아니라, 아이가 묻고 아버지가 차근차근 답하는 이야기입니다.\n\n책을 이끄는 질문은 단순합니다. 지구에서는 온 인류를 먹이고도 남을 만큼 식량이 만들어지는데, 왜 지금도 많은 사람이 굶주리고 목숨을 잃는가. 저자는 이것을 어쩔 수 없는 자연의 일이 아니라 사람이 만든 구조의 문제로 바라보자고 이야기합니다.\n\n앞으로 이 이야기책은 책의 차례를 따라, 굶주림의 모습에서 시작해 그 원인과 사람들의 노력까지 스무 걸음 더 나아갑니다.", "id": 1}, {"title": "일상이 된 굶주림", "quote": "굶주림은 먼 나라의 사건이 아니라 매일 되풀이되는 일상이다.", "text": "책은 먼저 굶주림이 얼마나 흔한 일이 되었는지 보여 줍니다. 뉴스에서 기근 소식이 나오면 잠깐 마음이 아프다가도, 우리는 곧 다른 일로 눈을 돌립니다. 저자는 바로 그 무심함이 가장 큰 문제라고 말합니다.\n\n굶주림은 큰 재난이 터진 때만 생기는 일이 아니라, 날마다 조용히 일어나는 일입니다. 책이 쓰였을 당시 굶주리는 사람은 수억 명, 그중에는 어린아이가 아주 많았다고 합니다. 숫자는 시대마다 달라지지만, 저자가 하려는 말은 같습니다. 우리 시대는 이 일을 막을 힘이 충분히 있다는 것입니다.\n\n그래서 저자는 이 문제를 불쌍하다는 마음으로만 보지 말고, 모든 사람이 먹을 권리를 가진다는 눈으로 보자고 권합니다. 먹는 일은 베풀어 주는 선심이 아니라 사람이 누려야 할 권리라는 생각입니다.", "id": 2}, {"title": "운명인가, 도태인가", "quote": "굶주림은 자연이 정한 운명이 아니라 사람이 만든 구조에서 나온다.", "text": "어떤 사람들은 굶주림을 어쩔 수 없는 일로 여깁니다. 땅이 메마른 나라는 원래 가난하고, 인구가 많아서 먹을 것이 모자란다는 생각입니다. 약한 자가 사라지는 것이 자연의 이치라고 말하는 사람도 있습니다.\n\n저자는 이런 생각을 단호하게 물리칩니다. 세상에서 만들어지는 식량의 양은 모든 사람을 먹이기에 모자라지 않다는 것이 책의 핵심 주장입니다. 모자라는 것은 식량이 아니라, 식량이 필요한 사람에게 닿도록 하는 구조와 의지라는 것입니다.\n\n그러니 굶주림은 하늘이 내린 운명이 아니라 사람이 만든 문제이고, 사람이 만든 문제는 사람이 고칠 수 있습니다. 저자가 이 책 내내 독자에게 건네는 희망의 출발점이 바로 여기입니다.", "id": 3}, {"title": "소말리아, 문제가 모인 곳", "quote": "한 나라에 굶주림의 원인이 겹겹이 쌓이면 사람들은 빠져나올 길을 잃는다.", "text": "책은 아프리카의 소말리아를 예로 들어, 굶주림이 한 나라에서 어떻게 겹겹이 쌓이는지 보여 줍니다. 오래 이어진 전쟁과 정치 혼란, 가뭄과 같은 자연 재해, 가난한 나라에 불리한 세계의 경제 구조가 한꺼번에 그곳 사람들을 짓누릅니다.\n\n이런 곳에서는 농사를 지을 수도, 시장에서 곡식을 살 수도 없고, 구호품이 도착해도 안전하게 나누어 주기가 어렵습니다. 저자는 현지를 직접 다니며 보고 들은 것을 아들에게 들려주는 방식으로 이 이야기를 풀어 갑니다.\n\n소말리아의 사례는 굶주림이 한 가지 이유로 생기는 것이 아니라는 점을 알려 줍니다. 그래서 해결하려면 식량을 보내는 일만으로는 부족하고 전쟁, 정치, 경제를 함께 살펴야 한다는 것이 이 대목의 교훈입니다.", "id": 4}, {"title": "생명을 선별하다", "quote": "도울 수 있는 사람이 제한되면 누구를 먼저 살릴지 고르는 잔인한 일이 생긴다.", "text": "구호 현장에서는 때로 아주 가슴 아픈 일이 벌어집니다. 도와줄 식량과 일손이 모자라서, 누구를 먼저 살릴지 정해야 하는 상황입니다. 책은 이것을 생명을 선별한다고 표현합니다.\n\n더 심각한 상태의 아이를 먼저 돌볼지, 아직 살릴 수 있는 아이를 먼저 돌볼지를 현장의 구호 요원은 매일 가려내야 합니다. 저자는 이런 선택을 해야 하는 구호 요원의 괴로움을 전하면서, 이런 선택이 필요하게 만든 세상 자체가 잘못되었다고 지적합니다.\n\n식량이 충분한 세상에서 어떤 아이는 구호를 받고 어떤 아이는 받지 못하는 일은, 개인의 선의만으로는 풀 수 없는 문제입니다. 저자는 이 장면을 통해 아들에게, 그리고 독자에게 구조를 바꾸어야 한다고 말하고 있습니다.", "id": 5}, {"title": "긴급구호만으로 풀릴까", "quote": "불을 끄는 일도 중요하지만, 불이 자꾸 나는 까닭을 고치지 않으면 불은 계속 난다.", "text": "굶주리는 사람을 돕는 긴급구호는 꼭 필요합니다. 하지만 저자는 긴급구호만으로는 굶주림이 사라지지 않는다고 말합니다. 마치 불이 날 때마다 불을 끄기만 하고, 불이 나는 까닭은 고치지 않는 것과 같기 때문입니다.\n\n구호품에 기대는 동안에는 사람들이 스스로 농사를 짓고 먹고살 힘을 키우기가 어렵고, 구호가 끊기면 다시 같은 어려움이 되풀이됩니다. 또 구호 자체가 정치와 이해관계에 얽혀 필요한 곳에 제대로 닿지 못하는 일도 있습니다.\n\n그래서 저자는 긴급구호를 하되, 사람들이 스스로 먹을거리를 키울 수 있도록 근본 원인을 함께 고쳐야 한다고 이야기합니다. 급한 불을 끄는 일과 불씨를 없애는 일은 둘 다 필요하다는 뜻입니다.", "id": 6}, {"title": "부자의 쓰레기, 가난한 사람의 밥", "quote": "한쪽에서는 음식이 남아 버려지고, 다른 쪽에서는 그 부스러기가 목숨을 잇는다.", "text": "책은 세계가 얼마나 불균형한지 아주 선명한 장면으로 보여 줍니다. 잘사는 곳에서는 음식이 남아 쓰레기로 버려지는데, 가난한 곳에서는 그렇게 버려진 것에 기대 목숨을 이어 가는 사람들이 있다는 것입니다.\n\n저자는 이것이 나쁜 사람들의 잘못이라기보다, 식량이 사람의 필요가 아니라 돈의 흐름을 따라 움직이는 세상의 모습이라고 이야기합니다. 돈이 있는 곳으로 먹을거리가 모이고, 돈이 없는 곳에서는 먹을거리가 있어도 살 수가 없습니다.\n\n아들에게 이 이야기를 들려주며 저자는, 우리가 평소 아무 생각 없이 남기고 버리는 것이 다른 세계의 누군가에게는 얼마나 귀한 것인지 생각해 보게 합니다.", "id": 7}, {"title": "이름 없는 작은 무덤들", "quote": "숫자가 되어 사라지는 아이들 하나하나에게도 이름과 얼굴이 있었다.", "text": "굶주림으로 세상을 떠나는 사람의 상당수는 어린아이들입니다. 저자는 숫자 뒤에 가려진 아이 한 명 한 명의 얼굴을 떠올리게 합니다. 이름도 남기지 못하고 작은 무덤에 묻힌 아이들의 이야기입니다.\n\n통계로 말하면 사람의 마음에 와닿지 않지만, 한 아이의 이야기로 들으면 달라집니다. 저자는 현장에서 만난 가족들의 모습을 통해, 굶주림이 얼마나 가까운 사람들의 일상을 무너뜨리는지 전합니다.\n\n이 대목은 책 전체에서 가장 마음이 무거운 부분 가운데 하나입니다. 하지만 저자는 슬픔에 머무르지 말고, 이 죽음이 막을 수 있는 죽음이라는 사실을 기억하라고 강조합니다.", "id": 8}, {"title": "돈이 모자란 국제기구", "quote": "세계를 위해 만든 기구도 돈이 모자라면 제 몫을 다하기 어렵다.", "text": "굶주림과 싸우는 국제기구들이 있습니다. 식량을 나누어 주고 농사를 돕는 유엔의 여러 기관이 그런 곳입니다. 그런데 책은 이런 기구들이 늘 돈 문제로 어려움을 겪는다고 말합니다.\n\n필요한 예산은 부자 나라들이 내는 돈에 달려 있는데, 약속한 돈이 제때 다 들어오지 않는 일이 많다는 것입니다. 그러면 계획했던 구호를 줄여야 하고, 줄어든 만큼 더 많은 사람이 굶주림에 놓입니다.\n\n저자는 이것이 세계가 이 문제를 얼마나 가볍게 여기는지를 보여 준다고 지적합니다. 전쟁이나 은행을 구하는 데는 큰돈을 선뜻 내놓으면서, 굶주리는 사람을 살리는 데는 늘 돈이 없다는 현실을 아들에게 말해 줍니다.", "id": 9}, {"title": "소는 먹고 사람은 굶고", "quote": "같은 곡식도 사람 입으로 가느냐, 가축의 먹이로 가느냐에 따라 세상이 달라진다.", "text": "곡식의 일부는 사람이 먹는 대신 가축의 사료로 쓰입니다. 잘사는 나라에서 고기를 많이 먹으려면 그만큼 많은 곡식이 가축 먹이로 들어가야 합니다. 책은 이 점을 지적하며, 소는 배불리 먹는데 사람은 굶는 모순을 이야기합니다.\n\n또 곡식을 연료로 만드는 데 쓰는 일처럼, 먹을거리가 아닌 다른 용도로 쓰이는 일도 늘고 있다고 말합니다. 같은 곡식이 어디로 가느냐는 결국 누구에게 돈이 되느냐에 달려 있다는 것입니다.\n\n저자는 모든 사람에게 고기를 먹지 말라고 하는 것이 아닙니다. 다만 우리의 식탁이 세계 먼 곳의 식량 사정과 이어져 있다는 사실을 알고, 그것을 생각하며 살자고 말합니다.", "id": 10}, {"title": "시장 가격의 뒷면", "quote": "식량은 먹으라고 있는 것이지만, 시장에서는 돈 벌 물건으로 다루어지기도 한다.", "text": "곡식의 값은 시장에서 정해집니다. 그런데 이 가격이 오르내리는 데는 농사 사정만이 아니라 큰돈을 굴리는 사람들의 계산도 영향을 줍니다. 값이 오르면 가난한 나라 사람들은 곡식을 살 엄두를 내지 못합니다.\n\n책은 식량을 돈벌이 수단으로 삼는 세계의 큰 기업과 투기꾼들을 비판합니다. 곡식이 모자라지 않아도 값이 오르면 굶는 사람이 늘어날 수 있다는 것입니다.\n\n저자는 곡식 가격을 두고 이익을 챙기는 사람들의 움직임을 아들에게 쉽게 풀어 설명하며, 먹을거리가 돈의 논리에만 맡겨져서는 안 된다고 말합니다. 먹는 일은 사람의 기본 권리이기 때문입니다.", "id": 11}, {"title": "학교가 가르치지 않는 것", "quote": "알아야 바꿀 수 있는데, 굶주림의 진짜 모습은 우리가 거의 배우지 못한다.", "text": "책은 학교에서 굶주림에 관해 거의 가르치지 않는다는 점도 짚습니다. 우리는 수학과 역사는 배우지만, 세상에서 왜 사람들이 굶는지, 누가 그 문제를 어떻게 풀고 있는지는 잘 배우지 못합니다.\n\n저자는 이것이 우연이 아니라고 이야기합니다. 불편한 진실은 가르치지 않고 지나가기 쉽기 때문입니다. 그래서 어른들 대부분이 굶주림을 어쩔 수 없는 일이라고 믿고 살아갑니다.\n\n저자가 아들에게 이 이야기를 하는 까닭은, 아들이 학교에서 배우지 못한 것을 집에서라도 알려 주고 싶었기 때문입니다. 알아야 무심하지 않을 수 있고, 무심하지 않아야 바꿀 수 있다는 것이 이 대목에 담긴 마음입니다.", "id": 12}, {"title": "전쟁과 무기가 된 굶주림", "quote": "전쟁은 사람을 굶기고, 굶주림은 다시 전쟁의 무기가 되기도 한다.", "text": "전쟁이 나면 농사를 지을 수 없고, 길이 막혀 먹을거리가 오가지 못합니다. 그래서 전쟁이 길게 이어지는 곳일수록 굶주림은 더 깊어집니다. 책은 전쟁이 굶주림을 불러오는 모습을 먼저 이야기합니다.\n\n더 나아가 굶주림 자체를 무기로 쓰는 일도 있다고 말합니다. 상대편 사람들이 먹지 못하게 식량 길을 막거나 구호품이 닿지 못하게 해서 사람들을 굴복시키려는 것입니다.\n\n저자는 이것이 사람의 권리를 짓밟는 가장 비겁한 방식이라고 이야기하며, 전쟁 속에서도 먹을 권리는 지켜져야 한다고 말합니다. 굶주림은 어쩌다 생기는 일이 아니라, 때로는 누군가의 선택이라는 점을 알려 주는 대목입니다.", "id": 13}, {"title": "기업과 권력이 굶주림을 이용할 때", "quote": "이익을 위해서든 권력을 위해서든, 굶주림을 이용하는 일은 용서받기 어렵다.", "text": "책은 굶주림을 자기 이익을 위해 이용하는 세력도 있다고 이야기합니다. 세계의 큰 기업들은 가난한 나라의 농산물과 땅을 싼값에 차지하려 하고, 어떤 정부는 사람들을 통제하기 위해 먹을거리를 손에 쥐고 흔듭니다.\n\n저자는 이런 일들을 국가가 저지르는 테러라고까지 표현하며 강하게 비판합니다. 먹을 것을 쥐고 사람들을 길들이는 것은 사람의 존엄을 해치는 일이라는 것입니다.\n\n아들에게 이 이야기를 들려주며 저자는, 굶주림이 단순히 모자람의 문제만이 아니라 힘과 권력이 얽힌 문제임을 알려 줍니다. 그래서 이 문제를 풀려면 힘없는 사람들이 목소리를 낼 수 있어야 합니다.", "id": 14}, {"title": "사막이 넓어지면 사람이 떠난다", "quote": "땅이 죽으면 사람도 그 땅을 떠날 수밖에 없다.", "text": "책은 환경 문제도 굶주림의 큰 원인으로 꼽습니다. 땅이 점점 메말라 사막으로 변하는 사막화가 일어나면, 그 땅에서 농사짓던 사람들은 더 이상 먹고살 수 없게 됩니다.\n\n그렇게 살던 땅을 떠나야 하는 사람들을 환경난민이라고 부릅니다. 전쟁을 피해 떠나는 난민만큼이나, 땅이 죽어서 떠나는 사람들도 많다는 것입니다.\n\n저자는 이 문제가 하늘의 탓만이 아니라고 말합니다. 무분별한 개발과 나무를 마구 베는 일, 가난한 사람들이 어쩔 수 없이 땅을 혹사하는 일이 겹쳐 사막이 넓어진다는 것입니다. 가난과 환경이 서로 악순환을 만든다는 이야기입니다.", "id": 15}, {"title": "숲이 사라지고 대처는 멀고", "quote": "나무 한 그루를 지키는 일이 사람의 밥 한 끼를 지키는 일과 이어져 있다.", "text": "숲이 사라지면 땅은 물을 머금지 못하고 쉽게 말라 버립니다. 그래서 삼림 파괴는 사막화를 앞당기고, 사막화는 다시 사람들의 먹을거리를 앗아 갑니다. 책은 숲과 식량이 이렇게 이어져 있다고 말합니다.\n\n문제를 막으려면 큰돈이 필요합니다. 책은 사막화를 막는 데 드는 비용이 상당히 크다고 전하지만, 세계가 그 돈을 쓰는 데는 늘 소극적이었다고 지적합니다.\n\n저자는 비용이 많이 든다고 포기할 것이 아니라, 굶주림이 더 큰 대가를 치르게 한다는 점을 생각해 보라고 말합니다. 나무를 심고 땅을 살리는 일은 미래의 식량을 심는 일이라는 뜻입니다.", "id": 16}, {"title": "도시로 몰리는 사람들", "quote": "땅을 잃은 사람들은 도시로 가지만, 거기에도 준비된 밥상은 없다.", "text": "농촌에서 먹고살기 어려워진 사람들은 도시로 몰려듭니다. 일자리와 더 나은 삶을 찾아서입니다. 그러나 도시에도 그들을 위한 일자리와 집이 충분하지 않아, 많은 사람이 가난한 변두리에서 힘들게 살아갑니다.\n\n책은 이렇게 도시 인구가 계속 늘어나는 현상이 굶주림 문제와 이어진다고 말합니다. 농사를 지을 사람은 줄고, 도시에서는 먹을거리를 돈으로 사야 하는데 돈이 없기 때문입니다.\n\n저자는 가난한 나라에서 농촌이 되살아나야 도시도 숨을 쉴 수 있다고 이야기합니다. 사람들이 자기가 살던 땅에서 먹고살 수 있게 돕는 것이 가장 근본적인 해결책이라는 뜻입니다.", "id": 17}, {"title": "식민지가 남긴 상처", "quote": "오래전에 시작된 일이 지금의 굶주림에도 그림자를 드리운다.", "text": "책은 지금의 굶주림이 오래전 식민지 시대와도 이어져 있다고 말합니다. 아프리카의 여러 나라는 옛날 강대국의 식민지였고, 그때 만들어진 경제 구조가 독립한 뒤에도 쉽게 바뀌지 않았습니다.\n\n식민지 시절에는 현지 사람들이 먹을 곡식 대신 강대국에 팔 작물을 키우게 했습니다. 그 결과 독립한 뒤에도 자기 나라 사람이 먹을 식량을 스스로 마련하기 어려운 나라들이 많아졌다는 것입니다.\n\n저자는 이 상처가 아직 낫지 않았다고 말합니다. 과거의 일을 알아야 지금의 문제를 제대로 이해할 수 있다고 아들에게 말해 주는 대목입니다.", "id": 18}, {"title": "상카라를 만나다", "quote": "한 사람의 용기가 가난한 나라를 일으킬 수 있다는 것을 책은 상카라를 통해 보여 준다.", "text": "책의 뒷부분에서 저자는 부르키나파소라는 아프리카 나라의 지도자였던 토마 상카라를 소개합니다. 상카라는 가난하고 메마른 땅을 가진 나라를, 스스로 먹고살 수 있는 나라로 바꾸려 했던 사람입니다.\n\n그가 살았던 사헬은 사하라 사막 남쪽 가장자리에 있는 땅으로, 가뭄과 사막화가 심한 곳입니다. 책은 이 메마른 땅이 어떻게 사람들을 굶주림으로 내몰았는지를 설명합니다.\n\n저자는 상카라를 직접 만나 이야기를 나누었던 기억을 전하며, 그가 어떤 생각을 가지고 나라를 이끌었는지 들려줍니다. 힘없는 나라의 지도자도 시민과 함께 노력하면 길을 낼 수 있다는 희망이 이 대목에 담겨 있습니다.", "id": 19}, {"title": "용기 있는 개혁자와 그의 최후", "quote": "상카라가 보여 준 길은 짧게 끝났지만 그 뜻은 사라지지 않았다.", "text": "상카라는 나무를 심고, 땅을 되살리고, 사람들이 스스로 먹을거리를 키우도록 이끌려 했던 개혁가였습니다. 그는 외국의 도움에만 기대지 않고 자기 나라 사람들의 힘으로 일어서야 한다고 믿었습니다.\n\n그러나 그의 개혁은 오래가지 못했습니다. 책에 따르면 상카라는 짧은 집권 끝에 목숨을 잃었고, 그의 시도는 중단되었습니다. 저자는 그의 최후를 안타까워하며 이야기합니다.\n\n저자는 상카라의 이야기가 실패담으로만 끝나지 않기를 바랍니다. 한 사람이 쓰러져도 그가 보여 준 길은 다른 사람들에게 이어질 수 있다고 말합니다. 아들에게 용기를 가르쳐 주고 싶은 마음이 담겨 있습니다.", "id": 20}, {"title": "진정한 길을 찾아서", "quote": "굶주림을 끝내는 힘은 결국 무심하지 않기로 마음먹은 보통 사람들에게 있다.", "text": "책의 마지막 대목에서 저자는 이 모든 이야기를 바탕으로 길을 찾아봅니다. 식량은 충분하고 방법도 있으니, 필요한 것은 세계가 이 문제를 진지하게 받아들이는 의지라는 것입니다.\n\n저자는 시민들이 조직을 이루고 목소리를 내어 정치와 세계 경제의 방향을 바꾸는 것이 중요하다고 말합니다. 정부와 국제기구만 바라볼 것이 아니라, 우리 하나하나가 관심을 갖고 행동해야 한다는 것입니다.\n\n저자가 아들과 독자에게 마지막으로 남기는 당부는 분명합니다. 굶주림 앞에서 무심해지지 말고, 먹을 권리가 모든 사람의 것임을 기억하라는 것입니다. 이 책을 덮고 나서 달라지는 것은, 그렇게 마음을 먹는 한 사람에서 시작됩니다.", "id": 21}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 21';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 21 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>

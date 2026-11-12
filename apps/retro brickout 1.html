@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Breakout v4 (Adjusted Level 2)</title>
+    <style>
+        /* 1. 레트로 폰트 가져오기 */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /* 2. 전체 화면 스타일 설정 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+        }
+
+        /* 3. 게임 캔버스 스타일 */
+        canvas {
+            border: 4px solid #0ff;
+            box-shadow: 0 0 20px #0ff;
+            background-color: #000;
+            display: block;
+            /* 모바일에서 화면이 너무 커지지 않도록 최대 높이 제한 */
+            max-height: 90vh; 
+            max-width: 95vw;
+        }
+
+        #mobile-hint {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            font-size: 10px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="480" height="480"></canvas>
+<div id="mobile-hint">화면을 터치하여 이동하세요</div>
+
+<script>
+(function() {
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // 게임 변수
+    let score = 0;
+    let level = 1;
+    const maxLevel = 3;
+    let isGameOver = false;
+    let isGameRunning = false; 
+    let animationId; 
+
+    // 공 설정
+    const ballRadius = 6;
+    let x = canvas.width / 2;
+    let y = canvas.height - 30;
+    let dx = 1.5; 
+    let dy = -1.5; 
+
+    // 패들 설정
+    const paddleHeight = 10;
+    const paddleWidth = 85 * 1.5; 
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    const paddleSpeed = 4;
+
+    // 키보드 상태
+    let rightPressed = false;
+    let leftPressed = false;
+
+    // 벽돌 설정 (변경사항: 줄 수 4 -> 5로 증가)
+    const brickRowCount = 5; 
+    const brickColumnCount = 6;
+    const brickWidth = 60;
+    const brickHeight = 20;
+    const brickPadding = 10;
+    const brickOffsetTop = 40; 
+    const brickOffsetLeft = 35;
+
+    let bricks = [];
+    let particles = [];
+
+    // 파티클 클래스
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.dx = (Math.random() - 0.5) * 4;
+            this.dy = (Math.random() - 0.5) * 4;
+            this.alpha = 1.0; 
+            this.life = 0.03; 
+        }
+
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, 4, 4);
+            ctx.restore();
+        }
+
+        update() {
+            this.x += this.dx;
+            this.y += this.dy;
+            this.alpha -= this.life;
+        }
+    }
+
+    // 레벨 초기화
+    function initLevel(currentLvl) {
+        bricks = [];
+        for (let c = 0; c < brickColumnCount; c++) {
+            bricks[c] = [];
+            for (let r = 0; r < brickRowCount; r++) {
+                let status = 1;
+                if (currentLvl === 2) {
+                    // 변경사항: 레벨 2 패턴 수정 (벽돌 개수 증가)
+                    // 기존: 체크무늬 (50%만 배치) -> 수정: 3번째 칸마다 하나씩만 비움
+                    if ((c + r) % 3 === 0) status = 0; 
+                } else if (currentLvl === 3) {
+                    if (r > c + 1 || r > (brickColumnCount - 1 - c) + 1) status = 0;
+                }
+                bricks[c][r] = { x: 0, y: 0, status: status };
+            }
+        }
+        
+        // 공과 패들 리셋
+        x = canvas.width / 2;
+        y = canvas.height - 40; 
+        
+        // 변경사항: 속도 증가폭 감소 (0.5 -> 0.2)
+        // 레벨 1: 1.5, 레벨 2: 1.7, 레벨 3: 1.9
+        let speedMultiplier = 1.5 + (currentLvl - 1) * 0.2;
+        dx = speedMultiplier;
+        dy = -speedMultiplier;
+        
+        paddleX = (canvas.width - paddleWidth) / 2;
+    }
+
+    // 이벤트 리스너
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+    document.addEventListener("mousemove", mouseMoveHandler, false);
+    canvas.addEventListener("touchmove", touchMoveHandler, {passive: false});
+    canvas.addEventListener("click", startGameHandler, false);
+
+    function keyDownHandler(e) {
+        if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+        else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+        else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+    }
+
+    function mouseMoveHandler(e) {
+        const relativeX = e.clientX - canvas.offsetLeft;
+        if (relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - paddleWidth / 2;
+        }
+    }
+
+    function touchMoveHandler(e) {
+        e.preventDefault(); 
+        const relativeX = e.touches[0].clientX - canvas.offsetLeft;
+        if (relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - paddleWidth / 2;
+        }
+    }
+
+    function startGameHandler() {
+        if (!isGameRunning && !isGameOver) {
+            isGameRunning = true;
+            initLevel(level); 
+            draw();
+        } else if (isGameOver) {
+            document.location.reload(); 
+        }
+    }
+
+    // 충돌 감지
+    function collisionDetection() {
+        let bricksLeft = 0;
+        for (let c = 0; c < brickColumnCount; c++) {
+            for (let r = 0; r < brickRowCount; r++) {
+                const b = bricks[c][r];
+                if (b.status === 1) {
+                    bricksLeft++;
+                    if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                        dy = -dy; 
+                        b.status = 0; 
+                        score++;
+                        
+                        let color = "#00ff00";
+                        if(r === 0) color = "#ff0000";
+                        else if(r === 1) color = "#ff8800";
+                        else if(r === 2) color = "#ffff00";
+                        
+                        for(let i=0; i<8; i++) {
+                            particles.push(new Particle(b.x + brickWidth/2, b.y + brickHeight/2, color));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (bricksLeft === 0 && isGameRunning) {
+            if (level < maxLevel) {
+                level++;
+                alert("LEVEL " + level + " START!");
+                initLevel(level); 
+            } else {
+                alert("YOU WIN! ALL LEVELS CLEARED!");
+                document.location.reload();
+            }
+        }
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#ff00ff"; 
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#00ff00"; 
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#00ff00";
+        ctx.fill();
+        ctx.closePath();
+        ctx.shadowBlur = 0;
+    }
+
+    function drawBricks() {
+        for (let c = 0; c < brickColumnCount; c++) {
+            for (let r = 0; r < brickRowCount; r++) {
+                if (bricks[c][r].status === 1) {
+                    const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+                    
+                    ctx.beginPath();
+                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                    if(r === 0) ctx.fillStyle = "#ff0000"; 
+                    else if(r === 1) ctx.fillStyle = "#ff8800"; 
+                    else if(r === 2) ctx.fillStyle = "#ffff00"; 
+                    else ctx.fillStyle = "#00ff00"; 
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+    }
+
+    function drawScore() {
+        ctx.font = "16px 'Press Start 2P'";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("SCORE: " + score, 8, 25);
+        ctx.fillText("LVL: " + level, canvas.width - 90, 25);
+    }
+
+    function drawStartScreen() {
+        ctx.font = "16px 'Press Start 2P'";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText("CLICK TO START", canvas.width/2, canvas.height/2);
+        ctx.font = "10px 'Press Start 2P'";
+        ctx.fillText("Slow & Steady Mode", canvas.width/2, canvas.height/2 + 30);
+        ctx.textAlign = "start"; 
+    }
+
+    function drawGameOver() {
+        ctx.font = "30px 'Press Start 2P'";
+        ctx.fillStyle = "#ff0000";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2);
+        ctx.font = "12px 'Press Start 2P'";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Click to Restart", canvas.width/2, canvas.height/2 + 40);
+    }
+
+    function drawParticles() {
+        particles.forEach((particle, index) => {
+            if (particle.alpha <= 0) {
+                particles.splice(index, 1);
+            } else {
+                particle.update();
+                particle.draw();
+            }
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawBricks();
+        drawBall();
+        drawPaddle();
+        drawScore();
+        drawParticles();
+        collisionDetection();
+
+        if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+            dx = -dx; 
+        }
+        if (y + dy < ballRadius) {
+            dy = -dy; 
+        } else if (y + dy > canvas.height - ballRadius) {
+            if (x > paddleX && x < paddleX + paddleWidth) {
+                let collidePoint = x - (paddleX + paddleWidth/2);
+                collidePoint = collidePoint / (paddleWidth/2);
+                
+                // 속도가 너무 빨라지지 않도록 제한
+                let currentSpeed = Math.sqrt(dx*dx + dy*dy);
+                let speed = Math.min(currentSpeed, 4); 
+                
+                dx = collidePoint * speed * 1.2; 
+                dy = -dy; 
+            } else {
+                isGameOver = true;
+                drawGameOver();
+                return; 
+            }
+        }
+
+        x += dx;
+        y += dy;
+
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+            paddleX += paddleSpeed; 
+        } else if (leftPressed && paddleX > 0) {
+            paddleX -= paddleSpeed; 
+        }
+
+        animationId = requestAnimationFrame(draw);
+    }
+
+    initLevel(1); 
+    drawBricks();
+    drawPaddle();
+    drawScore();
+    drawStartScreen();
+
+})(); 
+</script>
+
+</body>
+</html>
