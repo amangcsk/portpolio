@@ -739,7 +739,7 @@ ARTWORKS.forEach((a, i) => {
 /* =====================================================================
    [C] 걸러내기 · 정렬
    ===================================================================== */
-const state = { cat:"all", kind:"", coll:"", tag:"", year:"", q:"", sort:"basic", view:"tiles" };
+const state = { cat:"all", kind:"", coll:"", tag:"", year:"", q:"", sort:"basic", view:"list" };
 try{
   const sv = localStorage.getItem("pf_view"), ss = localStorage.getItem("pf_sort");
   if(sv === "tiles" || sv === "list") state.view = sv;
