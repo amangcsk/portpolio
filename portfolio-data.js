@@ -81,6 +81,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-10-30"
     },
     {
+        "file":  "musicvideos/시간이 멈춘 언덕에서.mp4",
+        "date":  "2026-11-13"
+    },
+    {
         "file":  "musicvideos/저물어가는 노을 바라보며.mp4",
         "date":  "2026-10-06"
     },
@@ -97,16 +101,16 @@ window.PORTFOLIO_FILES = [
         "date":  "2025-12-01"
     },
     {
-        "file":  "stories/High/stranger_storybook.html",
-        "date":  "2026-11-10"
-    },
-    {
         "file":  "stories/High/데미안_헤르만 헤세_H.html",
         "date":  "2026-11-12"
     },
     {
         "file":  "stories/High/삼포가는길_황석영 이야기책.html",
         "date":  "2026-11-12"
+    },
+    {
+        "file":  "stories/High/이방인 _까뮤.html",
+        "date":  "2026-11-10"
     },
     {
         "file":  "stories/High/적과흑_스땅달.html",
@@ -151,6 +155,14 @@ window.PORTFOLIO_FILES = [
     {
         "file":  "stories/Middle/봄봄_동백꽃_이야기책.html",
         "date":  "2026-11-11"
+    },
+    {
+        "file":  "stories/Middle/소나기_황순원.html",
+        "date":  "2026-11-13"
+    },
+    {
+        "file":  "stories/Middle/소크라테스의변명_플라톤.html",
+        "date":  "2026-11-13"
     },
     {
         "file":  "stories/Middle/수난이대_하근찬 이야기책.html",
