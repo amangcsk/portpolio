@@ -157,6 +157,12 @@ window.ARTWORK_INFO = {
     youtube: "https://youtu.be/xcYEyJxpAxI"
   },
 
+  "musicvideos/시간이 멈춘 언덕에서.mp4": {
+    title: "시간이 멈춘 언덕에서",
+    description: "",
+    youtube: "https://youtu.be/XuVE4ryT7mc"
+  },
+
   "musicvideos/group perfomance.mp4": {
     title: "",
     description: "",
