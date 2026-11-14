@@ -1292,7 +1292,7 @@ function createYouTubePlayer(item){
   const id = ytId(item.youtube);
   const wrap = document.createElement("div");
   wrap.innerHTML = `<div class="yt-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0"
-      title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      title="${esc(item.title)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
     <a class="yt-link" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">유튜브에서 보기 &rarr;</a>`;
   return wrap;
 }

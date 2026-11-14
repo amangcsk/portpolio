@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 작품 전시관</title>
+<meta name="description" content="그림, 글, 영상, 음악 - 직접 만든 작품을 전시하는 개인 갤러리">
+<meta name="theme-color" content="#1b1a19">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="나의 작품 전시관">
+<meta property="og:description" content="그림, 글, 영상, 음악 - 직접 만든 작품을 전시하는 개인 갤러리">
+<meta property="og:locale" content="ko_KR">
+
+<!--
+╔══════════════════════════════════════════════════════════════════════╗
+║  ★ 사용 방법 (아주 쉬움) ★                                            ║
+║  1) gallery : 그림·mp4·mp3·html·pdf 등 여러 파일을 마음대로 넣는 곳   ║
+║     musicvideos : 뮤직 비디오(mp4)만 넣는 곳                           ║
+║     audios 음악 / storyboard 스토리북 / apps 앱 / stories 글(txt)       ║
+║     study : 공부·참고 자료(txt·md·pdf·한글·워드·그림 등 아무거나)       ║
+║     ※ 각 폴더 안에 하위 폴더를 만들면 "폴더(묶음)"로 자동 분류됩니다.   ║
+║  2) "작품목록_새로고침.bat" 파일을 더블클릭합니다.                      ║
+║  3) index.html 을 더블클릭하면 폴더 속 작품이 자동으로 전시됩니다.      ║
+║  ※ 제목·설명·꼬리표를 직접 쓰고 싶으면 info.js 파일을 메모장으로 고치세요.║
+║  ※ 이 index.html 파일은 고칠 필요가 없습니다.                           ║
+╚══════════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+/* =========================================================
+   1. 색상과 기본 설정
+   ========================================================= */
+:root{
+  --bg:#1b1a19; --bg-soft:#232120; --card:#2a2826; --card-hover:#33302d;
+  --line:#3b3733; --text:#ebe5da; --muted:#a39b8d;
+  --gold:#c9a45c; --gold-soft:#e0c48a; --wood:#8a6a47;
+  --shadow:0 10px 30px rgba(0,0,0,.45); --radius:10px;
+  --top:58px; --side:276px;
+  --serif:"Noto Serif KR","Nanum Myeongjo","Batang","Georgia",serif;
+  --sans:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
+body.no-scroll{overflow:hidden}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;text-align:inherit}
+select,input{font-family:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+/* =========================================================
+   2. 맨 위 줄 (제목 + 검색)
+   ========================================================= */
+.topbar{
+  position:sticky;top:0;z-index:40;height:var(--top);
+  display:flex;align-items:center;gap:14px;padding:0 16px;
+  background:rgba(27,26,25,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.menu-btn{display:none;width:42px;height:42px;border-radius:10px;border:1px solid var(--line);font-size:20px;text-align:center;line-height:40px;color:var(--gold-soft);flex:none}
+.brand{display:flex;align-items:baseline;gap:12px;min-width:0;flex:none;max-width:46%}
+.brand h1{font-family:var(--serif);font-weight:600;font-size:20px;color:var(--gold-soft);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-wrap{flex:1;display:flex;justify-content:flex-end;min-width:0}
+.search{width:min(440px,100%);background:var(--bg-soft);border:1px solid var(--line);color:var(--text);padding:9px 16px;border-radius:999px;font-size:15px}
+.search::placeholder{color:#7c756a}
+.search:focus{outline:none;border-color:var(--gold)}
+
+/* =========================================================
+   3. 전체 배치 : 왼쪽 사이드바 + 오른쪽 작품 영역
+   ========================================================= */
+.shell{display:flex;align-items:flex-start;min-height:calc(100vh - var(--top))}
+.sidebar{
+  position:sticky;top:var(--top);flex:none;width:var(--side);
+  height:calc(100vh - var(--top));overflow-y:auto;overscroll-behavior:contain;
+  background:var(--bg-soft);border-right:1px solid var(--line);
+  padding:14px 12px 24px;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#47423c;border-radius:8px}
+.side-head{display:none}
+.apply-btn{display:none}
+.fsec{margin-bottom:18px}
+.fsec h3{font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:600;padding:0 8px 6px;display:flex;justify-content:space-between;align-items:center}
+.fsec h3 small{font-weight:400;letter-spacing:0}
+.fi{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+  padding:8px 10px;border-radius:8px;font-size:15px;color:#cfc8ba;line-height:1.35;
+}
+.fi:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.fi.active{background:linear-gradient(135deg,var(--gold),var(--wood));color:#1b1a19;font-weight:700}
+.fi .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi .n{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
+.fi.active .n{color:rgba(0,0,0,.6)}
+.fi.sub{padding-left:26px;font-size:14px}
+.fi.zero{opacity:.45}
+.chipwrap{display:flex;flex-wrap:wrap;gap:6px;padding:0 6px}
+.cbtn{padding:5px 11px;border-radius:999px;border:1px solid var(--line);font-size:13px;color:#cfc8ba}
+.cbtn:hover{border-color:var(--wood);color:var(--text)}
+.cbtn.active{background:var(--gold);color:#1b1a19;border-color:var(--gold);font-weight:700}
+.cbtn .n{opacity:.65;margin-left:4px;font-size:11px}
+.side-foot{margin-top:6px;padding:12px 8px 0;border-top:1px solid var(--line);font-size:13px;color:var(--muted);white-space:pre-line}
+.side-foot .contact{margin-top:6px}
+.reset-btn{margin:2px 8px 16px;font-size:13px;color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+
+.content{flex:1;min-width:0;padding:14px 18px 90px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.count{font-size:15px;color:var(--text)}
+.count b{color:var(--gold-soft);font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 100%;order:3}
+.achip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 12px;border-radius:999px;background:rgba(201,164,92,.14);border:1px solid rgba(201,164,92,.4);font-size:13px;color:var(--gold-soft)}
+.achip i{font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.25);font-size:12px}
+.achip:hover i{background:var(--gold);color:#1b1a19}
+.ctrls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ctrls label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.ctrls select{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{padding:6px 14px;font-size:14px;color:var(--muted);text-align:center}
+.seg button.on{background:var(--gold);color:#1b1a19;font-weight:700}
+
+/* =========================================================
+   4. 작품 목록 : 촘촘한 그림 보기 / 목록 보기
+   ========================================================= */
+#results.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 12px}
+.tile{display:block;width:100%;border-radius:var(--radius);transition:transform .2s}
+.tile:hover{transform:translateY(-3px)}
+.tt{position:relative;aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;background:#151413;border:1px solid var(--line);transition:border-color .2s}
+.tile:hover .tt{border-color:var(--wood)}
+.tt>img{width:100%;height:100%;object-fit:cover}
+.tt video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none}
+.tt.has-video video{opacity:1}
+.tt .tx{position:absolute;inset:0;padding:12px;font-family:var(--serif);font-size:13px;line-height:1.7;color:#c8c0b2;background:linear-gradient(160deg,#322f2a,#24221e);overflow:hidden}
+.tt .tx::before{content:"\201C";display:block;font-size:30px;line-height:.7;color:var(--gold);margin-bottom:4px}
+.kind{position:absolute;left:6px;top:6px;z-index:2;font-size:11px;letter-spacing:.04em;background:rgba(27,26,25,.8);color:var(--gold-soft);border:1px solid rgba(201,164,92,.4);padding:1px 8px;border-radius:999px}
+.tn{margin-top:7px;font-size:14px;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+.tm{font-size:12px;color:#8d867a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.playing .tt{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,164,92,.35)}
+.tile.playing .kind{background:var(--gold);color:#1b1a19}
+
+#results.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.row{display:grid;grid-template-columns:72px 1fr 84px 96px;gap:14px;align-items:center;padding:7px 14px 7px 8px;border-bottom:1px solid var(--line);width:100%;background:var(--card)}
+.row:nth-child(even){background:#262422}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--card-hover)}
+.row .rt{position:relative;width:72px;height:54px;border-radius:6px;overflow:hidden;background:#151413}
+.row .rt>img{width:100%;height:100%;object-fit:cover}
+.row .rt video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none}
+.row .rt.has-video video{opacity:1}
+.row .rt .tx{display:none}
+.row .rn{min-width:0}
+.row .rn b{display:block;font-weight:500;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rn span{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rk{font-size:13px;color:var(--gold-soft)}
+.row .rd{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.row.playing{outline:2px solid var(--gold);outline-offset:-2px}
+
+.sentinel{height:1px}
+.more-btn{display:block;margin:20px auto 0;padding:10px 28px;border-radius:999px;border:1px solid var(--wood);color:var(--gold-soft)}
+.more-btn:hover{background:var(--gold);color:#1b1a19}
+.empty{text-align:center;color:var(--muted);padding:70px 20px;font-family:var(--serif);font-size:17px;display:none}
+.empty.show{display:block}
+
+/* =========================================================
+   5. 아래쪽 음악 재생줄(독) - 음악을 틀어 놓고 다른 작품을 계속 볼 수 있어요
+   ========================================================= */
+.dock{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
+  background:rgba(36,34,32,.97);border-top:1px solid var(--wood);
+  backdrop-filter:blur(8px);padding:8px 16px calc(8px + env(safe-area-inset-bottom));
+  align-items:center;gap:14px;box-shadow:0 -6px 20px rgba(0,0,0,.4);
+}
+.dock.show{display:flex}
+.dock .dc{width:46px;height:46px;border-radius:6px;overflow:hidden;flex:none;background:#151413}
+.dock .dc img{width:100%;height:100%;object-fit:cover}
+.dock .di{min-width:0;flex:0 1 240px}
+.dock .di b{display:block;font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock .di span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock .di span.err{color:#e0a58a}
+.dock .dseek{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.dock .dvol{display:flex;align-items:center;gap:6px;flex:none}
+.round-btn{width:44px;height:44px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--gold),var(--wood));color:#1b1a19;display:grid;place-items:center;transition:.2s}
+.round-btn:hover{transform:scale(1.08)}
+.round-btn svg{width:20px;height:20px;fill:#1b1a19}
+.icon-btn{width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--gold-soft);flex:none}
+.icon-btn:hover{background:rgba(255,255,255,.08)}
+.icon-btn svg{width:22px;height:22px;fill:currentColor}
+.time{font-size:12.5px;color:var(--muted);min-width:84px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range].rng{-webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:999px;background:linear-gradient(to right,var(--gold) var(--pct,0%),#47423c var(--pct,0%));outline:none;cursor:pointer;min-width:0}
+input[type=range].rng::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold-soft);border:2px solid #1b1a19;box-shadow:0 0 0 1px var(--gold)}
+input[type=range].rng::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold-soft);border:2px solid #1b1a19}
+input[type=range].vol{flex:none;width:100px}
+body.dock-open .content{padding-bottom:110px}
+
+/* =========================================================
+   6. 팝업(모달)
+   ========================================================= */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(10,9,9,.92);display:none;align-items:center;justify-content:center;padding:16px;animation:fade .25s ease}
+.modal.open{display:flex}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.close-btn{position:absolute;top:14px;right:14px;z-index:5;width:48px;height:48px;border-radius:50%;background:rgba(42,40,38,.9);border:1px solid var(--line);font-size:26px;color:var(--text);line-height:1;text-align:center;transition:.2s}
+.close-btn:hover{background:var(--gold);color:#1b1a19}
+.lb-figure{max-width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.lb-figure img{max-width:100%;max-height:calc(100vh - 150px);object-fit:contain;border-radius:6px;box-shadow:var(--shadow);background:#111}
+.lb-caption{text-align:center;max-width:720px}
+.lb-caption h3{font-family:var(--serif);font-size:20px;color:var(--gold-soft)}
+.lb-caption p{font-size:14.5px;color:var(--muted);margin-top:4px}
+.lb-caption .count{font-size:12.5px;color:#7c756a;margin-top:6px}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(42,40,38,.85);border:1px solid var(--line);font-size:26px;color:var(--text);text-align:center;transition:.2s;z-index:4}
+.nav-btn:hover{background:var(--gold);color:#1b1a19}
+.nav-btn.prev{left:14px}.nav-btn.next{right:14px}
+
+.reader{background:#f3ecdd;color:#2a2622;width:min(760px,100%);max-height:calc(100vh - 32px);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.reader-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px 10px 22px;background:#e6dcc7;border-bottom:1px solid #d3c7ad}
+.reader-bar .label{font-size:13px;color:#6d5f46;letter-spacing:.06em}
+.reader-bar .tools{display:flex;gap:6px;align-items:center}
+.tool-btn{min-width:42px;height:42px;padding:0 12px;border-radius:9px;border:1px solid #c7b998;color:#4a3f2b;font-size:15px;background:#f3ecdd;text-align:center}
+.tool-btn:hover{background:var(--gold);color:#1b1a19}
+.reader .close-inline{width:42px;height:42px;border-radius:50%;font-size:24px;color:#4a3f2b;background:#d9ceb4;text-align:center}
+.reader .close-inline:hover{background:#2a2622;color:#f3ecdd}
+.reader-scroll{overflow-y:auto;padding:34px clamp(20px,5vw,56px) 50px;-webkit-overflow-scrolling:touch}
+.reader h2{font-family:var(--serif);font-size:clamp(24px,4.5vw,32px);line-height:1.4;color:#2a2622}
+.reader .meta{margin-top:8px;color:#8a7a5c;font-size:14px}
+.reader .rule{width:48px;height:2px;background:var(--wood);margin:22px 0}
+.reader .body{font-family:var(--serif);font-size:var(--read-size,18px);line-height:2}
+.reader .body p{margin-bottom:1.2em;text-indent:.6em}
+
+.reader .body .md-h{font-family:var(--serif);margin:1.5em 0 .5em;color:#3a2f1e;line-height:1.4}
+.reader .body ul{margin:0 0 1.2em 1.5em}
+.reader .body li{margin-bottom:.3em}
+.reader .body code{background:#e6dcc7;padding:1px 5px;border-radius:4px;font-size:.9em}
+.video-wrap{width:min(1100px,100%);display:flex;flex-direction:column;gap:12px}
+.vp{position:relative;background:#000;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);aspect-ratio:16/9}
+.vp:fullscreen{border-radius:0;aspect-ratio:auto;width:100%;height:100%}
+.vp video{width:100%;height:100%;display:block;background:#000;object-fit:contain}
+.vp .big-play{position:absolute;inset:0;display:grid;place-items:center;cursor:pointer;background:rgba(0,0,0,.25);transition:.25s}
+.vp.playing .big-play{opacity:0;pointer-events:none}
+.vp .big-play span{width:84px;height:84px;border-radius:50%;background:rgba(27,26,25,.75);border:2px solid var(--gold);display:grid;place-items:center}
+.vp .big-play span::after{content:"";margin-left:7px;border-left:26px solid var(--gold-soft);border-top:16px solid transparent;border-bottom:16px solid transparent}
+.vp-controls{position:absolute;left:0;right:0;bottom:0;padding:30px 14px 10px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;flex-direction:column;gap:4px;transition:opacity .3s}
+.vp.playing.idle .vp-controls{opacity:0}
+.vp.playing.idle{cursor:none}
+.vp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vp-row .spacer{flex:1}
+.vp-note{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(86%,520px);text-align:center;color:#ecd9c4;font-size:15px;background:rgba(30,26,22,.92);border:1px dashed rgba(201,164,92,.6);padding:18px 20px;border-radius:12px;display:none;z-index:3}
+.vp-note.show{display:block}
+.video-caption h3{font-family:var(--serif);font-size:20px;color:var(--gold-soft)}
+.video-caption p{color:var(--muted);font-size:14.5px;margin-top:4px}
+.yt-wrap{position:relative;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.yt-link{display:inline-block;margin-top:8px;color:var(--gold);font-size:14px;text-decoration:none}
+
+.frame-modal{padding:0;flex-direction:column;align-items:stretch;background:#111}
+.frame-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--line)}
+.frame-bar h3{font-family:var(--serif);font-size:17px;color:var(--gold-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frame-bar .btns{display:flex;gap:8px;align-items:center;flex:none}
+.frame-bar a.open-new{padding:9px 14px;border-radius:9px;border:1px solid var(--wood);color:var(--gold-soft);font-size:14px;text-decoration:none;white-space:nowrap}
+.frame-bar a.open-new:hover{background:var(--gold);color:#1b1a19}
+.frame-bar .close-inline{width:42px;height:42px;border-radius:50%;font-size:24px;background:#3b3733;color:var(--text);text-align:center}
+.frame-bar .close-inline:hover{background:var(--gold);color:#1b1a19}
+.frame-modal iframe{flex:1;width:100%;border:0;background:#fff}
+
+footer.page-foot{display:none}
+
+/* =========================================================
+   8. 폴더 구조 보기 (나무 모양)
+   ========================================================= */
+.tree-btn{flex:none;margin-right:10px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg-soft);color:var(--gold-soft);font-size:14.5px;white-space:nowrap;transition:.2s}
+.tree-btn:hover{background:var(--gold);color:#1b1a19;border-color:var(--gold)}
+.tree-panel{position:relative;width:min(860px,100%);max-height:calc(100vh - 32px);background:var(--bg-soft);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.tree-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px 12px 22px;border-bottom:1px solid var(--line)}
+.tree-head h2{font-family:var(--serif);font-size:20px;color:var(--gold-soft);font-weight:600}
+.tree-head .x{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);font-size:24px;text-align:center;line-height:1;flex:none}
+.tree-head .x:hover{background:var(--gold);color:#1b1a19}
+.tree-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 22px;border-bottom:1px solid var(--line)}
+.tree-tools button{padding:7px 13px;border-radius:8px;border:1px solid var(--line);font-size:14px;color:var(--text)}
+.tree-tools button:hover{border-color:var(--gold);color:var(--gold-soft)}
+.tree-tools input{flex:1;min-width:150px;background:var(--bg);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-size:14.5px}
+.tree-tools input:focus{outline:none;border-color:var(--gold)}
+.tree-sum{padding:8px 22px;font-size:13.5px;color:var(--muted);border-bottom:1px solid var(--line)}
+.tree-body{overflow:auto;padding:12px 14px 22px;font-size:15.5px}
+.tree-body details{margin-left:20px;border-left:1px dashed var(--line);padding-left:8px}
+.tree-body > details{margin-left:0;border-left:none;padding-left:0}
+.tree-body summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;flex-wrap:wrap}
+.tree-body summary::-webkit-details-marker{display:none}
+.tree-body summary:hover,.tree-file:hover{background:var(--card-hover)}
+.tree-body summary::before{content:"\25B8";color:var(--gold);width:14px;flex:none;transition:transform .15s}
+.tree-body details[open] > summary::before{transform:rotate(90deg)}
+.tree-body .fname{font-weight:600;color:var(--gold-soft)}
+.tree-body .badge{font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:1px 9px}
+.tree-body .desc{font-size:13.5px;color:#8f8878}
+.tree-file{display:flex;align-items:center;gap:8px;margin-left:20px;padding:5px 8px 5px 22px;border-radius:8px;color:var(--text);text-decoration:none;flex-wrap:wrap;border-left:1px dashed var(--line)}
+.tree-file .nm{word-break:break-all}
+.tree-file .meta{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.tree-file:hover .nm{color:var(--gold-soft)}
+.tree-empty{padding:18px;color:var(--muted)}
+@media (max-width:640px){.tree-btn{padding:8px 11px;font-size:13.5px}.tree-head h2{font-size:18px}.tree-file .meta{margin-left:30px;width:100%}}
+
+
+/* =========================================================
+   7. 태블릿·스마트폰 : 사이드바가 옆에서 밀려 나오는 서랍이 됩니다
+   ========================================================= */
+.backdrop{display:none}
+@media (max-width:900px){
+  :root{--side:min(86vw,320px)}
+  .menu-btn{display:block}
+  .brand span{display:none}
+  .brand{max-width:none;flex:1}
+  .search-wrap{flex:none;width:44%}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;height:100%;z-index:80;transform:translateX(-102%);transition:transform .25s ease;padding-top:0;padding-bottom:84px}
+  body.drawer-open .sidebar{transform:none;box-shadow:var(--shadow)}
+  .backdrop{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6)}
+  body.drawer-open .backdrop{display:block}
+  .side-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;background:var(--bg-soft);padding:14px 8px 10px;margin-bottom:6px;border-bottom:1px solid var(--line);font-size:17px}
+  .side-head button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);text-align:center;font-size:20px}
+  .apply-btn{display:block;position:fixed;left:12px;bottom:14px;width:calc(var(--side) - 24px);z-index:3;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--wood));color:#1b1a19;font-weight:700;text-align:center;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+  .content{padding:12px 12px 90px}
+  .fi{padding:11px 12px;font-size:16px}
+}
+@media (max-width:640px){
+  .topbar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:8px}
+  .search-wrap{width:100%;order:3}
+  .search{width:100%}
+  .brand h1{font-size:18px}
+  :root{--top:104px}
+  #results.tiles{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px 8px}
+  .tn{font-size:13px}
+  .row{grid-template-columns:60px 1fr 74px;gap:10px;padding:6px 10px 6px 6px}
+  .row .rt{width:60px;height:45px}
+  .row .rd{display:none}
+  .dock{flex-wrap:wrap;gap:8px 12px}
+  .dock .di{flex:1 1 40%}
+  .dock .dseek{order:5;flex:1 1 100%}
+  .dock .dvol{display:none}
+  .nav-btn{width:44px;height:44px;font-size:22px}
+  .nav-btn.prev{left:6px}.nav-btn.next{right:6px}
+  input[type=range].vol{width:80px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+
+<body>
+
+<!-- ============ 맨 위 줄 ============ -->
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="분류 메뉴 열기">&#9776;</button>
+  <div class="brand"><h1 id="siteName">나의 작품 전시관</h1><span id="siteTagline"></span></div>
+  <div class="search-wrap">
+    <button class="tree-btn" id="treeBtn" aria-label="폴더 구조 보기">&#128193; 폴더 구조</button>
+    <input class="search" id="search" type="search" placeholder="제목·설명·꼬리표 검색  ( / 키 )" aria-label="작품 검색" autocomplete="off">
+  </div>
+</header>
+
+<div class="shell">
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- ============ 왼쪽 사이드바 : 분류 ============ -->
+  <aside class="sidebar" id="sidebar" aria-label="작품 분류">
+    <div class="side-head"><b>분류</b><button id="sideClose" aria-label="닫기">&times;</button></div>
+    <div id="facets"></div>
+    <div class="side-foot" id="sideFoot"></div>
+    <button class="apply-btn" id="applyBtn">결과 보기</button>
+  </aside>
+
+  <!-- ============ 작품 영역 ============ -->
+  <main class="content" id="content">
+    <div class="bar">
+      <div class="count" id="count"></div>
+      <div class="ctrls">
+        <label>정렬
+          <select id="sort" aria-label="정렬 방법">
+            <option value="basic">기본 (지정순→최신)</option>
+            <option value="new">최신순</option>
+            <option value="old">오래된순</option>
+            <option value="name">이름 가나다순</option>
+            <option value="namer">이름 거꾸로</option>
+          </select>
+        </label>
+        <div class="seg" role="group" aria-label="보기 방식">
+          <button id="vTiles" aria-label="그림으로 보기">그림</button>
+          <button id="vList" aria-label="목록으로 보기">목록</button>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div id="results" class="tiles" aria-live="polite"></div>
+    <div class="sentinel" id="sentinel"></div>
+    <button class="more-btn" id="moreBtn" style="display:none">더 보기</button>
+    <p class="empty" id="empty"></p>
+  </main>
+</div>
+
+<!-- ============ 아래쪽 음악 재생줄 ============ -->
+<div class="dock" id="dock" role="region" aria-label="음악 재생">
+  <div class="dc" id="dockCover"></div>
+  <div class="di"><b id="dockTitle"></b><span id="dockSub"></span></div>
+  <div class="dseek">
+    <button class="round-btn" id="dockPlay" aria-label="재생">&nbsp;</button>
+    <input class="rng" id="dockSeek" type="range" min="0" max="1000" value="0" step="1" aria-label="재생 위치">
+    <span class="time" id="dockTime">0:00 / 0:00</span>
+  </div>
+  <div class="dvol">
+    <button class="icon-btn" id="dockMute" aria-label="소리 끄기/켜기">&nbsp;</button>
+    <input class="rng vol" id="dockVol" type="range" min="0" max="100" value="80" aria-label="볼륨(소리 크기)">
+  </div>
+  <button class="icon-btn" id="dockClose" aria-label="음악 끄기" style="font-size:22px">&times;</button>
+</div>
+
+<!-- ============ 팝업 1 : 그림 확대(라이트박스) ============ -->
+<div class="modal" id="lightbox" role="dialog" aria-modal="true" aria-label="그림 확대 보기">
+  <button class="close-btn" data-close aria-label="닫기">&times;</button>
+  <button class="nav-btn prev" id="lbPrev" aria-label="이전 그림">&#10094;</button>
+  <button class="nav-btn next" id="lbNext" aria-label="다음 그림">&#10095;</button>
+  <figure class="lb-figure">
+    <img id="lbImg" alt="">
+    <figcaption class="lb-caption">
+      <h3 id="lbTitle"></h3>
+      <p id="lbDesc"></p>
+      <div class="count" id="lbCount"></div>
+    </figcaption>
+  </figure>
+</div>
+
+<!-- ============ 팝업 2 : 글 전체 보기 ============ -->
+<div class="modal" id="reader" role="dialog" aria-modal="true" aria-label="글 읽기">
+  <article class="reader">
+    <div class="reader-bar">
+      <span class="label">글 읽기</span>
+      <div class="tools">
+        <button class="tool-btn" id="fontMinus" aria-label="글자 작게">가-</button>
+        <button class="tool-btn" id="fontPlus" aria-label="글자 크게">가+</button>
+        <button class="close-inline" data-close aria-label="닫기">&times;</button>
+      </div>
+    </div>
+    <div class="reader-scroll">
+      <h2 id="rdTitle"></h2>
+      <div class="meta" id="rdMeta"></div>
+      <div class="rule"></div>
+      <div class="body" id="rdBody"></div>
+    </div>
+  </article>
+</div>
+
+<!-- ============ 팝업 3 : 영상 재생 ============ -->
+<div class="modal" id="videoModal" role="dialog" aria-modal="true" aria-label="영상 보기">
+  <button class="close-btn" data-close aria-label="닫기">&times;</button>
+  <div class="video-wrap">
+    <div id="videoHost"></div>
+    <div class="video-caption">
+      <h3 id="vdTitle"></h3>
+      <p id="vdDesc"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 팝업 4 : 스토리북 / 앱 / 문서 (전체 화면) ============ -->
+<div class="modal frame-modal" id="frameModal" role="dialog" aria-modal="true" aria-label="작품 열기">
+  <div class="frame-bar">
+    <h3 id="frTitle"></h3>
+    <div class="btns">
+      <a class="open-new" id="frLink" target="_blank" rel="noopener">새 창에서 열기</a>
+      <button class="close-inline" data-close aria-label="닫기">&times;</button>
+    </div>
+  </div>
+  <iframe id="frFrame" title="작품" allow="autoplay; fullscreen" allowfullscreen></iframe>
+</div>
+
+<!-- 폴더 속 작품 목록(자동 생성)과 내 설명 파일 -->
+<!-- ============ 팝업 : 폴더 구조 ============ -->
+<div class="modal" id="treeModal" role="dialog" aria-modal="true" aria-label="폴더 구조">
+  <section class="tree-panel">
+    <div class="tree-head">
+      <h2>&#128193; 폴더 구조</h2>
+      <button class="x" data-close aria-label="닫기">&times;</button>
+    </div>
+    <div class="tree-tools">
+      <button id="treeOpenAll">모두 펼치기</button>
+      <button id="treeCloseAll">모두 접기</button>
+      <input id="treeFilter" type="search" placeholder="파일·폴더 이름 찾기" aria-label="폴더 구조에서 찾기" autocomplete="off">
+    </div>
+    <div class="tree-sum" id="treeSum"></div>
+    <div class="tree-body" id="treeBody"></div>
+  </section>
+</div>
+
+<script src="portfolio-data.js"></script>
+<script src="folder-tree.js"></script>
+<script src="info.js"></script>
+
+<script>
+/* =====================================================================
+   [A] 프로그램 부분  -----  ※ 이 부분은 고치지 않으셔도 됩니다 ※
+   제목·설명·꼬리표를 바꾸시려면 info.js 파일을 메모장으로 고치세요.
+   ===================================================================== */
+
+/* ---------- 작은 도우미 함수들 ---------- */
+const $ = (sel, root=document) => root.querySelector(sel);
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtTime(t){
+  if(!isFinite(t)) return "0:00";
+  const m = Math.floor(t/60), s = Math.floor(t%60);
+  return m + ":" + String(s).padStart(2,"0");
+}
+
+/* 인터넷에 게시된 상태(https://...)인지, 내 컴퓨터에서 연 상태(file://...)인지 */
+const ONLINE = /^https?:$/.test(location.protocol);
+
+/* ---------- 파일 주소 다루기 : 폴더 속 파일 / 인터넷 주소 / Base64 코드 모두 OK ---------- */
+function encodePath(p){
+  if(/%[0-9A-Fa-f]{2}/.test(p)) return p;
+  return p.split("/").map(seg => (seg === "" || seg === "." || seg === "..") ? seg : encodeURIComponent(seg)).join("/");
+}
+function resolveSrc(value, kind){
+  if(!value) return "";
+  const v = String(value).trim();
+  if(/^(data:|blob:|https?:|file:)/i.test(v)) return v;
+  if(/^(\/|\.\/|\.\.\/)/.test(v)) return encodePath(v);
+  if(v.length > 200 && /^[A-Za-z0-9+/=\s]+$/.test(v)){
+    let mime;
+    if(kind === "audio") mime = "audio/mpeg";
+    else if(kind === "video") mime = "video/mp4";
+    else if(v.startsWith("/9j/")) mime = "image/jpeg";
+    else if(v.startsWith("iVBOR")) mime = "image/png";
+    else if(v.startsWith("R0lGOD")) mime = "image/gif";
+    else mime = "image/webp";
+    return "data:" + mime + ";base64," + v.replace(/\s+/g,"");
+  }
+  return encodePath(v);
+}
+
+/* 유튜브 주소에서 영상 번호(ID) 뽑기 */
+function ytId(v){
+  if(!v) return "";
+  const t = String(v).trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+  const m = t.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : "";
+}
+
+/* 그림 대신 보여 줄 기본 표지(큰 기호가 들어간 액자) */
+function coverArt(glyph){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a342d"/><stop offset="1" stop-color="#1c1a18"/></linearGradient></defs>
+      <rect width="400" height="300" fill="url(#g)"/>
+      <rect x="24" y="24" width="352" height="252" fill="none" stroke="#c9a45c" stroke-opacity=".45" stroke-width="2"/>
+      <text x="200" y="175" text-anchor="middle" font-size="110" fill="#c9a45c" fill-opacity=".85" font-family="serif">${esc(glyph)}</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+function placeholderArt(label){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+      <rect width="400" height="300" fill="#201e1c"/>
+      <rect x="60" y="45" width="280" height="210" fill="none" stroke="#c9a45c" stroke-opacity=".5" stroke-width="2"/>
+      <text x="200" y="152" text-anchor="middle" font-size="18" fill="#c9a45c" font-family="serif">${esc((label||"").slice(0,16))}</text>
+      <text x="200" y="182" text-anchor="middle" font-size="12" fill="#8a8275" font-family="sans-serif">그림을 찾을 수 없어요</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+/* 이미지 만들기 : 주소 후보를 차례로 시도하고, 모두 실패하면 빈 액자 */
+function imgTry(srcs, alt){
+  const img = document.createElement("img");
+  img.loading = "lazy"; img.decoding = "async"; img.alt = alt || "";
+  let i = 0;
+  img.addEventListener("error", () => {
+    i++;
+    if(i < srcs.length) img.src = srcs[i];
+    else if(i === srcs.length) img.src = placeholderArt(alt);
+  });
+  img.src = srcs[0] || placeholderArt(alt);
+  return img;
+}
+
+/* 줄여 둔 작은 그림 위치 : _thumbs/폴더/파일이름.jpg  (새로고침.bat 이 자동으로 만들어 줍니다) */
+const THUMB_EXT = ["jpg","jpeg","png","bmp","gif"];
+function thumbPath(file){
+  const m = /^(.*)\.([^./]+)$/.exec(String(file));
+  if(!m || !THUMB_EXT.includes(m[2].toLowerCase())) return "";
+  if(/^(data:|blob:|https?:|file:)/i.test(file)) return "";
+  return encodePath("_thumbs/" + m[1] + ".jpg");
+}
+
+/* =====================================================================
+   [B] 작품 목록 만들기 (폴더 속 파일 + info.js)
+   ===================================================================== */
+const SITE = Object.assign({ name:"나의 작품 전시관", tagline:"", about:"", footer:"", contact:"" }, window.SITE_INFO || {});
+
+/* 폴더 이름 → 작품 분류 */
+const FOLDER_CATEGORY = {
+  gallery:"gallery", images:"gallery", image:"gallery",
+  musicvideos:"musicvideo", videos:"musicvideo", video:"musicvideo",
+  audios:"music", audio:"music",
+  stories:"story", story:"story",
+  study:"study", reference:"study", docs:"study",
+  storyboard:"book",
+  apps:"app"
+};
+const CATEGORY_LABEL = { gallery:"갤러리", musicvideo:"뮤직 비디오", story:"글/이야기", study:"공부·참고", music:"음악", book:"스토리북", app:"앱" };
+const CAT_ORDER = ["gallery","musicvideo","story","study","music","book","app"];
+/* 하위 폴더 이름 → 화면에 보일 한글 이름 (실제 폴더 이름은 그대로 둡니다)
+   info.js 에 window.SUB_LABELS = { "폴더이름":"보일 이름" }; 를 적으면 덮어쓸 수 있습니다. */
+const SUB_LABELS = Object.assign({ High:"고등학생용", Middle:"중학생용" }, window.SUB_LABELS || {});
+const GENERAL_KEY = "__general";     /* 중·고 폴더에 넣지 않은 글 = 일반용 */
+const GENERAL_LABELS = { story:"일반용" };   /* 그 밖의 분류는 '기타' */
+const SUB_ORDER = ["Middle", "High"]; /* 중학생용 → 고등학생용 순서 */
+function collLabel(c, cat){ return c === GENERAL_KEY ? (GENERAL_LABELS[cat] || "기타") : (SUB_LABELS[c] || c); }
+const VIEW_LABEL = { image:"그림", video:"영상", music:"음악", frame:"문서/앱", story:"글", file:"파일" };
+const KIND_NAME = { gallery:"그림", musicvideo:"뮤직 비디오", music:"음악", story:"글", study:"자료", book:"스토리북", app:"앱" };
+const SHORT_LABEL = { video:"영상", music:"음악", story:"글", frame:"문서", file:"파일" };
+
+const EXT_IMAGE = ["jpg","jpeg","png","webp","gif","bmp","svg","avif"];
+const EXT_VIDEO = ["mp4","webm","mov","m4v"];
+const EXT_AUDIO = ["mp3","wav","m4a","ogg","aac","flac"];
+const EXT_FRAME = ["html","htm","pdf"];
+const EXT_TEXT  = ["txt","md"];
+const EXT_FILE  = ["doc","docx","hwp","hwpx","ppt","pptx","xls","xlsx","csv","zip"];
+function isOpenCat(category){ return category === "study" || String(category).indexOf("f:") === 0; }  /* study 와 새로 만든 폴더 : 어떤 파일이든 받아들임 */
+function viewOf(file, category){
+  const ext = String(file).split(".").pop().toLowerCase();
+  if(category === "musicvideo") return "video";
+  if(category === "music") return "music";
+  if(category === "story"){
+    if(EXT_TEXT.includes(ext)) return "story";   /* 글 파일은 사이트 안에서 바로 읽기 */
+    if(EXT_FRAME.includes(ext)) return "frame";  /* html·pdf 이야기책은 창을 열어 보기 */
+    return null;
+  }
+  if(category === "book" || category === "app") return "frame";
+  if(EXT_IMAGE.includes(ext)) return "image";
+  if(EXT_VIDEO.includes(ext)) return "video";
+  if(EXT_AUDIO.includes(ext)) return "music";
+  if(EXT_FRAME.includes(ext)) return "frame";
+  if(isOpenCat(category)){
+    if(EXT_TEXT.includes(ext)) return "story";   /* 글은 사이트 안에서 바로 읽기 */
+    if(EXT_FILE.includes(ext)) return "file";    /* 한글·워드 등은 내려받기 */
+  }
+  return null;
+}
+
+const FOLDER_ALIAS = { images:"gallery", gallery:"images", videos:"musicvideos", musicvideos:"videos" };
+function infoFor(file){
+  const ALL = window.ARTWORK_INFO || {};
+  if(ALL[file]) return ALL[file];
+  const parts = String(file).split("/");
+  const alt = FOLDER_ALIAS[parts[0]];
+  if(alt){ parts[0] = alt; return ALL[parts.join("/")] || {}; }
+  return {};
+}
+function autoTitle(file, category){
+  let name = file.split("/").pop().replace(/\.[^.]+$/, "");
+  name = name.replace(/[〈〉《》「」『』]/g, "").replace(/^[^\p{L}\p{N}]+/u, "").replace(/[_]+/g, " ").trim();
+  if(!name) name = KIND_NAME[category] || "작품";
+  if(/^\d+$/.test(name)) name = (KIND_NAME[category] || "작품") + " " + name;
+  return name;
+}
+function toTags(v){
+  const arr = Array.isArray(v) ? v : String(v || "").split(",");
+  return [...new Set(arr.map(s => String(s).trim()).filter(Boolean))];
+}
+function yearOf(s){ const m = /^(\d{4})/.exec(String(s||"")); return m ? m[1] : ""; }
+
+const FILE_LIST = Array.isArray(window.PORTFOLIO_FILES) ? window.PORTFOLIO_FILES : [];
+
+/* 새로 만든 폴더도 자동으로 분류에 나타나게 합니다.
+   (위 FOLDER_CATEGORY 에 없는 폴더 = 새 폴더. 폴더 이름이 그대로 분류 이름이 됩니다.
+    다른 이름으로 보이고 싶으면 info.js 에 window.FOLDER_LABELS = { "폴더이름":"보일 이름" }; 를 적으세요.) */
+const FOLDER_LABELS = window.FOLDER_LABELS || {};
+(function registerFolders(){
+  const seen = new Map();
+  FILE_LIST.forEach(f => {
+    const parts = String(f.file).split("/");
+    if(parts.length < 2) return;
+    const key = parts[0].toLowerCase();
+    if(FOLDER_CATEGORY[key] || seen.has(key)) return;
+    seen.set(key, parts[0]);
+  });
+  [...seen.keys()].sort().forEach(key => {
+    const cat = "f:" + key;
+    FOLDER_CATEGORY[key] = cat;
+    CATEGORY_LABEL[cat] = FOLDER_LABELS[seen.get(key)] || FOLDER_LABELS[key] || seen.get(key);
+    KIND_NAME[cat] = "작품";
+    CAT_ORDER.push(cat);
+  });
+  /* stories 같은 기존 분류에도 보이는 이름 덮어쓰기 허용 */
+  Object.keys(FOLDER_LABELS).forEach(k => { const c = FOLDER_CATEGORY[k.toLowerCase()]; if(c) CATEGORY_LABEL[c] = FOLDER_LABELS[k]; });
+})();
+
+const fromFiles = FILE_LIST.map(f => {
+  const parts = String(f.file).split("/");
+  const category = FOLDER_CATEGORY[parts[0].toLowerCase()];
+  if(!category) return null;
+  const view = viewOf(f.file, category);
+  if(!view) return null;
+  const my = infoFor(f.file);
+  if(my.hidden) return null;
+  const youtube = ytId(my.youtube) ? my.youtube : "";
+  return {
+    category, view, file: f.file,
+    title: my.title || autoTitle(f.file, category),
+    description: my.description || "",
+    date: (my.date || f.date || "").replace(/-/g, "."),
+    text: my.text || f.text || "",
+    cover: my.cover || "", thumb: my.thumb || "",
+    youtube,
+    poster: my.poster || (ONLINE && youtube ? "https://i.ytimg.com/vi/" + ytId(youtube) + "/hqdefault.jpg" : ""),
+    order: typeof my.order === "number" ? my.order : 1000,
+    tags: toTags(my.tags),
+    coll: my.collection || (parts.length > 2 ? parts[1] : ""),
+    _sort: my.date || f.date || ""
+  };
+}).filter(Boolean);
+
+/* 파일 없이 유튜브 주소만으로 만드는 작품 (info.js 의 EXTRA_WORKS) */
+const fromExtra = (Array.isArray(window.EXTRA_WORKS) ? window.EXTRA_WORKS : [])
+  .filter(w => w && ytId(w.youtube) && !w.hidden)
+  .map(w => ({
+    category: w.category === "gallery" ? "gallery" : "musicvideo",
+    view: "video", file: "",
+    title: w.title || "영상",
+    description: w.description || "",
+    date: (w.date || "").replace(/-/g, "."),
+    text: "", cover: "", thumb: "",
+    youtube: w.youtube,
+    poster: w.poster || ("https://i.ytimg.com/vi/" + ytId(w.youtube) + "/hqdefault.jpg"),
+    order: typeof w.order === "number" ? w.order : 1000,
+    tags: toTags(w.tags),
+    coll: w.collection || "",
+    _sort: w.date || ""
+  }));
+
+const ARTWORKS = fromFiles.concat(fromExtra);
+ARTWORKS.forEach((a, i) => {
+  a.id = i;
+  a.year = yearOf(a._sort);
+  a._hay = [a.title, a.description, a.tags.join(" "), a.coll, (a.coll ? collLabel(a.coll, a.category) : ""), a.text, CATEGORY_LABEL[a.category], VIEW_LABEL[a.view]].join(" ").toLowerCase();
+});
+
+/* =====================================================================
+   [C] 걸러내기 · 정렬
+   ===================================================================== */
+const state = { cat:"all", kind:"", coll:"", tag:"", year:"", q:"", sort:"basic", view:"list" };
+try{
+  const sv = localStorage.getItem("pf_view"), ss = localStorage.getItem("pf_sort");
+  if(sv === "tiles" || sv === "list") state.view = sv;
+  if(["basic","new","old","name","namer"].includes(ss)) state.sort = ss;
+}catch(e){}
+function savePrefs(){ try{ localStorage.setItem("pf_view", state.view); localStorage.setItem("pf_sort", state.sort); }catch(e){} }
+
+function matches(a, skip){
+  const s = new Set(skip || []);
+  if(!s.has("cat") && state.cat !== "all" && a.category !== state.cat) return false;
+  if(!s.has("kind") && state.kind && !(a.category === "gallery" && a.view === state.kind)) return false;
+  if(!s.has("coll") && state.coll && (state.coll === GENERAL_KEY ? !!a.coll : a.coll !== state.coll)) return false;
+  if(!s.has("tag") && state.tag && !a.tags.includes(state.tag)) return false;
+  if(!s.has("year") && state.year && a.year !== state.year) return false;
+  if(!s.has("q") && state.q){
+    const words = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+    for(const w of words) if(!a._hay.includes(w)) return false;
+  }
+  return true;
+}
+const byName = (a, b) => a.title.localeCompare(b.title, "ko", { numeric:true });
+const SORTS = {
+  basic: (a, b) => (a.order - b.order) || (b._sort || "0").localeCompare(a._sort || "0") || byName(a, b),
+  new:   (a, b) => (b._sort || "0").localeCompare(a._sort || "0") || byName(a, b),
+  old:   (a, b) => (a._sort || "9").localeCompare(b._sort || "9") || byName(a, b),
+  name:  byName,
+  namer: (a, b) => byName(b, a)
+};
+function currentList(){
+  return ARTWORKS.filter(a => matches(a)).sort(SORTS[state.sort]);
+}
+
+/* =====================================================================
+   [D] 사이드바 만들기
+   ===================================================================== */
+function tally(items, keyFn){
+  const m = new Map();
+  items.forEach(a => {
+    const k = keyFn(a);
+    (Array.isArray(k) ? k : [k]).forEach(x => { if(x) m.set(x, (m.get(x) || 0) + 1); });
+  });
+  return m;
+}
+function facetBtn(label, n, active, onClick, cls){
+  const b = document.createElement("button");
+  b.className = "fi" + (cls ? " " + cls : "") + (active ? " active" : "") + (n === 0 && !active ? " zero" : "");
+  b.innerHTML = `<span class="lab">${esc(label)}</span><span class="n">${n}</span>`;
+  b.addEventListener("click", onClick);
+  return b;
+}
+function chipBtn(label, n, active, onClick){
+  const b = document.createElement("button");
+  b.className = "cbtn" + (active ? " active" : "");
+  b.innerHTML = `${esc(label)}<span class="n">${n}</span>`;
+  b.addEventListener("click", onClick);
+  return b;
+}
+function section(title, sub){
+  const s = document.createElement("div");
+  s.className = "fsec";
+  s.innerHTML = `<h3>${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ""}</h3>`;
+  return s;
+}
+
+function buildFacets(){
+  const box = $("#facets");
+  box.innerHTML = "";
+
+  /* ----- 분류 ----- */
+  const secCat = section("분류");
+  const baseCat = ARTWORKS.filter(a => matches(a, ["cat","kind"]));
+  const cc = tally(baseCat, a => a.category);
+  secCat.appendChild(facetBtn("전체", baseCat.length, state.cat === "all" && !state.kind, () => { state.cat = "all"; state.kind = ""; state.coll = ""; refresh(); }));
+  CAT_ORDER.forEach(cat => {
+    const n = cc.get(cat) || 0;
+    const total = ARTWORKS.some(a => a.category === cat);
+    if(!total) return;
+    secCat.appendChild(facetBtn(CATEGORY_LABEL[cat], n, state.cat === cat && !state.kind && !state.coll, () => {
+      const off = (state.cat === cat && !state.kind && !state.coll);
+      state.cat = off ? "all" : cat; state.kind = ""; state.coll = "";
+      refresh();
+    }));
+    /* 갤러리 안의 종류(그림/영상/음악/문서) */
+    if(cat === "gallery" && (state.cat === "all" || state.cat === "gallery")){
+      const kc = tally(ARTWORKS.filter(a => a.category === "gallery" && matches(a, ["cat","kind"])), a => a.view);
+      ["image","video","music","frame"].forEach(v => {
+        const kn = kc.get(v) || 0;
+        if(!kn && state.kind !== v) return;
+        secCat.appendChild(facetBtn(VIEW_LABEL[v], kn, state.kind === v, () => {
+          state.coll = "";
+          if(state.kind === v){ state.kind = ""; } else { state.cat = "gallery"; state.kind = v; }
+          refresh();
+        }, "sub"));
+      });
+    }
+    /* 모든 분류 공통: 그 폴더 안의 하위 폴더가 자동으로 가지가 됩니다.
+       (하위 폴더가 하나도 없으면 가지를 만들지 않습니다. 하위 폴더에 넣지 않은 작품은 '일반용/기타'로 모읍니다.) */
+    const hasSub = ARTWORKS.some(a => a.category === cat && a.coll);
+    if(hasSub && (state.cat === "all" || state.cat === cat)){
+      const sc = tally(ARTWORKS.filter(a => a.category === cat && matches(a, ["cat","kind","coll"])), a => a.coll || GENERAL_KEY);
+      const keys = [...sc.keys()].filter(k => k !== GENERAL_KEY || sc.get(k) > 0);
+      if(state.cat === cat && state.coll && !sc.has(state.coll)) keys.push(state.coll);
+      const rank = k => k === GENERAL_KEY ? 1e6 : (SUB_ORDER.includes(k) ? SUB_ORDER.indexOf(k) : 1000);
+      keys.sort((x, y) => (rank(x) - rank(y)) || collLabel(x, cat).localeCompare(collLabel(y, cat), "ko", { numeric:true }));
+      keys.forEach(k => {
+        const kn = sc.get(k) || 0;
+        secCat.appendChild(facetBtn(collLabel(k, cat), kn, state.cat === cat && state.coll === k, () => {
+          if(state.cat === cat && state.coll === k){ state.coll = ""; } else { state.cat = cat; state.coll = k; }
+          state.kind = ""; refresh();
+        }, "sub"));
+      });
+    }
+  });
+  box.appendChild(secCat);
+
+  /* ----- 꼬리표(태그) ----- */
+  const tagMap = tally(ARTWORKS.filter(a => matches(a, ["tag"])), a => a.tags);
+  if(state.tag && !tagMap.has(state.tag)) tagMap.set(state.tag, 0);
+  if(tagMap.size){
+    const sec = section("꼬리표");
+    const wrap = document.createElement("div"); wrap.className = "chipwrap";
+    [...tagMap.entries()].sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0], "ko")).forEach(([name, n]) => {
+      wrap.appendChild(chipBtn(name, n, state.tag === name, () => { state.tag = state.tag === name ? "" : name; refresh(); }));
+    });
+    sec.appendChild(wrap); box.appendChild(sec);
+  }
+
+  /* ----- 연도 ----- */
+  const yearMap = tally(ARTWORKS.filter(a => matches(a, ["year"])), a => a.year);
+  const allYears = new Set(ARTWORKS.map(a => a.year).filter(Boolean));
+  if(state.year && !yearMap.has(state.year)) yearMap.set(state.year, 0);
+  if(allYears.size >= 2){
+    const sec = section("연도");
+    const wrap = document.createElement("div"); wrap.className = "chipwrap";
+    [...yearMap.entries()].sort((a, b) => b[0].localeCompare(a[0])).forEach(([name, n]) => {
+      wrap.appendChild(chipBtn(name, n, state.year === name, () => { state.year = state.year === name ? "" : name; refresh(); }));
+    });
+    sec.appendChild(wrap); box.appendChild(sec);
+  }
+
+  /* ----- 모두 해제 ----- */
+  if(anyFilter()){
+    const r = document.createElement("button");
+    r.className = "reset-btn"; r.textContent = "필터 모두 해제";
+    r.addEventListener("click", resetAll);
+    box.appendChild(r);
+  }
+}
+function anyFilter(){ return state.cat !== "all" || state.kind || state.coll || state.tag || state.year || state.q; }
+function resetAll(){
+  state.cat = "all"; state.kind = ""; state.coll = ""; state.tag = ""; state.year = ""; state.q = "";
+  $("#search").value = ""; refresh();
+}
+
+/* =====================================================================
+   [E] 위쪽 안내줄(개수·선택한 조건·정렬·보기방식)
+   ===================================================================== */
+function buildBar(n){
+  $("#count").innerHTML = `작품 <b>${n}</b>개` + (n !== ARTWORKS.length ? ` <span style="color:var(--muted);font-size:13px">/ 전체 ${ARTWORKS.length}개</span>` : "");
+  const chips = $("#chips");
+  chips.innerHTML = "";
+  const add = (label, clear) => {
+    const b = document.createElement("button");
+    b.className = "achip";
+    b.innerHTML = `${esc(label)}<i aria-hidden="true">&times;</i>`;
+    b.setAttribute("aria-label", label + " 해제");
+    b.addEventListener("click", () => { clear(); refresh(); });
+    chips.appendChild(b);
+  };
+  if(state.cat !== "all") add("분류: " + CATEGORY_LABEL[state.cat], () => { state.cat = "all"; state.kind = ""; });
+  if(state.kind) add("종류: " + VIEW_LABEL[state.kind], () => { state.kind = ""; });
+  if(state.coll) add("구분: " + collLabel(state.coll, state.cat), () => { state.coll = ""; });
+  if(state.tag) add("꼬리표: " + state.tag, () => { state.tag = ""; });
+  if(state.year) add("연도: " + state.year, () => { state.year = ""; });
+  if(state.q) add("검색: " + state.q, () => { state.q = ""; $("#search").value = ""; });
+  $("#vTiles").classList.toggle("on", state.view === "tiles");
+  $("#vList").classList.toggle("on", state.view === "list");
+  $("#sort").value = state.sort;
+}
+
+/* =====================================================================
+   [F] 작품 칸 만들기 (많아도 80개씩 나눠서 그려서 빠릅니다)
+   ===================================================================== */
+const PAGE = 80;
+let list = [], shown = 0;
+
+/* 영상 첫 장면은 화면에 보일 때만 불러옵니다 */
+const vidObserver = ("IntersectionObserver" in window) ? new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(!e.isIntersecting) return;
+    vidObserver.unobserve(e.target);
+    const t = e.target;
+    const v = document.createElement("video");
+    v.muted = true; v.preload = "metadata"; v.playsInline = true; v.tabIndex = -1;
+    v.addEventListener("loadeddata", () => t.classList.add("has-video"));
+    v.addEventListener("error", () => v.remove());
+    v.src = t.dataset.vsrc + "#t=0.5";
+    t.prepend(v);
+  });
+}, { rootMargin:"300px" }) : null;
+
+function thumbBox(item, cls){
+  const box = document.createElement("div");
+  box.className = cls;
+  const v = item.view;
+  if(v === "image"){
+    const srcs = [];
+    const tp = thumbPath(item.file);
+    if(!item.thumb && tp) srcs.push(tp);
+    srcs.push(resolveSrc(item.thumb || item.file, "image"));
+    box.appendChild(imgTry(srcs, item.title));
+  } else if(v === "video"){
+    const poster = resolveSrc(item.poster, "image");
+    if(poster){
+      box.appendChild(imgTry([poster, coverArt("▶")], item.title));
+    } else {
+      box.appendChild(imgTry([coverArt("▶")], item.title));
+      if(item.file && vidObserver){ box.dataset.vsrc = resolveSrc(item.file, "video"); vidObserver.observe(box); }
+    }
+  } else if(v === "music"){
+    box.appendChild(imgTry([resolveSrc(item.cover, "image") || coverArt("♪"), coverArt("♪")], item.title));
+  } else if(v === "story"){
+    const tx = document.createElement("div");
+    tx.className = "tx";
+    tx.textContent = String(item.text || item.description || "").trim().replace(/\s+/g, " ").slice(0, 110);
+    box.appendChild(tx);
+  } else if(v === "file"){
+    box.appendChild(imgTry([resolveSrc(item.cover, "image") || coverArt("\u25A4"), coverArt("\u25A4")], item.title));
+  } else {
+    const glyph = item.category === "book" ? "❝" : item.category === "app" ? "⚙" : "❖";
+    box.appendChild(imgTry([resolveSrc(item.cover, "image") || coverArt(glyph), coverArt(glyph)], item.title));
+  }
+  return box;
+}
+function kindLabel(item){
+  return (item.category === "gallery" || isOpenCat(item.category)) ? VIEW_LABEL[item.view] : CATEGORY_LABEL[item.category];
+}
+function makeItem(item){
+  const el = document.createElement("button");
+  el.dataset.id = item.id;
+  el.title = item.title + (item.description ? " - " + item.description : "");
+  if(state.view === "list"){
+    el.className = "row";
+    el.appendChild(thumbBox(item, "rt"));
+    const rn = document.createElement("div");
+    rn.className = "rn";
+    rn.innerHTML = `<b>${esc(item.title)}</b><span>${esc(item.description || item.tags.join(" · ") || (item.coll ? collLabel(item.coll, item.category) : "") || "")}</span>`;
+    el.appendChild(rn);
+    const rk = document.createElement("div"); rk.className = "rk"; rk.textContent = kindLabel(item); el.appendChild(rk);
+    const rd = document.createElement("div"); rd.className = "rd"; rd.textContent = item.date || ""; el.appendChild(rd);
+  } else {
+    el.className = "tile";
+    const tt = thumbBox(item, "tt");
+    if(item.view !== "image"){
+      const k = document.createElement("span");
+      k.className = "kind";
+      k.textContent = item.category === "book" ? "책" : item.category === "app" ? "앱" : (SHORT_LABEL[item.view] || "");
+      tt.appendChild(k);
+    }
+    el.appendChild(tt);
+    const tn = document.createElement("div"); tn.className = "tn"; tn.textContent = item.title; el.appendChild(tn);
+    const tm = document.createElement("div"); tm.className = "tm";
+    tm.textContent = [item.date, item.category === "gallery" && item.view === "image" ? "" : (item.category === "musicvideo" ? "뮤직 비디오" : item.category === "study" ? "공부·참고" : "")].filter(Boolean).join(" · ");
+    if(tm.textContent) el.appendChild(tm);
+  }
+  if(currentAudioItem && currentAudioItem.id === item.id) el.classList.add("playing");
+  el.addEventListener("click", () => openItem(item));
+  return el;
+}
+
+function renderMore(){
+  const res = $("#results");
+  const end = Math.min(list.length, shown + PAGE);
+  const frag = document.createDocumentFragment();
+  for(let i = shown; i < end; i++) frag.appendChild(makeItem(list[i]));
+  res.appendChild(frag);
+  shown = end;
+  const more = shown < list.length;
+  $("#moreBtn").style.display = more ? "block" : "none";
+  $("#moreBtn").textContent = `더 보기 (${list.length - shown}개 남음)`;
+  if(io){ io.unobserve($("#sentinel")); if(more) io.observe($("#sentinel")); }
+}
+const io = ("IntersectionObserver" in window) ? new IntersectionObserver(es => {
+  if(es.some(e => e.isIntersecting) && shown < list.length) renderMore();
+}, { rootMargin:"700px" }) : null;
+$("#moreBtn").addEventListener("click", renderMore);
+
+function refresh(){
+  list = currentList();
+  shown = 0;
+  const res = $("#results");
+  res.className = state.view === "list" ? "list" : "tiles";
+  res.innerHTML = "";
+  renderMore();
+  buildBar(list.length);
+  buildFacets();
+  const empty = $("#empty");
+  if(ARTWORKS.length === 0) empty.textContent = "아직 전시할 작품이 없습니다. 폴더에 파일을 넣고 '작품목록_새로고침.bat' 을 실행해 주세요.";
+  else empty.textContent = "조건에 맞는 작품이 없습니다. 위쪽의 조건을 눌러 하나씩 해제해 보세요.";
+  empty.classList.toggle("show", list.length === 0);
+  savePrefs();
+}
+
+/* =====================================================================
+   [G] 작품을 눌렀을 때
+   ===================================================================== */
+function openItem(item){
+  switch(item.view){
+    case "image": openLightbox(item); break;
+    case "video": openVideo(item); break;
+    case "music": playAudio(item); break;
+    case "story": openReader(item); break;
+    case "file": {
+      const a = document.createElement("a");
+      a.href = resolveSrc(item.file, "html"); a.download = ""; a.target = "_blank"; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      break;
+    }
+    default: openFrame(item);
+  }
+}
+
+/* ---------- 팝업 공통 ---------- */
+let lastFocus = null;
+function openModal(el){
+  lastFocus = document.activeElement;
+  el.classList.add("open");
+  document.body.classList.add("no-scroll");
+  const c = $("[data-close]", el);
+  if(c) c.focus({preventScroll:true});
+}
+function closeModal(el){
+  el.classList.remove("open");
+  if(!document.querySelector(".modal.open")) document.body.classList.remove("no-scroll");
+  if(el.id === "videoModal") $("#videoHost").innerHTML = "";
+  if(el.id === "frameModal") $("#frFrame").src = "about:blank";
+  if(lastFocus && lastFocus.focus) lastFocus.focus({preventScroll:true});
+}
+document.querySelectorAll(".modal").forEach(m => {
+  m.addEventListener("click", e => { if(e.target === m || e.target.closest("[data-close]")) closeModal(m); });
+});
+document.addEventListener("keydown", e => {
+  const open = document.querySelector(".modal.open");
+  if(open){
+    if(e.key === "Escape") closeModal(open);
+    if(open.id === "lightbox"){
+      if(e.key === "ArrowLeft") lbStep(-1);
+      if(e.key === "ArrowRight") lbStep(1);
+    }
+    return;
+  }
+  if(e.key === "Escape" && document.body.classList.contains("drawer-open")) closeDrawer();
+  if(e.key === "/" && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault(); $("#search").focus();
+  }
+});
+
+/* ---------- 그림 확대 ---------- */
+let lbList = [], lbIndex = 0;
+function openLightbox(item){
+  lbList = list.filter(a => a.view === "image");
+  lbIndex = Math.max(0, lbList.findIndex(a => a.id === item.id));
+  showLb();
+  openModal($("#lightbox"));
+}
+function showLb(){
+  const it = lbList[lbIndex]; if(!it) return;
+  const img = $("#lbImg");
+  img.onerror = null;
+  let tried = false;
+  img.onerror = () => { if(!tried){ tried = true; img.src = placeholderArt(it.title); } };
+  img.src = resolveSrc(it.file, "image");
+  img.alt = it.title;
+  $("#lbTitle").textContent = it.title;
+  $("#lbDesc").textContent = it.description || "";
+  $("#lbCount").textContent = (lbIndex + 1) + " / " + lbList.length;
+  const many = lbList.length > 1;
+  $("#lbPrev").style.display = $("#lbNext").style.display = many ? "" : "none";
+}
+function lbStep(d){
+  if(lbList.length < 2) return;
+  lbIndex = (lbIndex + d + lbList.length) % lbList.length;
+  showLb();
+}
+$("#lbPrev").addEventListener("click", e => { e.stopPropagation(); lbStep(-1); });
+$("#lbNext").addEventListener("click", e => { e.stopPropagation(); lbStep(1); });
+(function(){
+  let x0 = null;
+  const lb = $("#lightbox");
+  lb.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive:true});
+  lb.addEventListener("touchend", e => {
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if(Math.abs(dx) > 50) lbStep(dx < 0 ? 1 : -1);
+    x0 = null;
+  }, {passive:true});
+})();
+
+/* ---------- 글 읽기 ---------- */
+let readSize = 18;
+function applyReadSize(){
+  readSize = Math.max(14, Math.min(30, readSize));
+  $("#reader").style.setProperty("--read-size", readSize + "px");
+}
+$("#fontPlus").addEventListener("click", () => { readSize += 2; applyReadSize(); });
+$("#fontMinus").addEventListener("click", () => { readSize -= 2; applyReadSize(); });
+/* 글 본문 꾸미기 : .txt 는 문단 나누기만, .md 는 제목(#)·목록(-)·굵은 글씨(**)까지 적용 */
+function renderBody(item){
+  const text = String(item.text || "").replace(/\r\n?/g, "\n").trim();
+  if(!/\.md$/i.test(item.file || "")){
+    return text.split(/\n\s*\n/).map(p => "<p>" + esc(p.trim()).replace(/\n/g, "<br>") + "</p>").join("");
+  }
+  const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  const out = []; let inList = false, para = [];
+  const flush = () => { if(para.length){ out.push("<p>" + para.map(inline).join("<br>") + "</p>"); para = []; } };
+  const endList = () => { if(inList){ out.push("</ul>"); inList = false; } };
+  text.split("\n").forEach(line => {
+    let m;
+    if(/^\s*$/.test(line)){ flush(); endList(); }
+    else if((m = /^(#{1,3})\s+(.*)$/.exec(line))){ flush(); endList(); const n = m[1].length + 2; out.push(`<h${n} class="md-h">${inline(m[2])}</h${n}>`); }
+    else if((m = /^\s*[-*]\s+(.*)$/.exec(line))){ flush(); if(!inList){ out.push("<ul>"); inList = true; } out.push("<li>" + inline(m[1]) + "</li>"); }
+    else { endList(); para.push(line.trim()); }
+  });
+  flush(); endList();
+  return out.join("");
+}
+function openReader(item){
+  $("#rdTitle").textContent = item.title;
+  $("#rdMeta").textContent = [item.date, item.description].filter(Boolean).join("  ·  ");
+  $("#rdBody").innerHTML = renderBody(item);
+  $(".reader-scroll").scrollTop = 0;
+  applyReadSize();
+  openModal($("#reader"));
+}
+
+/* ---------- 스토리북 / 앱 / 문서 ---------- */
+function openFrame(item){
+  $("#frTitle").textContent = item.title;
+  const src = resolveSrc(item.file, "html");
+  $("#frLink").href = src;
+  $("#frFrame").src = src;
+  openModal($("#frameModal"));
+}
+
+/* =====================================================================
+   [H] 재생 장치 : 아이콘, 재생바 색칠
+   ===================================================================== */
+const ICON = {
+  play:  '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
+  vol:   '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>',
+  mute:  '<svg viewBox="0 0 24 24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>',
+  full:  '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>'
+};
+function paintRange(r){
+  const max = parseFloat(r.max) || 100;
+  r.style.setProperty("--pct", (parseFloat(r.value) / max * 100) + "%");
+}
+
+/* =====================================================================
+   [I] 음악 : 아래쪽 재생줄(독)
+   ===================================================================== */
+const audio = new Audio();
+audio.preload = "metadata";
+audio.volume = 0.8;
+let currentAudioItem = null;
+
+function markPlaying(){
+  document.querySelectorAll("#results .playing").forEach(e => e.classList.remove("playing"));
+  if(currentAudioItem){
+    const el = $(`#results [data-id="${currentAudioItem.id}"]`);
+    if(el) el.classList.add("playing");
+  }
+}
+function playAudio(item){
+  const dock = $("#dock");
+  if(currentAudioItem && currentAudioItem.id === item.id){
+    audio.paused ? audio.play().catch(()=>{}) : audio.pause();
+    return;
+  }
+  currentAudioItem = item;
+  audio.src = resolveSrc(item.file, "audio");
+  $("#dockTitle").textContent = item.title;
+  const sub = $("#dockSub");
+  sub.textContent = item.description || item.date || "";
+  sub.classList.remove("err");
+  const cv = $("#dockCover"); cv.innerHTML = "";
+  cv.appendChild(imgTry([resolveSrc(item.cover, "image") || coverArt("♪"), coverArt("♪")], item.title));
+  dock.classList.add("show");
+  document.body.classList.add("dock-open");
+  $("#dockSeek").value = 0; paintRange($("#dockSeek"));
+  audio.play().catch(()=>{});
+  markPlaying();
+}
+(function initDock(){
+  const play = $("#dockPlay"), seek = $("#dockSeek"), time = $("#dockTime"), vol = $("#dockVol"), mute = $("#dockMute");
+  play.innerHTML = ICON.play; mute.innerHTML = ICON.vol;
+  paintRange(seek); paintRange(vol);
+  const refresh = () => { time.textContent = fmtTime(audio.currentTime) + " / " + fmtTime(audio.duration); };
+  play.addEventListener("click", () => { audio.paused ? audio.play().catch(()=>{}) : audio.pause(); });
+  audio.addEventListener("play",  () => { play.innerHTML = ICON.pause; play.setAttribute("aria-label","일시정지"); });
+  audio.addEventListener("pause", () => { play.innerHTML = ICON.play;  play.setAttribute("aria-label","재생"); });
+  audio.addEventListener("ended", () => { audio.currentTime = 0; });
+  audio.addEventListener("loadedmetadata", refresh);
+  audio.addEventListener("timeupdate", () => {
+    if(audio.duration && !seek.dataset.drag) seek.value = audio.currentTime / audio.duration * 1000;
+    paintRange(seek); refresh();
+  });
+  seek.addEventListener("input", () => {
+    seek.dataset.drag = "1"; paintRange(seek);
+    if(audio.duration) audio.currentTime = seek.value / 1000 * audio.duration;
+  });
+  seek.addEventListener("change", () => { delete seek.dataset.drag; });
+  vol.addEventListener("input", () => {
+    audio.volume = vol.value / 100; audio.muted = false; paintRange(vol);
+    mute.innerHTML = audio.volume === 0 ? ICON.mute : ICON.vol;
+  });
+  mute.addEventListener("click", () => {
+    audio.muted = !audio.muted;
+    mute.innerHTML = (audio.muted || audio.volume === 0) ? ICON.mute : ICON.vol;
+  });
+  audio.addEventListener("error", () => {
+    if(!currentAudioItem) return;
+    const sub = $("#dockSub");
+    sub.textContent = "음악 파일을 찾을 수 없어요: " + currentAudioItem.file;
+    sub.classList.add("err");
+  });
+  $("#dockClose").addEventListener("click", () => {
+    audio.pause(); audio.removeAttribute("src"); audio.load();
+    currentAudioItem = null;
+    $("#dock").classList.remove("show");
+    document.body.classList.remove("dock-open");
+    markPlaying();
+  });
+})();
+
+/* =====================================================================
+   [J] 영상 : 팝업 안의 플레이어 (유튜브 또는 내 파일)
+   ===================================================================== */
+function openVideo(item){
+  audio.pause();
+  $("#vdTitle").textContent = item.title;
+  $("#vdDesc").textContent = item.description || "";
+  const host = $("#videoHost");
+  host.innerHTML = "";
+  host.appendChild(item.youtube && (ONLINE || !item.file) ? createYouTubePlayer(item) : createVideoPlayer(item));
+  openModal($("#videoModal"));
+}
+function createYouTubePlayer(item){
+  const id = ytId(item.youtube);
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `<div class="yt-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0"
+      title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <a class="yt-link" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">유튜브에서 보기 &rarr;</a>`;
+  return wrap;
+}
+function createVideoPlayer(item){
+  const vp = document.createElement("div");
+  vp.className = "vp";
+  vp.innerHTML = `
+    <video playsinline preload="metadata"></video>
+    <div class="big-play" aria-label="재생"><span></span></div>
+    <div class="vp-note"></div>
+    <div class="vp-controls">
+      <input class="rng seek" type="range" min="0" max="1000" value="0" step="1" aria-label="재생 위치">
+      <div class="vp-row">
+        <button class="icon-btn pp" aria-label="재생">${ICON.play}</button>
+        <span class="time">0:00 / 0:00</span>
+        <span class="spacer"></span>
+        <button class="icon-btn mute" aria-label="소리 끄기/켜기">${ICON.vol}</button>
+        <input class="rng vol" type="range" min="0" max="100" value="80" aria-label="볼륨(소리 크기)">
+        <button class="icon-btn fs" aria-label="전체화면">${ICON.full}</button>
+      </div>
+    </div>`;
+  const v = $("video", vp);
+  const poster = resolveSrc(item.poster, "image");
+  if(poster && !/^data:image\/svg/.test(poster)) v.poster = poster;
+  v.src = resolveSrc(item.file, "video");
+  v.volume = 0.8;
+  const pp = $(".pp", vp), seek = $(".seek", vp), vol = $(".vol", vp), mute = $(".mute", vp);
+  const time = $(".time", vp), fs = $(".fs", vp), big = $(".big-play", vp), note = $(".vp-note", vp);
+  paintRange(seek); paintRange(vol);
+  const toggle = () => { v.paused ? v.play().catch(()=>{}) : v.pause(); };
+  pp.addEventListener("click", toggle);
+  big.addEventListener("click", toggle);
+  v.addEventListener("click", toggle);
+  v.addEventListener("play",  () => { vp.classList.add("playing"); pp.innerHTML = ICON.pause; pp.setAttribute("aria-label","일시정지"); });
+  v.addEventListener("pause", () => { vp.classList.remove("playing","idle"); pp.innerHTML = ICON.play; pp.setAttribute("aria-label","재생"); });
+  const refresh = () => { time.textContent = fmtTime(v.currentTime) + " / " + fmtTime(v.duration); };
+  v.addEventListener("loadedmetadata", refresh);
+  v.addEventListener("timeupdate", () => {
+    if(v.duration && !seek.dataset.drag) seek.value = v.currentTime / v.duration * 1000;
+    paintRange(seek); refresh();
+  });
+  seek.addEventListener("input", () => {
+    seek.dataset.drag = "1"; paintRange(seek);
+    if(v.duration) v.currentTime = seek.value / 1000 * v.duration;
+  });
+  seek.addEventListener("change", () => { delete seek.dataset.drag; });
+  vol.addEventListener("input", () => {
+    v.volume = vol.value / 100; v.muted = false; paintRange(vol);
+    mute.innerHTML = v.volume === 0 ? ICON.mute : ICON.vol;
+  });
+  mute.addEventListener("click", () => {
+    v.muted = !v.muted;
+    mute.innerHTML = (v.muted || v.volume === 0) ? ICON.mute : ICON.vol;
+  });
+  fs.addEventListener("click", () => {
+    if(document.fullscreenElement || document.webkitFullscreenElement){
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if(vp.requestFullscreen){ vp.requestFullscreen(); }
+    else if(vp.webkitRequestFullscreen){ vp.webkitRequestFullscreen(); }
+    else if(v.webkitEnterFullscreen){ v.webkitEnterFullscreen(); }
+  });
+  let idleTimer;
+  const wake = () => {
+    vp.classList.remove("idle");
+    clearTimeout(idleTimer);
+    if(!v.paused) idleTimer = setTimeout(() => vp.classList.add("idle"), 2500);
+  };
+  vp.addEventListener("mousemove", wake);
+  vp.addEventListener("touchstart", wake, {passive:true});
+  v.addEventListener("play", wake);
+  v.addEventListener("error", () => {
+    note.innerHTML = "영상 파일을 찾을 수 없어요.<br>파일 이름을 확인해 주세요:<br><b>" + esc(item.file) + "</b>";
+    note.classList.add("show");
+    big.style.display = "none";
+  });
+  vp.tabIndex = 0;
+  vp.addEventListener("keydown", e => { if(e.key === " "){ e.preventDefault(); toggle(); } });
+  return vp;
+}
+
+/* =====================================================================
+   [K] 사이드바 서랍(스마트폰), 검색, 정렬, 보기방식
+   ===================================================================== */
+function openDrawer(){ document.body.classList.add("drawer-open"); }
+function closeDrawer(){ document.body.classList.remove("drawer-open"); }
+$("#menuBtn").addEventListener("click", openDrawer);
+$("#sideClose").addEventListener("click", closeDrawer);
+$("#backdrop").addEventListener("click", closeDrawer);
+$("#applyBtn").addEventListener("click", () => { closeDrawer(); window.scrollTo({ top:0 }); });
+
+let searchTimer;
+$("#search").addEventListener("input", e => {
+  clearTimeout(searchTimer);
+  const val = e.target.value;
+  searchTimer = setTimeout(() => { state.q = val.trim(); refresh(); }, 160);
+});
+$("#sort").addEventListener("change", e => { state.sort = e.target.value; refresh(); });
+$("#vTiles").addEventListener("click", () => { state.view = "tiles"; refresh(); });
+$("#vList").addEventListener("click", () => { state.view = "list"; refresh(); });
+
+
+/* =====================================================================
+   [M] 폴더 구조 보기 (접었다 펼치는 나무 모양)
+   데이터는 folder-tree.js (작품목록_새로고침.bat 이 만들어 줍니다)
+   ===================================================================== */
+const TREE_DESC = {
+  "apps":"내가 만든 앱", "audios":"음악", "gallery":"그림·영상 모음", "musicvideos":"뮤직 비디오",
+  "stories":"글·이야기책", "storyboard":"스토리북", "study":"공부·참고 자료",
+  "High":"고등학생용", "Middle":"중학생용"
+};
+const TREE_ICON = { html:"🌐", htm:"🌐", pdf:"📕", mp4:"🎬", webm:"🎬", mov:"🎬",
+  mp3:"🎵", wav:"🎵", m4a:"🎵", png:"🖼️", jpg:"🖼️", jpeg:"🖼️",
+  webp:"🖼️", gif:"🖼️", txt:"📝", md:"📝", js:"⚙️", ps1:"⚙️", bat:"⚙️" };
+function treeKids(n){ return !n.c ? [] : (Array.isArray(n.c) ? n.c : [n.c]); }
+function fmtSize(b){
+  if(!b) return "0 KB";
+  if(b < 1024*1024) return Math.max(1, Math.round(b/1024)) + " KB";
+  if(b < 1024*1024*1024) return (b/1024/1024).toFixed(1) + " MB";
+  return (b/1024/1024/1024).toFixed(2) + " GB";
+}
+function treeStat(n){
+  if(n.t === "f") return { files:1, bytes:n.s||0, dirs:0 };
+  let r = { files:0, bytes:0, dirs:0 };
+  treeKids(n).forEach(k => { const x = treeStat(k); r.files += x.files; r.bytes += x.bytes; r.dirs += x.dirs + (k.t === "d" ? 1 : 0); });
+  return r;
+}
+function treeMatch(n, q){
+  if(!q) return true;
+  if(n.n.toLowerCase().includes(q)) return true;
+  return n.t === "d" && treeKids(n).some(k => treeMatch(k, q));
+}
+function treeNode(n, path, q, forceOpen){
+  const here = path ? path + "/" + n.n : n.n;
+  if(n.t === "f"){
+    const ext = (n.n.split(".").pop() || "").toLowerCase();
+    const a = document.createElement("a");
+    a.className = "tree-file"; a.target = "_blank"; a.rel = "noopener";
+    a.href = encodePath(here);
+    a.innerHTML = `<span>${TREE_ICON[ext] || "📄"}</span><span class="nm">${esc(n.n)}</span><span class="meta">${fmtSize(n.s)}${n.d ? " · " + esc(n.d) : ""}</span>`;
+    return a;
+  }
+  const st = treeStat(n);
+  const d = document.createElement("details");
+  d.open = forceOpen;
+  const sm = document.createElement("summary");
+  sm.innerHTML = `<span>📁</span><span class="fname">${esc(n.n)}</span><span class="badge">파일 ${st.files}개 · ${fmtSize(st.bytes)}</span>` +
+    (TREE_DESC[n.n] ? `<span class="desc">${esc(TREE_DESC[n.n])}</span>` : "");
+  d.appendChild(sm);
+  treeKids(n).forEach(k => { if(treeMatch(k, q)) d.appendChild(treeNode(k, path ? here : "", q, forceOpen)); });
+  return d;
+}
+function buildTree(){
+  const body = $("#treeBody"), sum = $("#treeSum");
+  body.innerHTML = "";
+  const root = window.FOLDER_TREE;
+  if(!root){
+    sum.textContent = "";
+    body.innerHTML = '<p class="tree-empty">폴더 구조 정보가 아직 없습니다. 폴더의 \'작품목록_새로고침.bat\' 을 실행한 뒤 다시 열어 주세요.</p>';
+    return;
+  }
+  const q = $("#treeFilter").value.trim().toLowerCase();
+  const st = treeStat(root);
+  sum.textContent = `폴더 ${st.dirs}개 · 파일 ${st.files}개 · 전체 ${fmtSize(st.bytes)}   (폴더 이름을 누르면 열리고 닫힙니다. 파일을 누르면 열어 볼 수 있습니다.)`;
+  const top = document.createElement("details");
+  top.open = true;
+  const sm = document.createElement("summary");
+  sm.innerHTML = `<span>📂</span><span class="fname">${esc(root.n)}</span><span class="badge">맨 위 폴더</span>`;
+  top.appendChild(sm);
+  let shown = 0;
+  treeKids(root).forEach(k => { if(treeMatch(k, q)){ top.appendChild(treeNode(k, "", q, !!q)); shown++; } });
+  if(!shown){ const p = document.createElement("p"); p.className = "tree-empty"; p.textContent = "찾는 이름이 없습니다."; top.appendChild(p); }
+  body.appendChild(top);
+}
+$("#treeBtn").addEventListener("click", () => { $("#treeFilter").value = ""; buildTree(); openModal($("#treeModal")); });
+$("#treeOpenAll").addEventListener("click", () => document.querySelectorAll("#treeBody details").forEach(d => d.open = true));
+$("#treeCloseAll").addEventListener("click", () => { document.querySelectorAll("#treeBody details").forEach(d => d.open = false); const t = $("#treeBody > details"); if(t) t.open = true; });
+let treeTimer;
+$("#treeFilter").addEventListener("input", () => { clearTimeout(treeTimer); treeTimer = setTimeout(buildTree, 160); });
+
+/* =====================================================================
+   [L] 시작
+   ===================================================================== */
+document.title = SITE.name;
+$("#siteName").textContent = SITE.name;
+$("#siteTagline").textContent = SITE.tagline || "";
+$("#sideFoot").innerHTML = [
+  SITE.about ? `<div>${esc(SITE.about)}</div>` : "",
+  SITE.contact ? `<div class="contact">${esc(SITE.contact)}</div>` : "",
+  SITE.footer ? `<div class="contact">${esc(SITE.footer)}</div>` : ""
+].join("");
+refresh();
+</script>
+</body>
+</html>
