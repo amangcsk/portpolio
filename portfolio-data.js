@@ -97,6 +97,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-10-29"
     },
     {
+        "file":  "musicvideos/할머니의 보물 둘_s.mp4",
+        "date":  "2026-11-14"
+    },
+    {
         "file":  "audios/🎤 〈불꽃처럼 달려간다〉-디스코 .mp3",
         "date":  "2025-12-01"
     },
@@ -253,6 +257,10 @@ window.PORTFOLIO_FILES = [
     {
         "file":  "apps/VocaDaily - 일일 스마트 영단어.html",
         "date":  "2026-11-12"
+    },
+    {
+        "file":  "apps/수노분석영상스튜디오.html",
+        "date":  "2026-11-14"
     },
     {
         "file":  "apps/자투리 영단어.html",

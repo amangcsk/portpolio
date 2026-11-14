@@ -62,6 +62,12 @@ window.ARTWORK_INFO = {
     description: "그림과 함께 읽는 이야기책"
   },
 
+  "apps/수노분석영상스튜디오.html": {
+    title: "수노 분석 영상 스튜디오",
+    description: "음원을 분석해 Suno 스타일·가사를 만들고, 장면 이미지와 가사 영상(MP4)까지 제작 (Gemini 키 필요)",
+    date: "2026-11-14"
+  },
+
   "apps/Lyric-Video-Studio.html": {
     title: "가사 영상 스튜디오",
     description: "노래 가사 영상을 만드는 도구"
@@ -109,10 +115,10 @@ window.ARTWORK_INFO = {
     youtube: ""
   },
 
-  "musicvideos/오지 않을 길목-k5rmnv.mp4": {
+  "musicvideos/오지 않을 길목.mp4": {
     title: "",
     description: "",
-    youtube: ""
+    youtube: "https://youtu.be/eXZtFEb9WWc"
   },
 
   "musicvideos/저물어가는 노을 바라보며.mp4": {
@@ -133,10 +139,10 @@ window.ARTWORK_INFO = {
     youtube: ""
   },
 
-  "musicvideos/타올라라, 나의 청춘-Mangajoa.mp4": {
+  "musicvideos/타올라라, 나의 청춘": {
     title: "",
     description: "",
-    youtube: ""
+    youtube: "https://youtu.be/8nVkUN1KvoE"
   },
 
   "musicvideos/한이 불이 되어.mp4": {
