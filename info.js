@@ -130,7 +130,7 @@ window.ARTWORK_INFO = {
   "musicvideos/젊은 날의 사랑.mp4": {
     title: "",
     description: "",
-    youtube: "https://youtu.be/LtkXO2gZsew"
+    youtube: "https://youtu.be/QrcDQQ2pAVU"
   },
 
   "musicvideos/컴에 미쳐서.mp4": {
