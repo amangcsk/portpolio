@@ -1441,7 +1441,7 @@ function treeNode(n, path, q, forceOpen){
   sm.innerHTML = `<span>📁</span><span class="fname">${esc(n.n)}</span><span class="badge">파일 ${st.files}개 · ${fmtSize(st.bytes)}</span>` +
     (TREE_DESC[n.n] ? `<span class="desc">${esc(TREE_DESC[n.n])}</span>` : "");
   d.appendChild(sm);
-  treeKids(n).forEach(k => { if(treeMatch(k, q)) d.appendChild(treeNode(k, path ? here : "", q, forceOpen)); });
+  treeKids(n).forEach(k => { if(treeMatch(k, q)) d.appendChild(treeNode(k, here, q, forceOpen)); });
   return d;
 }
 function buildTree(){
