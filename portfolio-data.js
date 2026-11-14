@@ -90,7 +90,7 @@ window.PORTFOLIO_FILES = [
     },
     {
         "file":  "musicvideos/젊은 날의 사랑.mp4",
-        "date":  "2026-09-29"
+        "date":  "2026-11-14"
     },
     {
         "file":  "musicvideos/한이 불이 되어.mp4",
