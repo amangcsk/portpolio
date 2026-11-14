@@ -106,7 +106,7 @@ window.ARTWORK_INFO = {
   "musicvideos/어둑한 골목 끝에.mp4": {
     title: "",
     description: "",
-    youtube: ""
+    youtube: "https://youtu.be/Xsqxk-wwitk"
   },
 
   "musicvideos/오늘은 주인공.mp4": {
