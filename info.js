@@ -193,14 +193,14 @@ window.EXTRA_WORKS = [
   {
     title: "타올라라, 나의 청춘",
     description: "",
-    youtube: "https://youtu.be/yhs9dpeYImo",
+    youtube: "https://youtu.be/8nVkUN1KvoE",
     order: 10
   },
 
   {
     title: "오지 않을 길목",
     description: "",
-    youtube: "https://youtu.be/aAMgOAudALU",
+    youtube: "https://youtu.be/eXZtFEb9WWc",
     order: 20
   },
 
@@ -214,7 +214,7 @@ window.EXTRA_WORKS = [
   {
     title: "어둑한 골목 끝에",
     description: "",
-    youtube: "https://youtu.be/tLuz6pPpRq8",
+    youtube: "https://youtu.be/Xsqxk-wwitk",
     order: 50
   },
 
