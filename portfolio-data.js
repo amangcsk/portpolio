@@ -256,6 +256,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-06"
     },
     {
+        "file":  "storyboard/국가란무엇인가_유시민.html",
+        "date":  "2026-11-15"
+    },
+    {
         "file":  "apps/AI 이미지 스튜디오 (나노바나나).html",
         "date":  "2026-11-12"
     },
