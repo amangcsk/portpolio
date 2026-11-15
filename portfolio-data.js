@@ -260,6 +260,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-15"
     },
     {
+        "file":  "storyboard/운영전_작자미상.html",
+        "date":  "2026-11-15"
+    },
+    {
         "file":  "apps/AI 이미지 스튜디오 (나노바나나).html",
         "date":  "2026-11-12"
     },
