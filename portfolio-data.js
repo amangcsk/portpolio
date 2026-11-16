@@ -260,12 +260,20 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-15"
     },
     {
+        "file":  "storyboard/국부론_애덤스미스.html",
+        "date":  "2026-11-16"
+    },
+    {
         "file":  "storyboard/운영전_작자미상.html",
         "date":  "2026-11-15"
     },
     {
-        "file":  "apps/AI 이미지 스튜디오 (나노바나나).html",
-        "date":  "2026-11-12"
+        "file":  "storyboard/총_균_쇠_jared_diamond.html",
+        "date":  "2026-11-16"
+    },
+    {
+        "file":  "apps/ai-image-studio.html",
+        "date":  "2026-11-16"
     },
     {
         "file":  "apps/retro brickout 1.html",

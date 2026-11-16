@@ -157,15 +157,17 @@
                 <span class="text-purple-400 mr-1">✦</span> 생성할 텍스트 프롬프트
               </label>
               <div class="flex space-x-1 text-xs">
-                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="귀여운 미니 노란색 로봇 바나나가 알록달록한 붓을 들고 서 있는 3D 렌더링 피규어">예시 1</button>
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="귀여운 미니 노란색 로봇 바나나가 알록달록한 붓을 들고 서 있는 모습">예시 1</button>
                 <span class="text-slate-600">•</span>
-                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="비 내리는 밤 네온사인이 화려한 사이버펑크 서울 골목길과 미래형 자동차">예시 2</button>
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="비 내리는 밤 네온사인이 화려한 서울 골목길과 미래형 자동차">예시 2</button>
                 <span class="text-slate-600">•</span>
-                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="황금빛 석양이 비치는 잔잔한 호수와 신비로운 벚꽃 숲의 수채화">예시 3</button>
+                <button type="button" class="btn-sample text-purple-400 hover:text-purple-300 hover:underline" data-prompt="황금빛 석양이 비치는 잔잔한 호수와 신비로운 벚꽃 숲">예시 3</button>
               </div>
             </div>
-            <textarea id="single-prompt" rows="3" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="예: 우주복을 입고 달 위에서 커피를 마시는 귀여운 고양이, 8k 고화질..."></textarea>
+            <textarea id="single-prompt" rows="3" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="장면만 적으세요. 예: 우주복을 입고 달 위에서 커피를 마시는 귀여운 고양이"></textarea>
             
+            <p id="single-clean-preview" class="hidden mt-1.5 text-[11px] text-emerald-300/90 leading-relaxed"></p>
+
             <!-- Notice when multiple prompts are detected in single mode -->
             <div id="single-multi-detect-banner" class="hidden mt-2 p-2.5 rounded-xl bg-purple-950/40 border border-purple-700/50 flex items-center justify-between text-xs">
               <div class="flex items-center space-x-2 text-purple-200">
@@ -223,7 +225,7 @@
               </div>
             </div>
 
-            <textarea id="batch-prompts" rows="5" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="예시 입력 (어떤 구분자든 자동 인식):&#10;1. 우주 비행사 고양이&#10;2. 사이버펑크 네온 로봇 바나나&#10;또는: 사과, 바나나, 체리&#10;또는: 석양의 바다; 신비로운 숲; 미래 도시"></textarea>
+            <textarea id="batch-prompts" rows="5" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none shadow-inner" placeholder="예시 입력 (어떤 구분자든 자동 인식):&#10;1. 우주 비행사 고양이&#10;2. 네온 불빛 아래 로봇 바나나&#10;또는: 사과, 바나나, 체리&#10;또는: 석양의 바다; 신비로운 숲; 미래 도시"></textarea>
 
             <!-- Parsed Prompts Real-time Preview Area -->
             <div id="parsed-prompts-preview-box" class="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
@@ -269,11 +271,19 @@
           <div class="p-2.5 rounded-xl border border-amber-500/50 bg-amber-500/10">
             <div class="flex items-center space-x-1.5 font-bold text-xs text-amber-300">
               <span>🍌</span>
-              <span>Nano Banana</span>
+              <span>Nano Banana 2</span>
             </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Google Gemini 2.5 Flash Image (gemini-2.5-flash-image)</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Google Gemini 3.1 Flash Image (gemini-3.1-flash-image) · WebP 최소 용량 저장</p>
           </div>
         </div>
+
+        <p class="text-[11px] text-slate-400 leading-relaxed p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
+          💡 프롬프트에는 <strong class="text-slate-200">장면 내용만</strong> 적으세요. <strong class="text-slate-200">비율</strong>과 <strong class="text-slate-200">장르</strong>는 아래에서 고르면 모든 프롬프트에 똑같이 적용됩니다.
+          <label class="flex items-center space-x-2 mt-2 cursor-pointer text-slate-300">
+            <input type="checkbox" id="strip-boilerplate" checked class="accent-purple-500">
+            <span>프롬프트에 들어 있는 비율·장르 문구 자동으로 빼기 (예: "가로 4:3 비율로…", "…화풍으로 그려줘")</span>
+          </label>
+        </p>
 
         <!-- Aspect Ratio Selection -->
         <div>
@@ -304,7 +314,7 @@
 
         <!-- Style Preset Selector -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">화풍 / 스타일</label>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">장르 / 화풍</label>
           <div class="grid grid-cols-4 gap-1.5" id="style-selector">
             <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-purple-500 bg-purple-600/20 text-purple-300 text-xs font-medium text-center" data-style="none">기본</button>
             <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="photo">실사 사진</button>
@@ -314,6 +324,13 @@
             <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="cyberpunk">사이버펑크</button>
             <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="watercolor">수채화</button>
             <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="fantasy">판타지</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="picturebook">그림책</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="oil">유화</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="sketch">연필 스케치</button>
+            <button type="button" class="style-btn py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 text-xs font-medium text-center hover:border-slate-600" data-style="custom">✏️ 직접입력</button>
+          </div>
+          <div id="custom-style-wrapper" class="hidden pt-2">
+            <textarea id="custom-style-input" rows="2" maxlength="500" class="w-full bg-slate-950 border border-purple-500/50 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500 resize-none" placeholder="원하는 장르를 직접 적으세요 (예: 18세기 유럽풍 분위기, 부드러운 파스텔 색감의 클래식 동화책 수채화)"></textarea>
           </div>
         </div>
 
@@ -466,7 +483,7 @@
   </div>
 
   <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
-    AI Image Studio • Powered by Nano Banana (Gemini 2.5 Flash Image)
+    AI Image Studio • Powered by Nano Banana 2 (Gemini 3.1 Flash Image)
   </footer>
 
   
@@ -474,11 +491,24 @@
 // Standalone 빌드용 어댑터: app.js가 호출하는 /api/* 를 서버 없이 브라우저에서 처리한다.
 // 사용자 API 키는 이 브라우저의 localStorage 에만 저장되고 Google API 로만 전송된다.
 (() => {
-  const MODEL_ID = 'gemini-2.5-flash-image';
-  const MODEL_LABEL = 'Nano Banana';
+  const MODEL_CANDIDATES = ['gemini-3.1-flash-image', 'gemini-3.1-flash-image-preview', 'gemini-2.5-flash-image'];
+  const MODEL_ID = MODEL_CANDIDATES[0];
+  const MODEL_LABEL = 'Nano Banana 2';
+  const WEBP_QUALITY = 0.01; // 용량 최소화가 목적이라 최저 품질
+  let modelIndex = 0;
   const KEY_STORAGE = 'nano_banana_gemini_api_key';
   const ASPECT_RATIOS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
-  const STYLE_PROMPTS = {"none":"","photo":", ultra-realistic 8k photograph, highly detailed, realistic lighting, fine textures, photorealism, shot on 35mm lens, f/1.8","anime":", modern anime aesthetic, Makoto Shinkai style, vibrant colors, detailed line art, masterpiece, high quality anime wallpaper","digital":", stunning digital art, trending on ArtStation, dynamic lighting, cinematic composition, intricate details, vivid color palette","3d":", 3D digital render, Pixar style, Unreal Engine 5, smooth ambient occlusion, cute character design, studio softbox lighting","cyberpunk":", cyberpunk neon style, futuristic cityscape, glowing holograms, wet reflective streets, dark moody atmosphere with vivid magenta and cyan","watercolor":", delicate watercolor painting, soft translucent pastel washes, watercolor paper texture, fluid artistic brush strokes","fantasy":", epic fantasy illustration, mythical atmosphere, magical glowing particles, detailed environment, legendary landscape"};
+  const STYLE_PROMPTS = {"none":"","photo":", ultra-realistic 8k photograph, highly detailed, realistic lighting, fine textures, photorealism, shot on 35mm lens, f/1.8","anime":", modern anime aesthetic, Makoto Shinkai style, vibrant colors, detailed line art, masterpiece, high quality anime wallpaper","digital":", stunning digital art, trending on ArtStation, dynamic lighting, cinematic composition, intricate details, vivid color palette","3d":", 3D digital render, Pixar style, Unreal Engine 5, smooth ambient occlusion, cute character design, studio softbox lighting","cyberpunk":", cyberpunk neon style, futuristic cityscape, glowing holograms, wet reflective streets, dark moody atmosphere with vivid magenta and cyan","watercolor":", delicate watercolor painting, soft translucent pastel washes, watercolor paper texture, fluid artistic brush strokes","fantasy":", epic fantasy illustration, mythical atmosphere, magical glowing particles, detailed environment, legendary landscape","picturebook":", classic children's picture book illustration, soft watercolor with gentle pastel colors, warm storybook atmosphere, hand-painted texture","oil":", classical oil painting, visible expressive brush strokes, rich deep colors, canvas texture, soft chiaroscuro lighting","sketch":", detailed pencil sketch, graphite line drawing, cross-hatching shading, monochrome on textured paper"};
+  const MAX_CUSTOM_STYLE_LENGTH = 500;
+  // lib/nanobanana.js 의 applyStyle 을 빌드 시 그대로 주입한다 (서버판과 같은 규칙으로 장르를 붙이기 위해)
+  function applyStyle(prompt, style, customStyle, presets = STYLE_PROMPTS) {
+  const scene = String(prompt).trim();
+  if (style === 'custom') {
+    const custom = String(customStyle || '').trim();
+    return custom ? `${scene.replace(/[\s.,;]+$/, '')}. Art style: ${custom}` : scene;
+  }
+  return scene + (Object.hasOwn(presets, style) ? presets[style] : '');
+}
 
   const realFetch = window.fetch.bind(window);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -500,7 +530,7 @@
   }
 
   async function callGemini(prompt, ratio, apiKey, signal, retries = 3) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`;
+    const urlFor = (id) => `https://generativelanguage.googleapis.com/v1beta/models/${id}:generateContent`;
     const buildBody = (text) => JSON.stringify({
       contents: [{ parts: [{ text }] }],
       generationConfig: { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: ratio } }
@@ -512,7 +542,7 @@
     for (let attempt = 0; attempt <= retries; attempt++) {
       let response;
       try {
-        response = await realFetch(url, {
+        response = await realFetch(urlFor(MODEL_CANDIDATES[modelIndex]), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body,
@@ -540,6 +570,7 @@
         throw new Error(`이미지가 생성되지 않았습니다${blocked ? ` (차단: ${blocked})` : ''}${finish ? ` [${finish}]` : ''}${text ? `: ${text}` : ''}`);
       }
 
+      if (response.status === 404 && modelIndex < MODEL_CANDIDATES.length - 1) { modelIndex++; attempt--; continue; }
       lastError = new Error(describeHttpError(response.status, await response.text()));
       if ((response.status === 429 || response.status >= 500) && attempt < retries) {
         const ra = parseFloat(response.headers.get('retry-after'));
@@ -560,6 +591,22 @@
 
   const EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp' };
 
+  // 받은 이미지를 최소 용량 WebP 로 다시 인코딩한다. WebP 인코딩을 못 하는 브라우저에서는 원본을 그대로 쓴다.
+  async function toWebpBlob(blob) {
+    try {
+      const bitmap = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      canvas.getContext('2d').drawImage(bitmap, 0, 0);
+      bitmap.close?.();
+      const out = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', WEBP_QUALITY));
+      return out && out.type === 'image/webp' ? out : blob;
+    } catch {
+      return blob;
+    }
+  }
+
   async function handleGenerate(init) {
     let req;
     try { req = JSON.parse(init.body || '{}'); } catch { return json(400, { success: false, error: '잘못된 요청입니다.' }); }
@@ -573,18 +620,22 @@
     }
 
     const ratio = ASPECT_RATIOS.includes(req.aspectRatio) ? req.aspectRatio : '1:1';
-    const style = req.style in STYLE_PROMPTS ? req.style : 'none';
-    const fullPrompt = prompt + STYLE_PROMPTS[style];
+    // 프롬프트에는 장면만 들어오고, 비율·장르는 앱에서 고른 값을 여기서 적용한다.
+    const customStyle = req.style === 'custom' && typeof req.customStyle === 'string'
+      ? req.customStyle.trim().slice(0, MAX_CUSTOM_STYLE_LENGTH) : '';
+    const style = customStyle ? 'custom' : (Object.hasOwn(STYLE_PROMPTS, req.style) ? req.style : 'none');
+    const fullPrompt = applyStyle(prompt, style, customStyle);
 
     try {
       const { b64, mimeType } = await callGemini(fullPrompt, ratio, apiKey, init.signal);
       const createdAt = Date.now();
       const safe = prompt.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 30).replace(/\s+/g, '_') || 'image';
-      const filename = `${createdAt}_${safe}_${Math.floor(Math.random() * 1e6)}${EXT[mimeType] || '.png'}`;
-      const url = URL.createObjectURL(b64ToBlob(b64, mimeType));
+      const blob = await toWebpBlob(b64ToBlob(b64, mimeType));
+      const filename = `${createdAt}_${safe}_${Math.floor(Math.random() * 1e6)}${EXT[blob.type] || '.png'}`;
+      const url = URL.createObjectURL(blob);
       return json(200, {
         success: true,
-        image: { filename, url, prompt, fullPrompt, aspectRatio: ratio, style, model: MODEL_LABEL, createdAt }
+        image: { filename, url, prompt, fullPrompt, aspectRatio: ratio, style, customStyle: customStyle || null, model: MODEL_LABEL, createdAt }
       });
     } catch (err) {
       if (err.name === 'AbortError') throw err;
@@ -621,6 +672,8 @@ const state = {
   count: 1,
   aspectRatio: '1:1',
   style: 'none',
+  customStyle: '', // style === 'custom' 일 때 쓰는 직접 입력 장르 문구
+  stripBoilerplate: true, // 프롬프트에 섞여 들어온 비율·장르 문구를 자동으로 뺀다
   hasServerKey: false,
   delimiterMode: 'auto', // 'auto' | 'newline' | 'comma' | 'semicolon' | 'pipe' | 'numbering' | 'custom'
   customDelimiter: '',
@@ -654,6 +707,10 @@ const parsedPromptsList = $('parsed-prompts-list');
 const parsedPreviewCount = $('parsed-preview-count');
 const batchFileUpload = $('batch-file-upload');
 const batchQtyPerPrompt = $('batch-qty-per-prompt');
+const customStyleWrapper = $('custom-style-wrapper');
+const customStyleInput = $('custom-style-input');
+const stripBoilerplateToggle = $('strip-boilerplate');
+const singleCleanPreview = $('single-clean-preview');
 
 const btnGenerate = $('btn-generate');
 const btnGenerateText = $('btn-generate-text');
@@ -776,6 +833,50 @@ function parsePrompts(rawText, mode = 'auto', customDelim = '', safe = false) {
   return { items, detectedMode: detectedType };
 }
 
+// -------------------------------------------------------------
+// 프롬프트 속 비율·장르 문구 제거 (비율·장르는 앱에서 고른 값만 쓴다)
+// 예: "scene13수채화 그림책 삽화, 가로 4:3 비율로, 글자나 워터마크 없이 그려줘. …화풍으로 통일되게 그려줘. 마을 풍경"
+//  -> "scene13 마을 풍경, 글자나 워터마크 없이"
+// -------------------------------------------------------------
+const SCENE_LABEL_RE = /^\s*((?:scene|장면|씬)\s*\d+)\s*[:.\-)]?\s*/i;
+const RATIO_RE = /(?:가로|세로|정사각형?)?\s*\d{1,2}\s*[:：대]\s*\d{1,2}\s*(?:의\s*)?(?:화면\s*)?비율(?:로|으로|의)?|(?:aspect\s*ratio|--ar)\s*(?:of\s*)?\d{1,2}\s*:\s*\d{1,2}|\d{1,2}\s*:\s*\d{1,2}\s*(?:aspect\s*)?ratio/i;
+const GENRE_RE = /화풍|그림체|스타일|삽화|\bstyle\b/i;
+const INSTRUCTION_END_RE = /(?:그려|해|만들어)\s*(?:줘요?|주세요|줄래|라)\s*[.!]*$/;
+const NO_TEXT_RE = /글자|워터마크|텍스트|watermark|no\s+text/i;
+const NO_TEXT_SUFFIX = '글자나 워터마크 없이';
+
+function stripRatioAndGenre(prompt) {
+  const original = prompt.trim();
+  const labelMatch = original.match(SCENE_LABEL_RE);
+  const label = labelMatch ? labelMatch[1].replace(/\s+/g, '') : '';
+  const rest = labelMatch ? original.slice(labelMatch[0].length) : original;
+
+  let wantsNoText = false;
+  const kept = [];
+  for (const sentence of rest.split(/(?<=[.!?。])\s+/)) {
+    const s = sentence.trim();
+    if (!s) continue;
+    // "…비율로 …그려줘." / "…화풍으로 통일되게 그려줘." 처럼 비율·장르를 지시하는 문장은 통째로 뺀다
+    if (INSTRUCTION_END_RE.test(s) && (RATIO_RE.test(s) || GENRE_RE.test(s))) {
+      if (NO_TEXT_RE.test(s)) wantsNoText = true;
+      continue;
+    }
+    // 장면 문장 안에 섞인 비율 구절만 덜어낸다
+    const clauses = s.split(',').filter(c => !(RATIO_RE.test(c) && c.trim().length <= 30));
+    const cleaned = clauses.join(',').trim();
+    if (cleaned) kept.push(cleaned);
+  }
+
+  let body = kept.join(' ').replace(/[\s,]+$/, '').trim();
+  if (!body) return original; // 장면이 남지 않으면 손대지 않는다
+  if (wantsNoText && !NO_TEXT_RE.test(body)) body += `, ${NO_TEXT_SUFFIX}`;
+  return label ? `${label} ${body}` : body;
+}
+
+function preparePrompt(prompt) {
+  return state.stripBoilerplate ? stripRatioAndGenre(prompt) : prompt.trim();
+}
+
 function activeBatchPrompts() {
   return state.parsedBatchPrompts.filter((_, idx) => !state.excluded.has(idx));
 }
@@ -790,13 +891,16 @@ function updateGenerateLabel() {
 }
 
 function updateBatchParsedPrompts({ keepExcluded = false } = {}) {
-  const { items, detectedMode } = parsePrompts(batchPromptsInput.value, state.delimiterMode, state.customDelimiter);
+  const { items: rawItems, detectedMode } = parsePrompts(batchPromptsInput.value, state.delimiterMode, state.customDelimiter);
+  const items = rawItems.map(preparePrompt);
+  const strippedCount = items.filter((item, i) => item !== rawItems[i]).length;
   if (!keepExcluded) state.excluded = new Set();
   state.parsedBatchPrompts = items;
 
-  currentDelimLabel.textContent = state.delimiterMode === 'auto'
+  currentDelimLabel.textContent = (state.delimiterMode === 'auto'
     ? `스마트 감지됨: ${detectedMode}`
-    : `지정됨: ${state.delimiterMode.toUpperCase()}`;
+    : `지정됨: ${state.delimiterMode.toUpperCase()}`)
+    + (strippedCount ? ` · 비율·장르 문구 ${strippedCount}건 제거` : '');
 
   const active = activeBatchPrompts().length;
   const perPrompt = parseInt(batchQtyPerPrompt.value, 10);
@@ -870,7 +974,16 @@ batchPromptsInput.addEventListener('input', () => updateBatchParsedPrompts());
 batchQtyPerPrompt.addEventListener('change', () => updateBatchParsedPrompts({ keepExcluded: true }));
 
 // Single mode: 줄바꿈/번호 목록이 보이면 일괄 모드 전환을 제안 (자동 분리는 하지 않음)
+function updateSingleCleanPreview() {
+  const raw = singlePromptInput.value.trim();
+  const cleaned = raw ? preparePrompt(raw) : '';
+  const changed = !!raw && cleaned !== raw;
+  singleCleanPreview.classList.toggle('hidden', !changed);
+  if (changed) singleCleanPreview.textContent = `비율·장르 문구를 빼고 보냅니다 → ${cleaned}`;
+}
+
 singlePromptInput.addEventListener('input', () => {
+  updateSingleCleanPreview();
   const { items } = parsePrompts(singlePromptInput.value, 'auto', '', true);
   if (items.length > 1) {
     singleDetectCount.textContent = items.length;
@@ -935,15 +1048,72 @@ bindSelector('.qty-btn', btn => {
   off: ['border-slate-700', 'bg-slate-800', 'text-slate-300', 'font-medium']
 });
 
-bindSelector('.aspect-btn', btn => { state.aspectRatio = btn.dataset.aspect; }, {
+// 비율·장르는 프롬프트에 적지 않고 여기서 고른다. 선택은 브라우저에 기억해 다음 실행 때 복원한다.
+const OPTIONS_STORAGE = 'ai_image_studio_options';
+const STYLE_LABELS = Object.fromEntries(
+  Array.from(document.querySelectorAll('.style-btn'), b => [b.dataset.style, b.textContent.trim()])
+);
+
+function styleLabel(item) {
+  if (item.style === 'custom') return item.customStyle || '직접입력';
+  return STYLE_LABELS[item.style] || '-';
+}
+
+function saveOptions() {
+  try {
+    localStorage.setItem(OPTIONS_STORAGE, JSON.stringify({
+      aspectRatio: state.aspectRatio, style: state.style, customStyle: state.customStyle,
+      stripBoilerplate: state.stripBoilerplate
+    }));
+  } catch { /* 저장이 막힌 환경이면 기억하지 않을 뿐 */ }
+}
+
+bindSelector('.aspect-btn', btn => {
+  state.aspectRatio = btn.dataset.aspect;
+  saveOptions();
+}, {
   on: ['border-purple-500', 'bg-purple-600/20', 'text-purple-300', 'font-semibold'],
   off: ['border-slate-700', 'bg-slate-800', 'text-slate-300', 'font-medium']
 });
 
-bindSelector('.style-btn', btn => { state.style = btn.dataset.style; }, {
+bindSelector('.style-btn', btn => {
+  state.style = btn.dataset.style;
+  customStyleWrapper.classList.toggle('hidden', state.style !== 'custom');
+  saveOptions();
+}, {
   on: ['border-purple-500', 'bg-purple-600/20', 'text-purple-300'],
   off: ['border-slate-700', 'bg-slate-800', 'text-slate-300']
 });
+
+customStyleInput.addEventListener('input', () => {
+  state.customStyle = customStyleInput.value.trim();
+  saveOptions();
+});
+
+stripBoilerplateToggle.addEventListener('change', () => {
+  state.stripBoilerplate = stripBoilerplateToggle.checked;
+  saveOptions();
+  updateSingleCleanPreview();
+  updateBatchParsedPrompts({ keepExcluded: true });
+});
+
+function restoreOptions() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(OPTIONS_STORAGE) || 'null'); } catch { saved = null; }
+  if (!saved) return;
+  if (typeof saved.stripBoilerplate === 'boolean') {
+    state.stripBoilerplate = saved.stripBoilerplate;
+    stripBoilerplateToggle.checked = saved.stripBoilerplate;
+  }
+  if (typeof saved.customStyle === 'string') {
+    customStyleInput.value = saved.customStyle;
+    state.customStyle = saved.customStyle.trim();
+  }
+  const find = (selector, key, value) =>
+    Array.from(document.querySelectorAll(selector)).find(b => b.dataset[key] === value);
+  find('.aspect-btn', 'aspect', saved.aspectRatio)?.click();
+  find('.style-btn', 'style', saved.style)?.click();
+}
 
 // Sample prompts
 document.querySelectorAll('.btn-sample').forEach(btn => {
@@ -1053,7 +1223,7 @@ function openLightbox(item) {
   lightboxImg.src = item.url;
   lightboxPrompt.textContent = item.prompt;
   lightboxBadge.textContent = (item.model || 'AI').toUpperCase();
-  lightboxInfo.textContent = `비율: ${item.aspectRatio || '-'} | 생성일시: ${new Date(item.createdAt).toLocaleString()}`;
+  lightboxInfo.textContent = `비율: ${item.aspectRatio || '-'} | 장르: ${styleLabel(item)} | 생성일시: ${new Date(item.createdAt).toLocaleString()}`;
   lightboxModal.classList.remove('hidden');
   refreshIcons();
 }
@@ -1070,7 +1240,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 btnLightboxDownload.addEventListener('click', () => {
-  if (currentLightboxItem) downloadSingleImage(currentLightboxItem.url, currentLightboxItem.filename || 'ai-image.png');
+  if (currentLightboxItem) downloadSingleImage(currentLightboxItem.url, currentLightboxItem.filename || 'ai-image.webp');
 });
 
 btnCopyPrompt.addEventListener('click', async () => {
@@ -1138,7 +1308,7 @@ function addImageCard(item, prepend = true) {
   zoomBtn.addEventListener('click', () => openLightbox(item));
   dlBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    downloadSingleImage(item.url, item.filename || 'generated-image.png');
+    downloadSingleImage(item.url, item.filename || 'generated-image.webp');
   });
 
   if (prepend && galleryGrid.firstChild) galleryGrid.insertBefore(card, galleryGrid.firstChild);
@@ -1162,7 +1332,12 @@ async function apiGenerateImage(prompt, signal) {
   const response = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, aspectRatio: state.aspectRatio, style: state.style }),
+    body: JSON.stringify({
+      prompt,
+      aspectRatio: state.aspectRatio,
+      style: state.style,
+      customStyle: state.style === 'custom' ? state.customStyle : undefined
+    }),
     signal
   });
 
@@ -1270,6 +1445,12 @@ btnGenerate.addEventListener('click', () => {
     return;
   }
 
+  if (state.style === 'custom' && !state.customStyle) {
+    alert('장르를 "직접입력"으로 선택했습니다. 장르 문구를 적거나 다른 장르를 골라주세요.');
+    customStyleInput.focus();
+    return;
+  }
+
   let prompts;
   let perPrompt;
 
@@ -1280,7 +1461,7 @@ btnGenerate.addEventListener('click', () => {
       singlePromptInput.focus();
       return;
     }
-    prompts = [rawVal]; // 개별 모드는 입력 전체가 하나의 프롬프트
+    prompts = [preparePrompt(rawVal)]; // 개별 모드는 입력 전체가 하나의 프롬프트
     perPrompt = state.count;
   } else {
     updateBatchParsedPrompts({ keepExcluded: true });
@@ -1341,6 +1522,7 @@ btnDownloadAllZip.addEventListener('click', async () => {
           prompt: imgItem.prompt,
           model: imgItem.model,
           aspectRatio: imgItem.aspectRatio,
+          style: imgItem.style === 'custom' ? imgItem.customStyle : imgItem.style,
           createdAt: new Date(imgItem.createdAt).toISOString()
         });
       } catch (err) {
@@ -1382,6 +1564,8 @@ async function loadExistingOutputs() {
           prompt: img.prompt || fallbackPrompt,
           model: img.model || 'STORED',
           aspectRatio: img.aspectRatio,
+          style: img.style,
+          customStyle: img.customStyle,
           createdAt: img.createdAt
         }, false);
       });
@@ -1393,6 +1577,7 @@ async function loadExistingOutputs() {
 
 // Initial Boot
 refreshIcons();
+restoreOptions();
 loadConfig();
 loadExistingOutputs();
 updateBatchParsedPrompts();
