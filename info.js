@@ -274,6 +274,13 @@ window.EXTRA_WORKS = [
     order: 130
   },
 
+ {
+    title: "빛으로 남을 이름",
+    description: "",
+    youtube: "https://youtu.be/URnWP5kmCE0",
+    order: 140
+  },
+
 
   // ▼ 예시입니다. 영상을 더 추가하려면 위의 덩어리를 복사해서 붙이세요.
   // {
