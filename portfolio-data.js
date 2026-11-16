@@ -81,10 +81,6 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-10-30"
     },
     {
-        "file":  "musicvideos/시간이 멈춘 언덕에서.mp4",
-        "date":  "2026-11-13"
-    },
-    {
         "file":  "musicvideos/저물어가는 노을 바라보며.mp4",
         "date":  "2026-10-06"
     },
@@ -95,10 +91,6 @@ window.PORTFOLIO_FILES = [
     {
         "file":  "musicvideos/한이 불이 되어.mp4",
         "date":  "2026-10-29"
-    },
-    {
-        "file":  "musicvideos/할머니의 보물 둘_s.mp4",
-        "date":  "2026-11-14"
     },
     {
         "file":  "audios/🎤 〈불꽃처럼 달려간다〉-디스코 .mp3",
