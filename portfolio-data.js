@@ -264,6 +264,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-16"
     },
     {
+        "file":  "storyboard/난장이가 쏘아 올린 공_josehui.html",
+        "date":  "2026-11-16"
+    },
+    {
         "file":  "storyboard/운영전_작자미상.html",
         "date":  "2026-11-15"
     },
