@@ -246,6 +246,28 @@ window.EXTRA_WORKS = [
     order: 90
   },
 
+ {
+    title: "내 이름을 불러줘",
+    description: "",
+    youtube: "https://youtu.be/GNUSC4KUns4",
+    order: 100
+  },
+
+ {
+    title: "시간이 멈춘 언덕에서",
+    description: "",
+    youtube: "https://youtu.be/pp73TDtKMzw",
+    order: 110
+  },
+
+ {
+    title: "할머니의 보물 둘",
+    description: "",
+    youtube: "https://youtu.be/eSmeQSrFGvQ",
+    order: 120
+  },
+
+
   // ▼ 예시입니다. 영상을 더 추가하려면 위의 덩어리를 복사해서 붙이세요.
   // {
   //   title: "제목",
