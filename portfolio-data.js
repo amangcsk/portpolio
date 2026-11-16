@@ -73,10 +73,6 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-11"
     },
     {
-        "file":  "musicvideos/세월의 꽃.mp4",
-        "date":  "2026-11-11"
-    },
-    {
         "file":  "musicvideos/소매 끝 미소.mp4",
         "date":  "2026-10-30"
     },
