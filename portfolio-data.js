@@ -94,91 +94,91 @@ window.PORTFOLIO_FILES = [
     },
     {
         "file":  "stories/High/데미안_헤르만 헤세_H.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/삼포가는길_황석영 이야기책.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/이방인 _까뮤.html",
-        "date":  "2026-11-10"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/적과흑_스땅달.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/전쟁과평화_레프 톨스토이.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/젊은베르테르의슬픔_그림책_26장.html",
-        "date":  "2026-11-06"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/죄와벌_표도르 도스토옙스키.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/High/카라마조프가의형제들_표도르 도스토옙스키.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/little_prince_storybook_standalone.html",
-        "date":  "2026-11-06"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/노인과바다_훼밍웨이 이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/데미안_헤르만 헤세 이야기책.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/동물농장_이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/메밀꽃필무렵_이효석 이야기책.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/봄봄_동백꽃_이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/소나기_황순원.html",
-        "date":  "2026-11-13"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/소크라테스의변명_플라톤.html",
-        "date":  "2026-11-13"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/수난이대_하근찬 이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/왜세계의절반은굶주리는가_장 지글러 이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/원미동사람들_양귀자 이야기책.html",
-        "date":  "2026-11-12"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/자전거도둑_박완서 이야기책.html",
-        "date":  "2026-11-11"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/Middle/정의란_무엇인가_그림책_심화판.html",
-        "date":  "2026-11-10"
+        "date":  "2026-11-16"
     },
     {
         "file":  "stories/일리아스와_오디세이아_이야기책.html",
-        "date":  "2026-11-15"
+        "date":  "2026-11-16"
     },
     {
         "file":  "study/대입 핵심 20선  .pdf",
@@ -213,39 +213,43 @@ window.PORTFOLIO_FILES = [
     },
     {
         "file":  "storyboard/1984_storybook.html",
-        "date":  "2026-11-10"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/a_farewell_to_arms_digital_storybook.html",
-        "date":  "2026-11-09"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/farewell_to_arms_storybook.html",
-        "date":  "2026-11-10"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/gabby_ants_part1_standalone.html",
-        "date":  "2026-11-08"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/gabby_ants_part2_storyboard.html",
-        "date":  "2026-11-08"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/gabby_ants_part3_revolution.html",
-        "date":  "2026-11-08"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/kafka_metamorphosis_storybook.html",
-        "date":  "2026-11-10"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/werther_storybook_standalone.html",
-        "date":  "2026-11-06"
+        "date":  "2026-11-16"
+    },
+    {
+        "file":  "storyboard/구운몽_김만중.html",
+        "date":  "2026-11-17"
     },
     {
         "file":  "storyboard/국가란무엇인가_유시민.html",
-        "date":  "2026-11-15"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/국부론_애덤스미스.html",
@@ -257,11 +261,15 @@ window.PORTFOLIO_FILES = [
     },
     {
         "file":  "storyboard/운영전_작자미상.html",
-        "date":  "2026-11-15"
+        "date":  "2026-11-16"
     },
     {
         "file":  "storyboard/총_균_쇠_jared_diamond.html",
         "date":  "2026-11-16"
+    },
+    {
+        "file":  "storyboard/파리대왕_윌리엄골딩.html",
+        "date":  "2026-11-17"
     },
     {
         "file":  "apps/ai-image-studio.html",
