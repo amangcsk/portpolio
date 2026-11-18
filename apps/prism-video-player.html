@@ -1,0 +1,1573 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prism Player — 로컬 비디오 플레이어</title>
+  <style>
+:root {
+  --bg-app: #0b0e14;
+  --bg-surface: #131822;
+  --bg-surface-2: #1b2230;
+  --bg-hover: #242d3f;
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #38bdf8;
+  --accent-strong: #0284c7;
+  --accent-glow: rgba(56, 189, 248, 0.22);
+  --danger: #f87171;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+  overflow: hidden;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #6366f1);
+  color: #fff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-text h1 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 48vw;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  color: #06121e;
+}
+
+.btn-ghost {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-hover);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  padding: 11px 20px;
+  font-size: 14px;
+}
+
+.badge {
+  background: rgba(56, 189, 248, 0.18);
+  color: var(--accent);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Workspace Layout */
+.workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #06080c;
+  position: relative;
+}
+
+.video-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Empty State */
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at center, #131b2b 0%, #07090e 75%);
+  z-index: 2;
+}
+
+.empty-state.hidden {
+  display: none;
+}
+
+.empty-card {
+  max-width: 480px;
+  text-align: center;
+  padding: 36px 28px;
+  border-radius: var(--radius-lg);
+  background: rgba(19, 24, 34, 0.86);
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  box-shadow: var(--shadow);
+}
+
+.empty-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.empty-card h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.empty-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.shortcut-hints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 11px;
+}
+
+/* Drag & Drop Overlay */
+.drop-overlay {
+  position: absolute;
+  inset: 14px;
+  border-radius: var(--radius-lg);
+  background: rgba(2, 132, 199, 0.18);
+  border: 2px dashed var(--accent);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.drop-overlay.active {
+  display: flex;
+}
+
+.drop-overlay-box {
+  text-align: center;
+  color: #fff;
+}
+
+.drop-icon {
+  display: block;
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+/* Toast */
+.toast {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 12;
+  white-space: nowrap;
+  max-width: 85%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Controls Bar */
+.controls-bar {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  padding: 10px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+}
+
+.time-label:last-child {
+  text-align: right;
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.seek-bar {
+  flex: 1;
+  height: 5px;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.controls-left,
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: var(--bg-hover);
+}
+
+.icon-btn-play {
+  background: var(--accent-strong);
+  color: #fff;
+  width: 40px;
+  height: 36px;
+}
+
+.icon-btn-play:hover {
+  background: var(--accent);
+  color: #06121e;
+}
+
+.volume-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.volume-bar {
+  width: 82px;
+  height: 4px;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.pill-btn.active {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.speed-select {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Playlist Sidebar */
+.playlist-panel {
+  width: 340px;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 0.2s ease;
+}
+
+.playlist-panel.collapsed {
+  display: none;
+}
+
+.playlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.playlist-header h2 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.playlist-status {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.playlist-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.playlist-item:hover {
+  background: var(--bg-surface-2);
+}
+
+.playlist-item.active {
+  background: var(--accent-glow);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.playlist-index {
+  width: 22px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.playlist-item.active .playlist-index {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.playlist-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.playlist-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.playlist-item:hover .playlist-item-actions,
+.playlist-item.active .playlist-item-actions {
+  opacity: 1;
+}
+
+.mini-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.mini-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.mini-btn.danger:hover {
+  color: var(--danger);
+}
+
+.playlist-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  gap: 6px;
+}
+
+.playlist-empty.hidden {
+  display: none;
+}
+
+.muted {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Scrollbar */
+.playlist-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.playlist-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .workspace {
+    flex-direction: column;
+  }
+
+  .playlist-panel {
+    width: 100%;
+    height: 36vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .volume-bar {
+    width: 56px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">▶</span>
+        <div class="brand-text">
+          <h1>Prism Player</h1>
+          <span class="subtitle" id="nowPlayingMeta">파일을 선택해 재생을 시작하세요</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <label class="btn btn-primary" for="fileInput" title="여러 비디오 파일을 선택해 추가합니다">
+          <span>+ 파일 추가</span>
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          accept="video/*"
+          multiple
+          hidden
+        />
+        <button
+          type="button"
+          class="btn btn-ghost"
+          id="togglePlaylistBtn"
+          aria-expanded="true"
+          title="재생목록 열기/닫기"
+        >
+          재생목록 <span class="badge" id="playlistCountBadge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <!-- Video Stage -->
+      <section class="stage" id="dropZone" aria-label="비디오 재생 영역">
+        <div class="video-wrapper" id="videoWrapper">
+          <video id="videoPlayer" playsinline preload="metadata"></video>
+
+          <!-- Empty State / Drop Hint -->
+          <div class="empty-state" id="emptyState">
+            <div class="empty-card">
+              <div class="empty-icon" aria-hidden="true">🎬</div>
+              <h2>비디오 파일을 다중 선택하거나 끌어다 놓으세요</h2>
+              <p>선택한 순서대로 순차 재생되며, 셔플 모드로 무작위 재생도 가능합니다.</p>
+              <label class="btn btn-primary btn-lg" for="fileInput">
+                비디오 파일 선택하기
+              </label>
+              <div class="shortcut-hints">
+                <span><kbd>Space</kbd> 재생/일시정지</span>
+                <span><kbd>←</kbd><kbd>→</kbd> 5초 이동</span>
+                <span><kbd>N</kbd>/<kbd>P</kbd> 다음/이전</span>
+                <span><kbd>S</kbd> 셔플</span>
+                <span><kbd>F</kbd> 전체화면</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drag Overlay -->
+          <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+            <div class="drop-overlay-box">
+              <span class="drop-icon">⬇</span>
+              <p>여기에 비디오 파일을 놓아 재생목록에 추가</p>
+            </div>
+          </div>
+
+          <!-- Toast Notification -->
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        </div>
+
+        <!-- Custom Player Controls -->
+        <div class="controls-bar" id="controlsBar">
+          <!-- Progress Bar -->
+          <div class="progress-row">
+            <span class="time-label" id="currentTimeLabel">00:00</span>
+            <input
+              type="range"
+              id="seekBar"
+              class="seek-bar"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+              aria-label="재생 위치"
+            />
+            <span class="time-label" id="durationLabel">00:00</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="controls-row">
+            <div class="controls-left">
+              <button type="button" class="icon-btn" id="prevBtn" title="이전 영상 (P)" aria-label="이전 영상">
+                ⏮
+              </button>
+              <button type="button" class="icon-btn icon-btn-play" id="playPauseBtn" title="재생/일시정지 (Space)" aria-label="재생 또는 일시정지">
+                ▶
+              </button>
+              <button type="button" class="icon-btn" id="nextBtn" title="다음 영상 (N)" aria-label="다음 영상">
+                ⏭
+              </button>
+
+              <div class="volume-group">
+                <button type="button" class="icon-btn" id="muteBtn" title="음소거 (M)" aria-label="음소거">
+                  🔊
+                </button>
+                <input
+                  type="range"
+                  id="volumeBar"
+                  class="volume-bar"
+                  min="0"
+                  max="1"
+                  step="0.02"
+                  value="1"
+                  aria-label="볼륨"
+                />
+              </div>
+            </div>
+
+            <div class="controls-right">
+              <button
+                type="button"
+                class="pill-btn"
+                id="shuffleBtn"
+                aria-pressed="false"
+                title="셔플 재생 켜기/끄기 (S)"
+              >
+                🔀 <span>셔플 OFF</span>
+              </button>
+
+              <button
+                type="button"
+                class="pill-btn"
+                id="repeatBtn"
+                data-mode="all"
+                title="반복 모드 전환 (L)"
+              >
+                🔁 <span>전체 반복</span>
+              </button>
+
+              <select id="speedSelect" class="speed-select" aria-label="재생 속도" title="재생 속도">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2.0x</option>
+              </select>
+
+              <button type="button" class="icon-btn" id="pipBtn" title="PIP 모드" aria-label="PIP 모드">
+                ⧉
+              </button>
+              <button type="button" class="icon-btn" id="fullscreenBtn" title="전체화면 (F)" aria-label="전체화면">
+                ⛶
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Playlist Sidebar -->
+      <aside class="playlist-panel" id="playlistPanel" aria-label="재생목록">
+        <div class="playlist-header">
+          <div>
+            <h2>재생목록</h2>
+            <p class="playlist-status" id="playlistModeText">순차 재생</p>
+          </div>
+          <div class="playlist-header-actions">
+            <button type="button" class="btn btn-sm btn-ghost" id="clearPlaylistBtn" title="목록 전체 삭제">
+              비우기
+            </button>
+          </div>
+        </div>
+
+        <ul class="playlist-list" id="playlistList"></ul>
+
+        <div class="playlist-empty" id="playlistEmpty">
+          <p>아직 추가된 영상이 없습니다.</p>
+          <p class="muted">상단의 <strong>+ 파일 추가</strong>를 누르거나 파일을 드래그하세요.</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+(() => {
+  const VIDEO_EXT_RE = /\.(mp4|webm|mkv|mov|avi|m4v|ogv|ogg|flv|wmv)$/i;
+
+  // DOM Elements
+  const video = document.getElementById('videoPlayer');
+  const fileInput = document.getElementById('fileInput');
+  const dropZone = document.getElementById('dropZone');
+  const dropOverlay = document.getElementById('dropOverlay');
+  const emptyState = document.getElementById('emptyState');
+  const nowPlayingMeta = document.getElementById('nowPlayingMeta');
+  const toastEl = document.getElementById('toast');
+
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const volumeBar = document.getElementById('volumeBar');
+  const seekBar = document.getElementById('seekBar');
+  const currentTimeLabel = document.getElementById('currentTimeLabel');
+  const durationLabel = document.getElementById('durationLabel');
+
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const repeatBtn = document.getElementById('repeatBtn');
+  const speedSelect = document.getElementById('speedSelect');
+  const pipBtn = document.getElementById('pipBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const videoWrapper = document.getElementById('videoWrapper');
+
+  const togglePlaylistBtn = document.getElementById('togglePlaylistBtn');
+  const playlistPanel = document.getElementById('playlistPanel');
+  const playlistList = document.getElementById('playlistList');
+  const playlistEmpty = document.getElementById('playlistEmpty');
+  const playlistCountBadge = document.getElementById('playlistCountBadge');
+  const playlistModeText = document.getElementById('playlistModeText');
+  const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
+
+  // State
+  let playlist = []; // { id, file, name, size, url, duration }
+  let currentIndex = -1;
+  let isShuffle = false;
+  let shuffleOrder = [];
+  let shuffleCursor = -1;
+  let repeatMode = 'all'; // 'all' | 'one' | 'off'
+  let isSeeking = false;
+  let toastTimer = null;
+  let nextItemId = 1;
+  let dragCounter = 0;
+
+  // Helpers
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '00:00';
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const mm = String(mins).padStart(2, '0');
+    const ss = String(secs).padStart(2, '0');
+    return hrs > 0 ? `${hrs}:${mm}:${ss}` : `${mm}:${ss}`;
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let value = bytes;
+    let idx = 0;
+    while (value >= 1024 && idx < units.length - 1) {
+      value /= 1024;
+      idx += 1;
+    }
+    return `${value.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
+  }
+
+  function showToast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add('visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove('visible');
+    }, 2200);
+  }
+
+  function isVideoFile(file) {
+    return file.type.startsWith('video/') || VIDEO_EXT_RE.test(file.name);
+  }
+
+  function fisherYatesShuffle(arr) {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function buildShuffleOrder(pinIndex = -1, avoidFirstIndex = -1) {
+    const indices = playlist.map((_, idx) => idx);
+    if (indices.length === 0) {
+      shuffleOrder = [];
+      shuffleCursor = -1;
+      return;
+    }
+
+    if (pinIndex >= 0 && pinIndex < playlist.length) {
+      const rest = indices.filter((idx) => idx !== pinIndex);
+      shuffleOrder = [pinIndex, ...fisherYatesShuffle(rest)];
+      shuffleCursor = 0;
+      return;
+    }
+
+    let mixed = fisherYatesShuffle(indices);
+    if (mixed.length > 1 && mixed[0] === avoidFirstIndex) {
+      const swapIdx = 1 + Math.floor(Math.random() * (mixed.length - 1));
+      [mixed[0], mixed[swapIdx]] = [mixed[swapIdx], mixed[0]];
+    }
+    shuffleOrder = mixed;
+    shuffleCursor = 0;
+  }
+
+  function probeDuration(item) {
+    const probe = document.createElement('video');
+    probe.preload = 'metadata';
+    probe.src = item.url;
+    const cleanup = () => {
+      probe.removeAttribute('src');
+      probe.load();
+    };
+    probe.addEventListener('loadedmetadata', () => {
+      if (Number.isFinite(probe.duration)) {
+        item.duration = probe.duration;
+        renderPlaylist();
+      }
+      cleanup();
+    }, { once: true });
+    probe.addEventListener('error', cleanup, { once: true });
+  }
+
+  // Playlist & Playback Core
+  function addFiles(fileList) {
+    const files = Array.from(fileList || []).filter(isVideoFile);
+    if (files.length === 0) {
+      showToast('지원되는 비디오 파일이 없습니다.');
+      return;
+    }
+
+    const wasEmpty = playlist.length === 0;
+    const startNewIdx = playlist.length;
+
+    const addedItems = files.map((file) => {
+      const item = {
+        id: nextItemId++,
+        file,
+        name: file.name,
+        size: file.size,
+        url: URL.createObjectURL(file),
+        duration: null,
+      };
+      probeDuration(item);
+      return item;
+    });
+
+    playlist.push(...addedItems);
+
+    if (isShuffle) {
+      const newIndices = addedItems.map((_, offset) => startNewIdx + offset);
+      if (wasEmpty) {
+        buildShuffleOrder(-1);
+      } else {
+        const before = shuffleOrder.slice(0, shuffleCursor + 1);
+        const after = fisherYatesShuffle([...shuffleOrder.slice(shuffleCursor + 1), ...newIndices]);
+        shuffleOrder = [...before, ...after];
+      }
+    }
+
+    renderPlaylist();
+    updateUIState();
+
+    if (wasEmpty) {
+      const initialIndex = isShuffle ? shuffleOrder[0] : 0;
+      playAtIndex(initialIndex, true);
+    } else {
+      showToast(`${addedItems.length}개 파일이 재생목록에 추가되었습니다.`);
+    }
+  }
+
+  function playAtIndex(index, autoPlay = true) {
+    if (index < 0 || index >= playlist.length) return;
+
+    currentIndex = index;
+    if (isShuffle) {
+      const foundCursor = shuffleOrder.indexOf(index);
+      if (foundCursor !== -1) {
+        shuffleCursor = foundCursor;
+      } else {
+        buildShuffleOrder(index);
+      }
+    }
+
+    const item = playlist[currentIndex];
+    video.src = item.url;
+    video.playbackRate = Number(speedSelect.value) || 1;
+    video.load();
+
+    if (autoPlay) {
+      video.play().catch(() => {
+        // Autoplay may be blocked before user interaction; controls remain ready
+      });
+    }
+
+    renderPlaylist();
+    updateUIState();
+    showToast(`재생 중 (${currentIndex + 1}/${playlist.length}): ${item.name}`);
+  }
+
+  function getNextIndex(fromAutoEnd = false) {
+    if (playlist.length === 0) return -1;
+    if (fromAutoEnd && repeatMode === 'one') {
+      return currentIndex;
+    }
+
+    if (isShuffle) {
+      if (shuffleCursor + 1 < shuffleOrder.length) {
+        shuffleCursor += 1;
+        return shuffleOrder[shuffleCursor];
+      }
+      if (repeatMode === 'all') {
+        buildShuffleOrder(-1, currentIndex);
+        return shuffleOrder[0];
+      }
+      return -1;
+    }
+
+    if (currentIndex + 1 < playlist.length) {
+      return currentIndex + 1;
+    }
+    if (repeatMode === 'all') {
+      return 0;
+    }
+    return -1;
+  }
+
+  function getPrevIndex() {
+    if (playlist.length === 0) return -1;
+
+    if (isShuffle) {
+      if (shuffleCursor - 1 >= 0) {
+        shuffleCursor -= 1;
+        return shuffleOrder[shuffleCursor];
+      }
+      if (repeatMode === 'all') {
+        shuffleCursor = shuffleOrder.length - 1;
+        return shuffleOrder[shuffleCursor];
+      }
+      return shuffleOrder[0] ?? 0;
+    }
+
+    if (currentIndex - 1 >= 0) {
+      return currentIndex - 1;
+    }
+    if (repeatMode === 'all') {
+      return playlist.length - 1;
+    }
+    return 0;
+  }
+
+  function playNext(fromAutoEnd = false) {
+    if (playlist.length === 0) return;
+
+    if (fromAutoEnd && repeatMode === 'one') {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+      return;
+    }
+
+    const nextIdx = getNextIndex(fromAutoEnd);
+    if (nextIdx === -1) {
+      updatePlayPauseIcon();
+      showToast('재생목록의 마지막 영상입니다.');
+      return;
+    }
+    playAtIndex(nextIdx, true);
+  }
+
+  function playPrev() {
+    if (playlist.length === 0) return;
+    if (video.currentTime > 3) {
+      video.currentTime = 0;
+      return;
+    }
+    const prevIdx = getPrevIndex();
+    if (prevIdx !== -1) {
+      playAtIndex(prevIdx, true);
+    }
+  }
+
+  function togglePlayPause() {
+    if (playlist.length === 0) return;
+    if (video.paused || video.ended) {
+      if (currentIndex === -1) {
+        playAtIndex(isShuffle ? shuffleOrder[0] : 0, true);
+      } else {
+        video.play().catch(() => {});
+      }
+    } else {
+      video.pause();
+    }
+  }
+
+  function toggleShuffle() {
+    isShuffle = !isShuffle;
+    if (isShuffle) {
+      buildShuffleOrder(currentIndex);
+      showToast('셔플 재생 켜짐');
+    } else {
+      shuffleOrder = [];
+      shuffleCursor = -1;
+      showToast('순차 재생으로 전환');
+    }
+    updateModeUI();
+  }
+
+  function cycleRepeatMode() {
+    const order = ['all', 'one', 'off'];
+    const next = order[(order.indexOf(repeatMode) + 1) % order.length];
+    repeatMode = next;
+    const labels = {
+      all: '전체 반복',
+      one: '한 곡 반복',
+      off: '반복 끔',
+    };
+    showToast(`반복 모드: ${labels[repeatMode]}`);
+    updateModeUI();
+  }
+
+  function moveItem(index, delta) {
+    const target = index + delta;
+    if (target < 0 || target >= playlist.length) return;
+
+    [playlist[index], playlist[target]] = [playlist[target], playlist[index]];
+
+    if (currentIndex === index) {
+      currentIndex = target;
+    } else if (currentIndex === target) {
+      currentIndex = index;
+    }
+
+    if (isShuffle) {
+      shuffleOrder = shuffleOrder.map((idx) => {
+        if (idx === index) return target;
+        if (idx === target) return index;
+        return idx;
+      });
+    }
+
+    renderPlaylist();
+    updateUIState();
+  }
+
+  function removeItem(index) {
+    if (index < 0 || index >= playlist.length) return;
+    const [removed] = playlist.splice(index, 1);
+    URL.revokeObjectURL(removed.url);
+
+    if (playlist.length === 0) {
+      resetPlayer();
+      return;
+    }
+
+    if (isShuffle) {
+      const removedPos = shuffleOrder.indexOf(index);
+      shuffleOrder = shuffleOrder
+        .filter((idx) => idx !== index)
+        .map((idx) => (idx > index ? idx - 1 : idx));
+      if (removedPos !== -1 && removedPos < shuffleCursor) {
+        shuffleCursor -= 1;
+      } else if (shuffleCursor >= shuffleOrder.length) {
+        shuffleCursor = shuffleOrder.length - 1;
+      }
+    }
+
+    if (index < currentIndex) {
+      currentIndex -= 1;
+      renderPlaylist();
+      updateUIState();
+    } else if (index === currentIndex) {
+      const nextIdx = isShuffle
+        ? shuffleOrder[Math.min(shuffleCursor, shuffleOrder.length - 1)]
+        : Math.min(index, playlist.length - 1);
+      playAtIndex(nextIdx, !video.paused);
+    } else {
+      renderPlaylist();
+      updateUIState();
+    }
+  }
+
+  function clearPlaylist() {
+    if (playlist.length === 0) return;
+    playlist.forEach((item) => URL.revokeObjectURL(item.url));
+    playlist = [];
+    resetPlayer();
+    showToast('재생목록을 비웠습니다.');
+  }
+
+  function resetPlayer() {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    currentIndex = -1;
+    shuffleOrder = [];
+    shuffleCursor = -1;
+    seekBar.value = 0;
+    currentTimeLabel.textContent = '00:00';
+    durationLabel.textContent = '00:00';
+    renderPlaylist();
+    updateUIState();
+    updatePlayPauseIcon();
+  }
+
+  // UI Updates
+  function updatePlayPauseIcon() {
+    playPauseBtn.textContent = video.paused || video.ended ? '▶' : '⏸';
+  }
+
+  function updateModeUI() {
+    shuffleBtn.classList.toggle('active', isShuffle);
+    shuffleBtn.setAttribute('aria-pressed', String(isShuffle));
+    shuffleBtn.querySelector('span').textContent = isShuffle ? '셔플 ON' : '셔플 OFF';
+
+    const repeatLabels = {
+      all: '🔁 전체 반복',
+      one: '🔂 한 곡 반복',
+      off: '➡ 반복 끔',
+    };
+    repeatBtn.dataset.mode = repeatMode;
+    repeatBtn.classList.toggle('active', repeatMode !== 'off');
+    repeatBtn.innerHTML = repeatLabels[repeatMode];
+
+    const modeSummary = isShuffle ? '셔플 재생' : '순차 재생';
+    const repeatSummary = repeatMode === 'all' ? '전체 반복' : repeatMode === 'one' ? '한 곡 반복' : '반복 없음';
+    playlistModeText.textContent = `${modeSummary} · ${repeatSummary}`;
+  }
+
+  function updateUIState() {
+    const hasItems = playlist.length > 0;
+    emptyState.classList.toggle('hidden', hasItems);
+    playlistEmpty.classList.toggle('hidden', hasItems);
+    playlistCountBadge.textContent = String(playlist.length);
+
+    if (!hasItems || currentIndex === -1) {
+      nowPlayingMeta.textContent = '파일을 선택해 재생을 시작하세요';
+    } else {
+      const current = playlist[currentIndex];
+      nowPlayingMeta.textContent = `[${currentIndex + 1}/${playlist.length}] ${current.name}`;
+    }
+  }
+
+  function renderPlaylist() {
+    playlistList.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+
+    playlist.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = `playlist-item${index === currentIndex ? ' active' : ''}`;
+      li.dataset.index = String(index);
+
+      const indexSpan = document.createElement('span');
+      indexSpan.className = 'playlist-index';
+      indexSpan.textContent = index === currentIndex ? '▶' : String(index + 1);
+
+      const info = document.createElement('div');
+      info.className = 'playlist-info';
+
+      const title = document.createElement('div');
+      title.className = 'playlist-title';
+      title.textContent = item.name;
+      title.title = item.name;
+
+      const meta = document.createElement('div');
+      meta.className = 'playlist-meta';
+      const durText = item.duration !== null ? formatTime(item.duration) : '로딩...';
+      meta.textContent = `${durText} · ${formatBytes(item.size)}`;
+
+      info.append(title, meta);
+
+      const actions = document.createElement('div');
+      actions.className = 'playlist-item-actions';
+
+      const upBtn = document.createElement('button');
+      upBtn.type = 'button';
+      upBtn.className = 'mini-btn';
+      upBtn.title = '위로 이동';
+      upBtn.textContent = '↑';
+      upBtn.disabled = index === 0;
+      upBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moveItem(index, -1);
+      });
+
+      const downBtn = document.createElement('button');
+      downBtn.type = 'button';
+      downBtn.className = 'mini-btn';
+      downBtn.title = '아래로 이동';
+      downBtn.textContent = '↓';
+      downBtn.disabled = index === playlist.length - 1;
+      downBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moveItem(index, 1);
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'mini-btn danger';
+      delBtn.title = '목록에서 제거';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeItem(index);
+      });
+
+      actions.append(upBtn, downBtn, delBtn);
+      li.append(indexSpan, info, actions);
+
+      li.addEventListener('click', () => {
+        playAtIndex(index, true);
+      });
+
+      fragment.appendChild(li);
+    });
+
+    playlistList.appendChild(fragment);
+  }
+
+  // Event Listeners
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files?.length) {
+      addFiles(e.target.files);
+      e.target.value = '';
+    }
+  });
+
+  // Drag & Drop anywhere on app
+  window.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter += 1;
+    dropOverlay.classList.add('active');
+  });
+
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  window.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dragCounter = Math.max(0, dragCounter - 1);
+    if (dragCounter === 0) {
+      dropOverlay.classList.remove('active');
+    }
+  });
+
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('active');
+    if (e.dataTransfer?.files?.length) {
+      addFiles(e.dataTransfer.files);
+    }
+  });
+
+  // Video Events
+  video.addEventListener('play', updatePlayPauseIcon);
+  video.addEventListener('pause', updatePlayPauseIcon);
+  video.addEventListener('ended', () => playNext(true));
+
+  video.addEventListener('loadedmetadata', () => {
+    durationLabel.textContent = formatTime(video.duration);
+    if (currentIndex >= 0 && playlist[currentIndex] && Number.isFinite(video.duration)) {
+      playlist[currentIndex].duration = video.duration;
+      renderPlaylist();
+    }
+  });
+
+  video.addEventListener('timeupdate', () => {
+    if (isSeeking || !Number.isFinite(video.duration) || video.duration <= 0) return;
+    const pct = (video.currentTime / video.duration) * 100;
+    seekBar.value = String(pct);
+    currentTimeLabel.textContent = formatTime(video.currentTime);
+  });
+
+  video.addEventListener('click', () => {
+    if (playlist.length > 0) togglePlayPause();
+  });
+
+  video.addEventListener('dblclick', () => {
+    if (playlist.length > 0) toggleFullscreen();
+  });
+
+  // Controls
+  playPauseBtn.addEventListener('click', togglePlayPause);
+  prevBtn.addEventListener('click', playPrev);
+  nextBtn.addEventListener('click', () => playNext(false));
+  shuffleBtn.addEventListener('click', toggleShuffle);
+  repeatBtn.addEventListener('click', cycleRepeatMode);
+  clearPlaylistBtn.addEventListener('click', clearPlaylist);
+
+  seekBar.addEventListener('input', () => {
+    isSeeking = true;
+    if (Number.isFinite(video.duration) && video.duration > 0) {
+      const targetTime = (Number(seekBar.value) / 100) * video.duration;
+      currentTimeLabel.textContent = formatTime(targetTime);
+    }
+  });
+
+  seekBar.addEventListener('change', () => {
+    if (Number.isFinite(video.duration) && video.duration > 0) {
+      video.currentTime = (Number(seekBar.value) / 100) * video.duration;
+    }
+    isSeeking = false;
+  });
+
+  function updateVolumeIcon() {
+    if (video.muted || video.volume === 0) {
+      muteBtn.textContent = '🔇';
+    } else if (video.volume < 0.5) {
+      muteBtn.textContent = '🔉';
+    } else {
+      muteBtn.textContent = '🔊';
+    }
+  }
+
+  muteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    updateVolumeIcon();
+  });
+
+  volumeBar.addEventListener('input', () => {
+    const val = Number(volumeBar.value);
+    video.volume = val;
+    video.muted = val === 0;
+    updateVolumeIcon();
+  });
+
+  speedSelect.addEventListener('change', () => {
+    video.playbackRate = Number(speedSelect.value) || 1;
+    showToast(`재생 속도: ${video.playbackRate}x`);
+  });
+
+  pipBtn.addEventListener('click', async () => {
+    if (!document.pictureInPictureEnabled || video.readyState === 0) return;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else {
+        await video.requestPictureInPicture();
+      }
+    } catch {
+      showToast('PIP 모드를 사용할 수 없습니다.');
+    }
+  });
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      videoWrapper.requestFullscreen().catch(() => {});
+    }
+  }
+
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+  togglePlaylistBtn.addEventListener('click', () => {
+    const collapsed = playlistPanel.classList.toggle('collapsed');
+    togglePlaylistBtn.setAttribute('aria-expanded', String(!collapsed));
+  });
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+      if (e.target === seekBar || e.target === volumeBar) {
+        // Allow standard slider keys unless space
+        if (e.code !== 'Space') return;
+      } else {
+        return;
+      }
+    }
+
+    switch (e.code) {
+      case 'Space':
+      case 'KeyK':
+        e.preventDefault();
+        togglePlayPause();
+        break;
+      case 'ArrowRight':
+        if (playlist.length > 0) {
+          e.preventDefault();
+          video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
+        }
+        break;
+      case 'ArrowLeft':
+        if (playlist.length > 0) {
+          e.preventDefault();
+          video.currentTime = Math.max(0, video.currentTime - 5);
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        video.muted = false;
+        video.volume = Math.min(1, Number((video.volume + 0.05).toFixed(2)));
+        volumeBar.value = String(video.volume);
+        updateVolumeIcon();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        video.volume = Math.max(0, Number((video.volume - 0.05).toFixed(2)));
+        volumeBar.value = String(video.volume);
+        updateVolumeIcon();
+        break;
+      case 'KeyN':
+        playNext(false);
+        break;
+      case 'KeyP':
+        playPrev();
+        break;
+      case 'KeyS':
+        toggleShuffle();
+        break;
+      case 'KeyL':
+        cycleRepeatMode();
+        break;
+      case 'KeyM':
+        video.muted = !video.muted;
+        updateVolumeIcon();
+        break;
+      case 'KeyF':
+        toggleFullscreen();
+        break;
+      default:
+        break;
+    }
+  });
+
+  // Initialize UI
+  updateModeUI();
+  updateUIState();
+  updatePlayPauseIcon();
+  updateVolumeIcon();
+})();
+
+</script>
+</body>
+</html>
+

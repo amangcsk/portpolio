@@ -276,6 +276,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-16"
     },
     {
+        "file":  "apps/prism-video-player.html",
+        "date":  "2026-11-18"
+    },
+    {
         "file":  "apps/retro brickout 1.html",
         "date":  "2025-11-26"
     },
