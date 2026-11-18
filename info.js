@@ -288,6 +288,20 @@ window.EXTRA_WORKS = [
     order: 150
   },
 
+ {
+    title: "꽃진 자리에",
+    description: "",
+    youtube: "https://youtu.be/pNdz178YuI0",
+    order: 160
+  },
+
+{
+    title: "가슴에 묻은 밤",
+    description: "",
+    youtube: "https://youtu.be/qRoKCh8Km5U",
+    order: 170
+  },
+
 
   // ▼ 예시입니다. 영상을 더 추가하려면 위의 덩어리를 복사해서 붙이세요.
   // {

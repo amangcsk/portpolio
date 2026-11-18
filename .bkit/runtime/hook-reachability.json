@@ -1,15 +1,6 @@
 {
-  "skill_post": {
-    "ts": "2026-11-16T22:15:30.692Z",
-    "version": "2.1.41",
-    "skillName": "instagram-photos"
-  },
   "bash_post": {
-    "ts": "2026-11-16T23:09:35.595Z",
-    "version": "2.1.41"
-  },
-  "write_post": {
-    "ts": "2026-11-16T22:47:46.059Z",
+    "ts": "2026-11-18T02:06:28.782Z",
     "version": "2.1.41"
   }
 }
