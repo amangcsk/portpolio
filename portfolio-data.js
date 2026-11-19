@@ -268,6 +268,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-19"
     },
     {
+        "file":  "storyboard/삼국유사_일연.html",
+        "date":  "2026-11-19"
+    },
+    {
         "file":  "storyboard/운영전_작자미상.html",
         "date":  "2026-11-16"
     },
@@ -278,6 +282,10 @@ window.PORTFOLIO_FILES = [
     {
         "file":  "storyboard/파리대왕_윌리엄골딩.html",
         "date":  "2026-11-17"
+    },
+    {
+        "file":  "storyboard/홍길동_storybook.html",
+        "date":  "2026-11-19"
     },
     {
         "file":  "apps/ai-image-studio.html",
