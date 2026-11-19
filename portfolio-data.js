@@ -268,6 +268,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-19"
     },
     {
+        "file":  "storyboard/사피엔스_유발 하라리.html",
+        "date":  "2026-11-20"
+    },
+    {
         "file":  "storyboard/삼국유사_일연.html",
         "date":  "2026-11-19"
     },
