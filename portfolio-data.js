@@ -284,8 +284,8 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-17"
     },
     {
-        "file":  "storyboard/홍길동_storybook.html",
-        "date":  "2026-11-19"
+        "file":  "storyboard/홍길동.html",
+        "date":  "2026-11-20"
     },
     {
         "file":  "apps/ai-image-studio.html",
