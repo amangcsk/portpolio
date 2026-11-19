@@ -264,6 +264,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-19"
     },
     {
+        "file":  "storyboard/사씨남정기_김만중.html",
+        "date":  "2026-11-19"
+    },
+    {
         "file":  "storyboard/운영전_작자미상.html",
         "date":  "2026-11-16"
     },
