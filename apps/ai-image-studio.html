@@ -134,15 +134,19 @@
     <!-- Left Column: Controls & Prompt Generator (5 cols) -->
     <div class="lg:col-span-5 space-y-6">
       
-      <!-- Mode Tabs (Single vs Batch) -->
+      <!-- Mode Tabs (Single vs Batch vs Book Storyboard) -->
       <div class="bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl flex space-x-1 shadow-inner">
-        <button id="tab-single" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center space-x-2 bg-purple-600 text-white shadow-md">
-          <i data-lucide="wand-2" class="w-4 h-4"></i>
-          <span>단일 생성 모드</span>
+        <button id="tab-single" class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center space-x-1.5 bg-purple-600 text-white shadow-md">
+          <i data-lucide="wand-2" class="w-4 h-4 shrink-0"></i>
+          <span>단일 생성</span>
         </button>
-        <button id="tab-batch" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center space-x-2 text-slate-400 hover:text-slate-200">
-          <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>일괄 생성 모드</span>
+        <button id="tab-batch" class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center space-x-1.5 text-slate-400 hover:text-slate-200">
+          <i data-lucide="layers" class="w-4 h-4 shrink-0"></i>
+          <span>일괄 생성</span>
+        </button>
+        <button id="tab-storyboard" class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center space-x-1.5 text-slate-400 hover:text-slate-200">
+          <i data-lucide="book-open" class="w-4 h-4 shrink-0"></i>
+          <span>책 스토리보드</span>
         </button>
       </div>
 
@@ -245,10 +249,10 @@
 
           <div class="flex items-center justify-between gap-3 pt-1">
             <label class="flex-1 cursor-pointer border border-dashed border-slate-700 hover:border-purple-500 rounded-xl p-2.5 text-center transition-all bg-slate-950/40">
-              <input type="file" id="batch-file-upload" accept=".txt,.csv" class="hidden">
+              <input type="file" id="batch-file-upload" accept=".txt,.csv,.md,.json" class="hidden">
               <div class="flex items-center justify-center space-x-2 text-xs text-slate-400">
                 <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
-                <span>.txt / .csv 파일 불러오기</span>
+                <span>.txt / .md / .json 파일 불러오기</span>
               </div>
             </label>
             <div class="w-32">
@@ -258,6 +262,75 @@
                 <option value="2">2장씩 생성</option>
                 <option value="4">4장씩 생성</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOOK-TO-STORYBOARD INTEGRATION PANEL (Initially Hidden) -->
+        <div id="storyboard-mode-panel" class="space-y-4 hidden">
+          <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-700/40 text-xs text-amber-200/90 leading-relaxed">
+            <div class="font-bold text-amber-300 flex items-center space-x-1.5 mb-1">
+              <span>📖</span>
+              <span>book-to-storyboard 스킬 연동 모드</span>
+            </div>
+            <p>스토리보드 자료 파일(<code>.md</code>, <code>.json</code>, <code>.txt</code>)을 불러오면 <strong>1번~24번 장면</strong>을 자동으로 나누어 <code>D:\claude\book-to-story\&lt;책폴더&gt;\images\scene-01.webp</code> 이름으로 바로 저장합니다.</p>
+          </div>
+
+          <!-- Book Picker from D:\claude\book-to-story -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-semibold text-slate-300">1. 작업 폴더에서 책 불러오기</label>
+              <button type="button" id="btn-sb-refresh" class="text-[11px] text-purple-400 hover:text-purple-300 flex items-center space-x-1">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                <span>새로고침</span>
+              </button>
+            </div>
+            <select id="sb-book-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="">-- 책 폴더 또는 자료 파일 선택 --</option>
+            </select>
+          </div>
+
+          <!-- Save Book Folder Name & Manual File Upload -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">저장할 책 폴더 이름</label>
+              <input type="text" id="sb-book-name" placeholder="예: werther, little-prince" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">또는 자료 파일 직접 열기</label>
+              <label class="cursor-pointer border border-dashed border-slate-700 hover:border-purple-500 rounded-xl px-3 py-2 text-center transition-all bg-slate-950/40 flex items-center justify-center space-x-1.5 text-xs text-slate-300">
+                <input type="file" id="sb-file-upload" accept=".md,.json,.txt" class="hidden">
+                <i data-lucide="file-up" class="w-3.5 h-3.5 text-purple-400"></i>
+                <span>.md / .json / .txt 열기</span>
+              </label>
+            </div>
+          </div>
+
+          <p id="sb-save-path-hint" class="text-[11px] text-emerald-300/90 font-mono truncate hidden"></p>
+
+          <!-- Trial Scene 1 + Skip Existing Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+            <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+              <input type="checkbox" id="sb-skip-existing" checked class="accent-purple-500">
+              <span>이미 그린 장면 건너뛰기</span>
+            </label>
+            <button type="button" id="btn-sb-trial-one" disabled class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-200 text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1">
+              <span>🧪</span>
+              <span>1번 장면만 먼저 시험 그리기</span>
+            </button>
+          </div>
+
+          <!-- Parsed Scenes List -->
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-slate-200 flex items-center space-x-1.5">
+                <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span id="sb-book-title-label">불러온 장면 목록</span>
+              </span>
+              <span id="sb-scenes-count" class="text-purple-300 font-mono text-[11px]">0장면</span>
+            </div>
+            <div id="sb-scenes-list" class="max-h-56 overflow-y-auto space-y-1.5 pr-1">
+              <p class="text-xs text-slate-500 italic py-2">위에서 책을 고르거나 스토리보드 자료 파일(.md / .json / .txt)을 열어 주세요.</p>
             </div>
           </div>
         </div>
@@ -459,13 +532,38 @@
       </div>
 
       <div class="space-y-3">
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <label class="block text-xs font-semibold text-slate-200">
+            그림 생성 엔진 선택
+          </label>
+          <label class="flex items-start space-x-2 text-xs text-slate-300 cursor-pointer">
+            <input type="radio" name="engine-mode" id="radio-engine-free" value="free" checked class="mt-0.5 text-purple-500 focus:ring-purple-500">
+            <span>
+              <strong class="text-emerald-400">무료 기본 AI 사용 (열쇠 불필요 · 기본)</strong><br>
+              <span class="text-[11px] text-slate-400">구글 API 열쇠 없이 무료로 바로 그림을 만듭니다.</span>
+            </span>
+          </label>
+          <label class="flex items-start space-x-2 text-xs text-slate-300 cursor-pointer">
+            <input type="radio" name="engine-mode" id="radio-engine-google" value="google" class="mt-0.5 text-purple-500 focus:ring-purple-500">
+            <span>
+              <strong class="text-purple-300">구글 API 키 사용 (선택 옵션)</strong><br>
+              <span class="text-[11px] text-slate-400">무료 AI 한도가 찼거나 구글 고화질이 필요할 때 사용합니다.</span>
+            </span>
+          </label>
+          <label class="flex items-center space-x-2 pt-1 border-t border-slate-800/80 text-[11px] text-slate-300 cursor-pointer">
+            <input type="checkbox" id="chk-fallback-google" checked class="rounded text-purple-500 focus:ring-purple-500">
+            <span>무료 AI 한도 초과 시 저장된 구글 키로 자동 전환</span>
+          </label>
+        </div>
+
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">
-            Google Gemini API 키 (Nano Banana 사용에 필수)
+            Google Gemini API 키 (선택 옵션 — 한도 초과·고화질용)
           </label>
           <input type="password" id="input-google-api-key" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="AIzaSy...">
           <p class="text-[11px] text-slate-500 mt-1">
             * <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-purple-400 hover:underline">Google AI Studio</a>에서 발급할 수 있습니다.
+            <br>* 입력하지 않아도 무료 기본 AI로 바로 사용하실 수 있습니다.
             <br>* 키는 이 브라우저(localStorage)에만 저장되고 Google API 호출에만 사용됩니다. 공용 PC에서는 사용 후 브라우저 데이터를 삭제하세요.
           </p>
         </div>
@@ -497,7 +595,16 @@
   const WEBP_QUALITY = 0.01; // 용량 최소화가 목적이라 최저 품질
   let modelIndex = 0;
   const KEY_STORAGE = 'nano_banana_gemini_api_key';
+  const ENGINE_STORAGE = 'nano_banana_engine_mode';
+  const FALLBACK_STORAGE = 'nano_banana_fallback_google';
   const ASPECT_RATIOS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
+  const RATIO_DIMS = {
+    '1:1': [1024, 1024],
+    '16:9': [1280, 720],
+    '9:16': [720, 1280],
+    '4:3': [1024, 768],
+    '3:4': [768, 1024]
+  };
   const STYLE_PROMPTS = {"none":"","photo":", ultra-realistic 8k photograph, highly detailed, realistic lighting, fine textures, photorealism, shot on 35mm lens, f/1.8","anime":", modern anime aesthetic, Makoto Shinkai style, vibrant colors, detailed line art, masterpiece, high quality anime wallpaper","digital":", stunning digital art, trending on ArtStation, dynamic lighting, cinematic composition, intricate details, vivid color palette","3d":", 3D digital render, Pixar style, Unreal Engine 5, smooth ambient occlusion, cute character design, studio softbox lighting","cyberpunk":", cyberpunk neon style, futuristic cityscape, glowing holograms, wet reflective streets, dark moody atmosphere with vivid magenta and cyan","watercolor":", delicate watercolor painting, soft translucent pastel washes, watercolor paper texture, fluid artistic brush strokes","fantasy":", epic fantasy illustration, mythical atmosphere, magical glowing particles, detailed environment, legendary landscape","picturebook":", classic children's picture book illustration, soft watercolor with gentle pastel colors, warm storybook atmosphere, hand-painted texture","oil":", classical oil painting, visible expressive brush strokes, rich deep colors, canvas texture, soft chiaroscuro lighting","sketch":", detailed pencil sketch, graphite line drawing, cross-hatching shading, monochrome on textured paper"};
   const MAX_CUSTOM_STYLE_LENGTH = 500;
   // lib/nanobanana.js 의 applyStyle 을 빌드 시 그대로 주입한다 (서버판과 같은 규칙으로 장르를 붙이기 위해)
@@ -516,6 +623,10 @@
   const getKey = () => { try { return localStorage.getItem(KEY_STORAGE) || ''; } catch { return ''; } };
   const setKey = (k) => { try { localStorage.setItem(KEY_STORAGE, k); return true; } catch { return false; } };
   const clearKey = () => { try { localStorage.removeItem(KEY_STORAGE); } catch { /* ignore */ } };
+  const getEngineMode = () => { try { return localStorage.getItem(ENGINE_STORAGE) === 'google' ? 'google' : 'free'; } catch { return 'free'; } };
+  const setEngineMode = (m) => { try { localStorage.setItem(ENGINE_STORAGE, m === 'google' ? 'google' : 'free'); } catch { /* ignore */ } };
+  const getFallback = () => { try { const v = localStorage.getItem(FALLBACK_STORAGE); return v === null ? true : v === 'true'; } catch { return true; } };
+  const setFallback = (b) => { try { localStorage.setItem(FALLBACK_STORAGE, b ? 'true' : 'false'); } catch { /* ignore */ } };
 
   const json = (status, payload) =>
     new Response(JSON.stringify(payload), { status, headers: { 'Content-Type': 'application/json' } });
@@ -607,6 +718,21 @@
     }
   }
 
+  async function callFreePollinations(prompt, ratio, signal) {
+    const [w, h] = RATIO_DIMS[ratio] || [1024, 1024];
+    const seed = Math.floor(Math.random() * 1e9);
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&nologo=true&seed=${seed}`;
+    const response = await realFetch(url, { signal });
+    if (!response.ok) {
+      throw new Error(`무료 AI 서버 응답 오류 (${response.status})`);
+    }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.startsWith('image/')) {
+      throw new Error('무료 AI가 이미지를 반환하지 못했습니다. 잠시 후 다시 시도하거나 구글 API 키 옵션을 켜주세요.');
+    }
+    return await response.blob();
+  }
+
   async function handleGenerate(init) {
     let req;
     try { req = JSON.parse(init.body || '{}'); } catch { return json(400, { success: false, error: '잘못된 요청입니다.' }); }
@@ -615,8 +741,11 @@
     if (!prompt) return json(400, { success: false, error: '프롬프트(텍스트)를 입력해주세요.' });
 
     const apiKey = getKey();
-    if (!apiKey) {
-      return json(400, { success: false, code: 'NO_API_KEY', error: 'Nano Banana를 사용하려면 Google Gemini API 키가 필요합니다. 설정(API 키)에서 입력하세요.' });
+    const engineMode = req.engineMode === 'google' || req.engineMode === 'free' ? req.engineMode : getEngineMode();
+    const fallbackToGoogle = typeof req.fallbackToGoogle === 'boolean' ? req.fallbackToGoogle : getFallback();
+
+    if (engineMode === 'google' && !apiKey) {
+      return json(400, { success: false, code: 'NO_API_KEY', error: '구글 API 키 사용 모드입니다. 설정에서 키를 입력하거나 무료 기본 AI로 전환해주세요.' });
     }
 
     const ratio = ASPECT_RATIOS.includes(req.aspectRatio) ? req.aspectRatio : '1:1';
@@ -627,15 +756,52 @@
     const fullPrompt = applyStyle(prompt, style, customStyle);
 
     try {
-      const { b64, mimeType } = await callGemini(fullPrompt, ratio, apiKey, init.signal);
+      let rawBlob;
+      let usedModelLabel = '무료 기본 AI (Pollinations)';
+
+      if (engineMode === 'google') {
+        const { b64, mimeType } = await callGemini(fullPrompt, ratio, apiKey, init.signal);
+        rawBlob = b64ToBlob(b64, mimeType);
+        usedModelLabel = MODEL_LABEL;
+      } else {
+        try {
+          rawBlob = await callFreePollinations(fullPrompt, ratio, init.signal);
+        } catch (freeErr) {
+          if (freeErr.name === 'AbortError') throw freeErr;
+          if (fallbackToGoogle && apiKey) {
+            const { b64, mimeType } = await callGemini(fullPrompt, ratio, apiKey, init.signal);
+            rawBlob = b64ToBlob(b64, mimeType);
+            usedModelLabel = `${MODEL_LABEL} (자동 전환)`;
+          } else {
+            throw freeErr;
+          }
+        }
+      }
+
       const createdAt = Date.now();
       const safe = prompt.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 30).replace(/\s+/g, '_') || 'image';
-      const blob = await toWebpBlob(b64ToBlob(b64, mimeType));
-      const filename = `${createdAt}_${safe}_${Math.floor(Math.random() * 1e6)}${EXT[blob.type] || '.png'}`;
+      const blob = await toWebpBlob(rawBlob);
+      const ext = EXT[blob.type] || '.png';
+      const num = Number(req.sceneNumber);
+      const filename = Number.isInteger(num) && num > 0
+        ? `scene-${String(num).padStart(2, '0')}${ext}`
+        : `${createdAt}_${safe}_${Math.floor(Math.random() * 1e6)}${ext}`;
       const url = URL.createObjectURL(blob);
       return json(200, {
         success: true,
-        image: { filename, url, prompt, fullPrompt, aspectRatio: ratio, style, customStyle: customStyle || null, model: MODEL_LABEL, createdAt }
+        image: {
+          filename,
+          url,
+          prompt,
+          fullPrompt,
+          aspectRatio: ratio,
+          style,
+          customStyle: customStyle || null,
+          model: usedModelLabel,
+          sceneNumber: Number.isInteger(num) && num > 0 ? num : undefined,
+          sceneTitle: req.sceneTitle || undefined,
+          createdAt
+        }
       });
     } catch (err) {
       if (err.name === 'AbortError') throw err;
@@ -647,14 +813,30 @@
     const url = typeof input === 'string' ? input : input.url;
     const method = (init.method || 'GET').toUpperCase();
 
-    if (url === '/api/config') return json(200, { hasGoogleApiKey: !!getKey(), model: MODEL_ID, modelLabel: MODEL_LABEL });
+    if (url === '/api/config') {
+      return json(200, {
+        hasGoogleApiKey: !!getKey(),
+        engineMode: getEngineMode(),
+        fallbackToGoogle: getFallback(),
+        model: MODEL_ID,
+        modelLabel: MODEL_LABEL
+      });
+    }
     if (url === '/api/outputs') return json(200, { success: true, images: [] });
+    if (url === '/api/storyboard/books') return json(200, { success: true, books: [], rootFiles: [] });
     if (url === '/api/save-config' && method === 'POST') {
       let data = {};
       try { data = JSON.parse(init.body || '{}'); } catch { /* ignore */ }
+      if (data.engineMode === 'google' || data.engineMode === 'free') setEngineMode(data.engineMode);
+      if (typeof data.fallbackToGoogle === 'boolean') setFallback(data.fallbackToGoogle);
       if (data.clearKey) clearKey();
       else if (typeof data.googleApiKey === 'string' && data.googleApiKey.trim()) setKey(data.googleApiKey.trim());
-      return json(200, { success: true, hasGoogleApiKey: !!getKey() });
+      return json(200, {
+        success: true,
+        hasGoogleApiKey: !!getKey(),
+        engineMode: getEngineMode(),
+        fallbackToGoogle: getFallback()
+      });
     }
     if (url === '/api/generate' && method === 'POST') return handleGenerate(init);
     return realFetch(input, init);
@@ -668,17 +850,28 @@
 const CONCURRENCY = 2;
 
 const state = {
-  mode: 'single', // 'single' | 'batch'
+  mode: 'single', // 'single' | 'batch' | 'storyboard'
   count: 1,
   aspectRatio: '1:1',
   style: 'none',
   customStyle: '', // style === 'custom' 일 때 쓰는 직접 입력 장르 문구
   stripBoilerplate: true, // 프롬프트에 섞여 들어온 비율·장르 문구를 자동으로 뺀다
   hasServerKey: false,
+  engineMode: 'free', // 'free' (무료 기본 AI) | 'google' (구글 API 키 선택 옵션)
+  fallbackToGoogle: true, // 무료 AI 한도 초과 시 저장된 구글 키로 자동 전환
   delimiterMode: 'auto', // 'auto' | 'newline' | 'comma' | 'semicolon' | 'pipe' | 'numbering' | 'custom'
   customDelimiter: '',
   parsedBatchPrompts: [],
   excluded: new Set(), // indices of parsed prompts the user removed
+  storyboard: {
+    books: [],
+    rootFiles: [],
+    bookName: '',
+    bookTitle: '',
+    saveDir: '',
+    scenes: [],
+    loaded: false
+  },
   isGenerating: false,
   cancelRequested: false,
   abortController: null,
@@ -691,8 +884,21 @@ const $ = (id) => document.getElementById(id);
 
 const tabSingle = $('tab-single');
 const tabBatch = $('tab-batch');
+const tabStoryboard = $('tab-storyboard');
 const singlePanel = $('single-mode-panel');
 const batchPanel = $('batch-mode-panel');
+const storyboardPanel = $('storyboard-mode-panel');
+
+const sbBookSelect = $('sb-book-select');
+const btnSbRefresh = $('btn-sb-refresh');
+const sbBookNameInput = $('sb-book-name');
+const sbFileUpload = $('sb-file-upload');
+const sbSavePathHint = $('sb-save-path-hint');
+const sbSkipExisting = $('sb-skip-existing');
+const btnSbTrialOne = $('btn-sb-trial-one');
+const sbBookTitleLabel = $('sb-book-title-label');
+const sbScenesCount = $('sb-scenes-count');
+const sbScenesList = $('sb-scenes-list');
 const singlePromptInput = $('single-prompt');
 const singleMultiDetectBanner = $('single-multi-detect-banner');
 const singleDetectCount = $('single-detect-count');
@@ -745,6 +951,9 @@ const settingsModal = $('settings-modal');
 const btnOpenSettings = $('btn-open-settings');
 const btnCloseSettings = $('btn-close-settings');
 const inputGoogleApiKey = $('input-google-api-key');
+const radioEngineFree = $('radio-engine-free');
+const radioEngineGoogle = $('radio-engine-google');
+const chkFallbackGoogle = $('chk-fallback-google');
 const btnSaveSettings = $('btn-save-settings');
 const btnDeleteKey = $('btn-delete-key');
 
@@ -881,9 +1090,26 @@ function activeBatchPrompts() {
   return state.parsedBatchPrompts.filter((_, idx) => !state.excluded.has(idx));
 }
 
+function getPendingStoryboardScenes() {
+  const scenes = state.storyboard.scenes || [];
+  return sbSkipExisting && sbSkipExisting.checked
+    ? scenes.filter(s => !s.existingUrl)
+    : scenes;
+}
+
 function updateGenerateLabel() {
   if (state.mode === 'single') {
     btnGenerateText.textContent = `이미지 생성하기 (${state.count}장)`;
+  } else if (state.mode === 'storyboard') {
+    const targetCount = getPendingStoryboardScenes().length;
+    const totalCount = state.storyboard.scenes.length;
+    if (totalCount === 0) {
+      btnGenerateText.textContent = '📖 스토리보드 장면 그리기';
+    } else if (targetCount === 0) {
+      btnGenerateText.textContent = `모든 장면 완성됨 (${totalCount}장)`;
+    } else {
+      btnGenerateText.textContent = `📖 스토리보드 한꺼번에 그리기 (${targetCount}장)`;
+    }
   } else {
     const total = activeBatchPrompts().length * parseInt(batchQtyPerPrompt.value, 10);
     btnGenerateText.textContent = total > 0 ? `일괄 생성 시작 (총 ${total}장)` : '일괄 생성 시작';
@@ -1002,27 +1228,271 @@ btnSwitchToBatchWithText.addEventListener('click', () => {
 });
 
 // Mode Switching
-function setActiveTab(active, inactive) {
-  active.classList.add('bg-purple-600', 'text-white', 'shadow-md');
-  active.classList.remove('text-slate-400');
-  inactive.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
-  inactive.classList.add('text-slate-400');
+const ALL_TABS = [tabSingle, tabBatch, tabStoryboard];
+const ALL_PANELS = [singlePanel, batchPanel, storyboardPanel];
+
+function setActiveTab(activeTab, activePanel) {
+  ALL_TABS.forEach(t => {
+    const isOn = t === activeTab;
+    t.classList.toggle('bg-purple-600', isOn);
+    t.classList.toggle('text-white', isOn);
+    t.classList.toggle('shadow-md', isOn);
+    t.classList.toggle('text-slate-400', !isOn);
+  });
+  ALL_PANELS.forEach(p => p.classList.toggle('hidden', p !== activePanel));
 }
 
 tabSingle.addEventListener('click', () => {
   state.mode = 'single';
-  setActiveTab(tabSingle, tabBatch);
-  singlePanel.classList.remove('hidden');
-  batchPanel.classList.add('hidden');
+  setActiveTab(tabSingle, singlePanel);
   updateGenerateLabel();
 });
 
 tabBatch.addEventListener('click', () => {
   state.mode = 'batch';
-  setActiveTab(tabBatch, tabSingle);
-  batchPanel.classList.remove('hidden');
-  singlePanel.classList.add('hidden');
+  setActiveTab(tabBatch, batchPanel);
   updateBatchParsedPrompts({ keepExcluded: true });
+});
+
+tabStoryboard.addEventListener('click', () => {
+  state.mode = 'storyboard';
+  setActiveTab(tabStoryboard, storyboardPanel);
+  // book-to-storyboard 표준인 16:9로 편리하게 맞춤 (아직 1:1일 때)
+  if (state.aspectRatio === '1:1') {
+    document.querySelector('.aspect-btn[data-aspect="16:9"]')?.click();
+  }
+  if (!state.storyboard.loaded) {
+    loadStoryboardBooks();
+  }
+  updateGenerateLabel();
+});
+
+// -------------------------------------------------------------
+// BOOK-TO-STORYBOARD INTEGRATION
+// -------------------------------------------------------------
+function parseStoryboardClientFallback(rawText, filename = '') {
+  const trimmed = (rawText || '').trim();
+  if (!trimmed) return { bookTitle: '', scenes: [] };
+  if (filename.toLowerCase().endsWith('.json') || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+    try {
+      const arr = JSON.parse(trimmed);
+      if (Array.isArray(arr)) {
+        return {
+          bookTitle: filename.replace(/\.json$/i, ''),
+          scenes: arr.map((it, idx) => ({
+            sceneNumber: Number(it.cut_id || it.sceneNumber || idx + 1),
+            title: it.scene_title || it.title || `장면 ${idx + 1}`,
+            koreanHint: it.scene_title || '',
+            prompt: (it.prompt || '').trim()
+          })).filter(s => s.prompt)
+        };
+      }
+    } catch {}
+  }
+  const sectionRegex = /^###\s*(?:장면\s*)?(\d+)\s*번?\s*[·\-:.]?\s*(.*)$/gm;
+  const matches = [...trimmed.matchAll(sectionRegex)];
+  if (matches.length > 0) {
+    const titleMatch = trimmed.match(/^#\s+(.+)$/m);
+    const scenes = [];
+    for (let i = 0; i < matches.length; i++) {
+      const cur = matches[i];
+      const block = trimmed.slice(cur.index, i + 1 < matches.length ? matches[i + 1].index : trimmed.length);
+      const code = block.match(/```(?:[a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/);
+      const hint = block.match(/\*\*한국어\s*풀이\s*:?\*\*\s*:?\s*([^\r\n]+)/);
+      if (code && code[1].trim()) {
+        scenes.push({
+          sceneNumber: parseInt(cur[1], 10),
+          title: (cur[2] || `장면 ${cur[1]}`).trim(),
+          koreanHint: hint ? hint[1].trim() : '',
+          prompt: code[1].replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim()
+        });
+      }
+    }
+    if (scenes.length > 0) return { bookTitle: titleMatch ? titleMatch[1].trim() : filename, scenes };
+  }
+  const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  return {
+    bookTitle: filename.replace(/\.[^.]+$/, ''),
+    scenes: lines.map((line, idx) => ({ sceneNumber: idx + 1, title: `장면 ${idx + 1}`, koreanHint: '', prompt: line }))
+  };
+}
+
+function updateStoryboardSaveHint() {
+  const name = sbBookNameInput.value.trim();
+  state.storyboard.bookName = name;
+  if (name) {
+    sbSavePathHint.textContent = `📁 자동 저장 위치: D:\\claude\\book-to-story\\${name}\\images\\scene-01.webp ~`;
+    sbSavePathHint.classList.remove('hidden');
+  } else {
+    sbSavePathHint.classList.add('hidden');
+  }
+}
+
+async function loadStoryboardBooks() {
+  try {
+    const res = await fetch('/api/storyboard/books');
+    const data = await res.json();
+    if (!data.success) return;
+
+    state.storyboard.loaded = true;
+    state.storyboard.books = data.books || [];
+    state.storyboard.rootFiles = data.rootFiles || [];
+
+    sbBookSelect.replaceChildren(el('option', { value: '' }, '-- 책 폴더 또는 자료 파일 선택 --'));
+
+    for (const book of state.storyboard.books) {
+      if (book.materialFiles.length > 0) {
+        for (const mf of book.materialFiles) {
+          const label = `📖 ${book.name} / ${mf.name}${book.existingSceneCount ? ` (그림 ${book.existingSceneCount}장 있음)` : ''}`;
+          const opt = el('option', { value: JSON.stringify({ filePath: mf.path, bookName: book.name }) }, label);
+          sbBookSelect.append(opt);
+        }
+      }
+    }
+
+    for (const rf of state.storyboard.rootFiles) {
+      const bookGuess = rf.name.replace(/\.[^.]+$/, '');
+      const opt = el('option', { value: JSON.stringify({ filePath: rf.path, bookName: bookGuess }) }, `📄 ${rf.name}`);
+      sbBookSelect.append(opt);
+    }
+  } catch (err) {
+    console.warn('Storyboard books list unavailable (standalone mode?):', err.message);
+  }
+}
+
+function applyParsedStoryboard(data) {
+  state.storyboard.bookTitle = data.bookTitle || '';
+  state.storyboard.scenes = data.scenes || [];
+  if (data.bookName) {
+    sbBookNameInput.value = data.bookName;
+    updateStoryboardSaveHint();
+  }
+  sbBookTitleLabel.textContent = data.bookTitle ? data.bookTitle.slice(0, 32) : '불러온 장면 목록';
+  renderStoryboardScenes();
+  updateGenerateLabel();
+}
+
+function renderStoryboardScenes() {
+  const scenes = state.storyboard.scenes;
+  const doneCount = scenes.filter(s => !!s.existingUrl).length;
+  sbScenesCount.textContent = `${scenes.length}장면 (완성 ${doneCount}장)`;
+  btnSbTrialOne.disabled = scenes.length === 0 || state.isGenerating;
+
+  sbScenesList.replaceChildren();
+  if (scenes.length === 0) {
+    sbScenesList.append(el('p', {
+      className: 'text-xs text-slate-500 italic py-2',
+      textContent: '위에서 책을 고르거나 스토리보드 자료 파일(.md / .json / .txt)을 열어 주세요.'
+    }));
+    return;
+  }
+
+  for (const scene of scenes) {
+    const isDone = !!scene.existingUrl;
+    const statusBadge = isDone
+      ? el('span', { className: 'px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-700/50 text-emerald-300 text-[10px] font-semibold shrink-0' }, '✅ 완성')
+      : el('span', { className: 'px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] shrink-0' }, '대기');
+
+    const oneBtn = el('button', {
+      type: 'button',
+      className: 'px-2 py-1 rounded-md bg-purple-600/20 hover:bg-purple-600 border border-purple-500/40 text-purple-200 hover:text-white text-[10px] font-semibold shrink-0 transition-all',
+      title: `${scene.sceneNumber}번 장면만 그리기`
+    }, isDone ? '다시 그리기' : '그리기');
+
+    oneBtn.addEventListener('click', () => {
+      runStoryboardScenes([scene]);
+    });
+
+    const titleLine = el('div', { className: 'flex items-center space-x-1.5 min-w-0' },
+      el('span', { className: 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] font-mono shrink-0' }, `${scene.sceneNumber}번`),
+      el('span', { className: 'text-slate-200 font-medium truncate', title: scene.title }, scene.title),
+      statusBadge
+    );
+
+    const hintLine = scene.koreanHint
+      ? el('p', { className: 'text-[11px] text-slate-400 truncate mt-0.5', title: scene.koreanHint }, scene.koreanHint)
+      : el('p', { className: 'text-[11px] text-slate-500 truncate mt-0.5', title: scene.prompt }, scene.prompt);
+
+    const row = el('div', {
+      className: 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all'
+    },
+      el('div', { className: 'min-w-0 flex-1' }, titleLine, hintLine),
+      oneBtn
+    );
+    sbScenesList.append(row);
+  }
+  refreshIcons();
+}
+
+function runStoryboardScenes(scenes) {
+  if (state.isGenerating || !scenes.length) return;
+  if (state.engineMode === 'google' && !state.hasServerKey) {
+    alert('구글 API 키 사용 모드입니다. 설정에서 Google Gemini API 키를 입력하거나, 무료 기본 AI 모드로 전환해주세요.');
+    openSettings();
+    return;
+  }
+  const bookName = sbBookNameInput.value.trim();
+  const tasks = scenes.map(s => ({
+    prompt: s.prompt,
+    bookName: bookName || undefined,
+    sceneNumber: s.sceneNumber,
+    sceneTitle: s.title
+  }));
+  runTasks(tasks);
+}
+
+btnSbRefresh.addEventListener('click', () => loadStoryboardBooks());
+sbBookNameInput.addEventListener('input', () => updateStoryboardSaveHint());
+sbSkipExisting.addEventListener('change', () => updateGenerateLabel());
+
+sbBookSelect.addEventListener('change', async () => {
+  if (!sbBookSelect.value) return;
+  try {
+    const { filePath, bookName } = JSON.parse(sbBookSelect.value);
+    const res = await fetch('/api/storyboard/parse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filePath, bookName })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || '자료 불러오기 실패');
+    applyParsedStoryboard(data);
+  } catch (err) {
+    alert('스토리보드 자료를 불러오지 못했습니다: ' + err.message);
+  }
+});
+
+sbFileUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const content = ev.target.result;
+    const bookName = sbBookNameInput.value.trim() || file.name.replace(/(_storyboard_materials|_prompts_one_per_line)?\.[^.]+$/i, '');
+    try {
+      const res = await fetch('/api/storyboard/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, filename: file.name, bookName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          applyParsedStoryboard(data);
+          return;
+        }
+      }
+    } catch { /* standalone fallback below */ }
+    const fallback = parseStoryboardClientFallback(content, file.name);
+    applyParsedStoryboard({ ...fallback, bookName });
+  };
+  reader.readAsText(file);
+});
+
+btnSbTrialOne.addEventListener('click', () => {
+  if (state.storyboard.scenes.length === 0) return;
+  const firstScene = state.storyboard.scenes.find(s => s.sceneNumber === 1) || state.storyboard.scenes[0];
+  runStoryboardScenes([firstScene]);
 });
 
 // Option selectors (quantity / aspect / style) share the same highlight logic
@@ -1130,7 +1600,13 @@ batchFileUpload.addEventListener('change', (e) => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (event) => {
-    batchPromptsInput.value = event.target.result;
+    const raw = event.target.result;
+    if (/\.(md|json)$/i.test(file.name)) {
+      const parsed = parseStoryboardClientFallback(raw, file.name);
+      batchPromptsInput.value = parsed.scenes.map(s => s.prompt).join('\n');
+    } else {
+      batchPromptsInput.value = raw;
+    }
     updateBatchParsedPrompts();
   };
   reader.readAsText(file);
@@ -1141,8 +1617,15 @@ batchFileUpload.addEventListener('change', (e) => {
 // ENGINE STATUS / SETTINGS
 // -------------------------------------------------------------
 function renderEngineStatus() {
-  const ready = state.hasServerKey;
-  engineStatusText.textContent = ready ? 'Nano Banana 준비 완료' : 'API 키 필요';
+  const isFree = state.engineMode !== 'google';
+  const ready = isFree || state.hasServerKey;
+  if (isFree) {
+    engineStatusText.textContent = state.hasServerKey && state.fallbackToGoogle
+      ? '무료 AI 준비 완료 (한도 시 구글 키 전환)'
+      : '무료 AI 준비 완료 (키 불필요)';
+  } else {
+    engineStatusText.textContent = state.hasServerKey ? '구글 API 키 준비 완료' : '구글 API 키 필요';
+  }
   engineStatusBox.className = `flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium ${
     ready ? 'bg-emerald-950/40 border-emerald-800/40 text-emerald-400' : 'bg-amber-950/40 border-amber-800/40 text-amber-300'}`;
   engineStatusDot.className = `w-2 h-2 rounded-full animate-pulse ${ready ? 'bg-emerald-400' : 'bg-amber-400'}`;
@@ -1152,6 +1635,12 @@ async function loadConfig() {
   try {
     const data = await (await fetch('/api/config')).json();
     state.hasServerKey = !!data.hasGoogleApiKey;
+    if (data.engineMode === 'google' || data.engineMode === 'free') {
+      state.engineMode = data.engineMode;
+    }
+    if (typeof data.fallbackToGoogle === 'boolean') {
+      state.fallbackToGoogle = data.fallbackToGoogle;
+    }
   } catch (e) {
     console.warn('Config load error:', e);
   }
@@ -1161,9 +1650,11 @@ async function loadConfig() {
 function openSettings() {
   inputGoogleApiKey.value = '';
   inputGoogleApiKey.placeholder = state.hasServerKey ? '저장된 키가 있습니다 (바꾸려면 새 키 입력)' : 'AIzaSy...';
+  if (radioEngineFree) radioEngineFree.checked = state.engineMode !== 'google';
+  if (radioEngineGoogle) radioEngineGoogle.checked = state.engineMode === 'google';
+  if (chkFallbackGoogle) chkFallbackGoogle.checked = !!state.fallbackToGoogle;
   btnDeleteKey.classList.toggle('hidden', !state.hasServerKey);
   settingsModal.classList.remove('hidden');
-  inputGoogleApiKey.focus();
 }
 
 btnOpenSettings.addEventListener('click', openSettings);
@@ -1171,22 +1662,29 @@ btnCloseSettings.addEventListener('click', () => settingsModal.classList.add('hi
 
 btnSaveSettings.addEventListener('click', async () => {
   const key = inputGoogleApiKey.value.trim();
-  if (!key) {
-    settingsModal.classList.add('hidden');
+  const nextEngineMode = (radioEngineGoogle && radioEngineGoogle.checked) ? 'google' : 'free';
+  const nextFallback = chkFallbackGoogle ? !!chkFallbackGoogle.checked : true;
+  if (nextEngineMode === 'google' && !key && !state.hasServerKey) {
+    alert('구글 API 키 모드를 쓰려면 Google Gemini API 키를 입력하거나, 무료 기본 AI를 선택해주세요.');
+    inputGoogleApiKey.focus();
     return;
   }
   try {
+    const payload = { engineMode: nextEngineMode, fallbackToGoogle: nextFallback };
+    if (key) payload.googleApiKey = key;
     const res = await fetch('/api/save-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ googleApiKey: key })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || '저장 실패');
     state.hasServerKey = !!data.hasGoogleApiKey;
+    state.engineMode = data.engineMode || nextEngineMode;
+    state.fallbackToGoogle = typeof data.fallbackToGoogle === 'boolean' ? data.fallbackToGoogle : nextFallback;
     renderEngineStatus();
     settingsModal.classList.add('hidden');
-    alert('API 키가 저장되었습니다!');
+    alert(key ? '설정 및 API 키가 저장되었습니다!' : '엔진 설정이 저장되었습니다!');
   } catch (e) {
     alert('설정 저장 중 오류: ' + e.message);
   }
@@ -1291,13 +1789,13 @@ function addImageCard(item, prepend = true) {
     el('div', { className: 'card-overlay absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent p-3 flex flex-col justify-between pointer-events-none' },
       el('div', { className: 'flex justify-between items-start pointer-events-auto' },
         el('span', { className: 'text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-purple-300 backdrop-blur-sm border border-purple-500/30' },
-          (item.model || 'AI').toUpperCase()),
+          item.sceneNumber ? `📖 ${item.sceneNumber}번` : (item.model || 'AI').toUpperCase()),
         zoomBtn
       ),
       el('div', { className: 'space-y-1.5 pointer-events-auto' },
-        el('p', { className: 'text-xs text-slate-200 font-medium line-clamp-2 drop-shadow-sm' }, item.prompt),
+        el('p', { className: 'text-xs text-slate-200 font-medium line-clamp-2 drop-shadow-sm' }, item.sceneTitle || item.prompt),
         el('div', { className: 'flex items-center justify-between pt-1' },
-          el('span', { className: 'text-[10px] text-slate-400' }, item.aspectRatio || '-'),
+          el('span', { className: 'text-[10px] text-slate-400' }, item.filename || item.aspectRatio || '-'),
           dlBtn
         )
       )
@@ -1326,18 +1824,28 @@ function updateGalleryCount() {
 }
 
 // -------------------------------------------------------------
-// GENERATION (single & batch share one task queue)
+// GENERATION (single, batch & storyboard share one task queue)
 // -------------------------------------------------------------
-async function apiGenerateImage(prompt, signal) {
+async function apiGenerateImage(taskOrPrompt, signal) {
+  const task = typeof taskOrPrompt === 'string' ? { prompt: taskOrPrompt } : taskOrPrompt;
+  const payload = {
+    prompt: task.prompt,
+    aspectRatio: state.aspectRatio,
+    style: state.style,
+    customStyle: state.style === 'custom' ? state.customStyle : undefined,
+    engineMode: state.engineMode,
+    fallbackToGoogle: state.fallbackToGoogle
+  };
+  if (task.bookName && task.sceneNumber) {
+    payload.bookName = task.bookName;
+    payload.sceneNumber = task.sceneNumber;
+    payload.sceneTitle = task.sceneTitle;
+  }
+
   const response = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      prompt,
-      aspectRatio: state.aspectRatio,
-      style: state.style,
-      customStyle: state.style === 'custom' ? state.customStyle : undefined
-    }),
+    body: JSON.stringify(payload),
     signal
   });
 
@@ -1358,6 +1866,7 @@ async function apiGenerateImage(prompt, signal) {
 function setGeneratingUI(on) {
   state.isGenerating = on;
   btnGenerate.disabled = on;
+  if (btnSbTrialOne) btnSbTrialOne.disabled = on || state.storyboard.scenes.length === 0;
   btnCancel.classList.toggle('hidden', !on);
   if (on) progressContainer.classList.remove('hidden');
 }
@@ -1366,8 +1875,9 @@ function renderFailed() {
   failedList.replaceChildren();
   failedContainer.classList.toggle('hidden', state.failedTasks.length === 0);
   for (const t of state.failedTasks) {
+    const label = t.sceneNumber ? `[${t.sceneNumber}번] ${t.sceneTitle || t.prompt.slice(0, 24)}` : `${t.prompt.slice(0, 30)}${t.prompt.length > 30 ? '…' : ''}`;
     failedList.append(el('li', { className: 'truncate', title: `${t.prompt} — ${t.error}` },
-      `• ${t.prompt.slice(0, 30)}${t.prompt.length > 30 ? '…' : ''} — ${t.error}`));
+      `• ${label} — ${t.error}`));
   }
 }
 
@@ -1403,8 +1913,17 @@ async function runTasks(tasks) {
       if (idx >= total) return;
       const task = tasks[idx];
       try {
-        const image = await apiGenerateImage(task.prompt, state.abortController.signal);
+        const image = await apiGenerateImage(task, state.abortController.signal);
         addImageCard(image, true);
+        if (task.sceneNumber) {
+          const matched = state.storyboard.scenes.find(s => s.sceneNumber === task.sceneNumber);
+          if (matched) {
+            matched.existingUrl = image.url;
+            matched.existingFilename = image.filename;
+            renderStoryboardScenes();
+            updateGenerateLabel();
+          }
+        }
         completed++;
       } catch (err) {
         if (err.name === 'AbortError') return;
@@ -1413,7 +1932,7 @@ async function runTasks(tasks) {
           return;
         }
         failed++;
-        state.failedTasks.push({ prompt: task.prompt, error: err.message });
+        state.failedTasks.push({ ...task, error: err.message });
         renderFailed();
       }
       updateProgress();
@@ -1439,8 +1958,8 @@ async function runTasks(tasks) {
 btnGenerate.addEventListener('click', () => {
   if (state.isGenerating) return;
 
-  if (!state.hasServerKey) {
-    alert('Nano Banana를 사용하려면 Google Gemini API 키가 필요합니다. 설정에서 키를 입력해주세요.');
+  if (state.engineMode === 'google' && !state.hasServerKey) {
+    alert('구글 API 키 사용 모드입니다. 설정에서 Google Gemini API 키를 입력하거나, 무료 기본 AI 모드로 전환해주세요.');
     openSettings();
     return;
   }
@@ -1448,6 +1967,20 @@ btnGenerate.addEventListener('click', () => {
   if (state.style === 'custom' && !state.customStyle) {
     alert('장르를 "직접입력"으로 선택했습니다. 장르 문구를 적거나 다른 장르를 골라주세요.');
     customStyleInput.focus();
+    return;
+  }
+
+  if (state.mode === 'storyboard') {
+    const scenes = getPendingStoryboardScenes();
+    if (state.storyboard.scenes.length === 0) {
+      alert('먼저 책 폴더를 선택하거나 스토리보드 자료 파일(.md / .json / .txt)을 불러와 주세요!');
+      return;
+    }
+    if (scenes.length === 0) {
+      alert('이미 모든 장면이 완성되어 있습니다! 특정 장면을 다시 그리려면 목록의 [다시 그리기] 버튼을 누르거나 "이미 그린 장면 건너뛰기" 체크를 해제하세요.');
+      return;
+    }
+    runStoryboardScenes(scenes);
     return;
   }
 
@@ -1485,7 +2018,7 @@ btnCancel.addEventListener('click', () => {
 });
 
 btnRetryFailed.addEventListener('click', () => {
-  const tasks = state.failedTasks.map(t => ({ prompt: t.prompt }));
+  const tasks = state.failedTasks.map(({ error, ...task }) => task);
   runTasks(tasks);
 });
 
@@ -1511,7 +2044,9 @@ btnDownloadAllZip.addEventListener('click', async () => {
       const imgItem = state.images[i];
       const ext = (imgItem.filename || '').match(/\.(png|jpe?g|webp)$/i)?.[0] || '.png';
       const safeTitle = (imgItem.prompt || 'image').slice(0, 20).replace(/[^a-zA-Z0-9가-힣]/g, '_');
-      const zipFileName = `${String(i + 1).padStart(3, '0')}_${safeTitle}${ext}`;
+      const zipFileName = imgItem.sceneNumber
+        ? `scene-${String(imgItem.sceneNumber).padStart(2, '0')}${ext}`
+        : `${String(i + 1).padStart(3, '0')}_${safeTitle}${ext}`;
 
       try {
         const response = await fetch(imgItem.url);

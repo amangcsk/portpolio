@@ -260,6 +260,10 @@ window.PORTFOLIO_FILES = [
         "date":  "2026-11-16"
     },
     {
+        "file":  "storyboard/돈으로 살 수 없는 것들 (마이클 샌델).html",
+        "date":  "2026-11-19"
+    },
+    {
         "file":  "storyboard/운영전_작자미상.html",
         "date":  "2026-11-16"
     },
@@ -273,7 +277,7 @@ window.PORTFOLIO_FILES = [
     },
     {
         "file":  "apps/ai-image-studio.html",
-        "date":  "2026-11-16"
+        "date":  "2026-11-19"
     },
     {
         "file":  "apps/prism-video-player.html",
