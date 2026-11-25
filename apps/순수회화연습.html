@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>말하기 연습장 (오프라인 단독 버전)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      background: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.5;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      overflow-x: hidden;
+    }
+    button, input, textarea, select {
+      font: inherit;
+      color: inherit;
+    }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .header {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .header-inner {
+      max-width: 1152px;
+      margin: 0 auto;
+      padding: 0 16px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0F172A;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav {
+      display: none;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+    }
+    .nav a {
+      color: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav a:hover { color: #0F172A; }
+    @media (min-width: 768px) {
+      .nav { display: flex; }
+      .header-inner { padding: 0 24px; }
+    }
+    .container {
+      max-width: 1152px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+    @media (min-width: 640px) {
+      .container { padding: 28px 24px 48px; }
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    @media (min-width: 1024px) {
+      .grid-main {
+        grid-template-columns: minmax(0, 1fr) 370px;
+      }
+    }
+    .stack { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+    .stack-sm { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px;
+    }
+    @media (min-width: 640px) {
+      .card { padding: 24px; }
+    }
+    .sentence-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 18px 20px;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .sentence-card.active {
+      background: #EFF6FF;
+      border-color: #93C5FD;
+    }
+    .h1 { margin: 0 0 10px; font-size: 17px; font-weight: 700; color: #0F172A; }
+    .h2 { margin: 0; font-size: 18px; font-weight: 700; color: #0F172A; }
+    .h3 { margin: 0; font-size: 14px; font-weight: 700; color: #0F172A; }
+    .subtext { margin: 4px 0 0; font-size: 12px; color: #64748B; line-height: 1.5; }
+    .guide-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      color: #334155;
+    }
+    .btn {
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: #1D4ED8; color: #FFFFFF; }
+    .btn-primary:hover:not(:disabled) { background: #1E40AF; }
+    .btn-dark { background: #0F172A; color: #FFFFFF; }
+    .btn-dark:hover:not(:disabled) { background: #1E293B; }
+    .btn-soft { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+    .btn-soft:hover:not(:disabled) { background: #DBEAFE; }
+    .btn-neutral { background: #F1F5F9; border-color: #E2E8F0; color: #1E293B; }
+    .btn-neutral:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-outline { background: #FFFFFF; border-color: #CBD5E1; color: #334155; }
+    .btn-outline:hover:not(:disabled) { background: #F8FAFC; }
+    .btn-sm { min-height: 38px; padding: 6px 12px; font-size: 12px; border-radius: 10px; }
+    .btn-icon {
+      min-height: 36px;
+      min-width: 36px;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .btn-icon:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-danger-ghost {
+      min-height: 38px;
+      min-width: 38px;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-danger-ghost:hover { background: #FEF2F2; color: #DC2626; }
+    .btn-full { width: 100%; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .row-nowrap { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .flex-wrap-gap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #CBD5E1;
+      border-radius: 12px;
+      background: #F8FAFC;
+      font-size: 14px;
+      color: #0F172A;
+    }
+    .input:focus, .textarea:focus, .select:focus {
+      outline: none;
+      background: #FFFFFF;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+    .textarea { resize: vertical; line-height: 1.6; }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      background: #F1F5F9;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      min-height: 42px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #FFFFFF;
+      color: #0F172A;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .english-text {
+      margin: 4px 0 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0F172A;
+      line-height: 1.45;
+    }
+    .phonetic-text {
+      margin: 8px 0 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #1E40AF;
+      line-height: 1.55;
+    }
+    .meta-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748B;
+      flex-wrap: wrap;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #E2E8F0;
+      margin: 16px 0;
+    }
+    .status-banner {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1E40AF;
+    }
+    .step-box {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      background: #F8FAFC;
+      overflow: hidden;
+    }
+    .step-row {
+      padding: 12px 14px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .step-row:last-child { border-bottom: none; }
+    .step-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .status-btn {
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .status-btn.default-on {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+      color: #1E3A8A;
+    }
+    .status-btn.selected {
+      background: #1D4ED8;
+      border-color: #1D4ED8;
+      color: #FFFFFF;
+    }
+    .cluster-box {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      background: #F8FAFC;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .cluster-btn {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0F172A;
+      cursor: pointer;
+    }
+    .cluster-btn:hover { background: #F1F5F9; }
+    .cluster-body {
+      background: #FFFFFF;
+      border-top: 1px solid #E2E8F0;
+      padding: 0 14px;
+    }
+    .set-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .set-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .set-item:last-child { border-bottom: none; }
+    .detect-box {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      font-size: 12px;
+    }
+    .notice-ok { margin-top: 10px; font-size: 12px; font-weight: 600; color: #047857; }
+    .notice-warn { margin-top: 10px; font-size: 12px; font-weight: 600; color: #B45309; }
+    .trans-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #F1F5F9;
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 15px;
+      color: #1E293B;
+    }
+    .trans-item:last-child { border-bottom: none; }
+    .footer {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid #E2E8F0;
+      color: #475569;
+      font-size: 14px;
+      max-width: 720px;
+    }
+    .edit-box {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="#top" class="brand">말하기 연습장</a>
+      <nav class="nav" aria-label="화면 이동">
+        <a href="#section-practice">연습장</a>
+        <a href="#section-translations">번역 보기</a>
+        <a href="#section-input">문장 넣기</a>
+        <a href="#section-settings">속도·목소리</a>
+        <a href="#section-saved">보관함</a>
+      </nav>
+      <button id="header-play-btn" type="button" class="btn btn-primary btn-sm">전체 읽기</button>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <p style="margin:0 0 14px;font-size:13px;color:#475569;">
+      오프라인 단독 HTML 파일입니다. 인터넷 없이도 기기 음성으로 바로 듣고 연습할 수 있으며, 변경 내용은 이 브라우저에 저장됩니다.
+    </p>
+
+    <section class="card" style="margin-bottom:24px;" aria-label="쓰는 법">
+      <h1 class="h1">처음 쓰시나요? 딱 세 줄만 보세요</h1>
+      <ol class="guide-list">
+        <li>1. 아래 <strong>전체 순서 읽기</strong>나 문장별 <strong>이 문장만 다시 듣기</strong>를 눌러 속도별 반복 순서로 듣고 따라 말해 보세요.</li>
+        <li>2. 새 영어 문장이나 제목이 포함된 회화 묶음을 넣으면 바로 연습하거나 제목별로 보관함에 일괄 저장할 수 있어요.</li>
+        <li>3. 한글 발음·번역은 문장 아래 <strong>발음·번역 적기</strong>에서 언제든 직접 고쳐 저장할 수 있어요.</li>
+      </ol>
+    </section>
+
+    <div class="grid-main">
+      <div class="stack">
+        <section id="section-practice" class="card">
+          <div class="row">
+            <div style="min-width:0;">
+              <h2 id="board-title" class="h2"></h2>
+              <p id="board-meta" class="subtext tabular"></p>
+            </div>
+            <button id="main-play-btn" type="button" class="btn btn-primary">전체 순서 읽기</button>
+          </div>
+          <div id="playback-status" class="status-banner" style="display:none;"></div>
+          <p id="no-speech-note" class="notice-warn" style="display:none;">
+            이 브라우저에서는 음성 읽기를 지원하지 않아요. 크롬이나 사파리에서 열면 바로 들을 수 있습니다.
+          </p>
+        </section>
+
+        <section id="sentences-list" class="stack-sm" aria-label="영어 문장과 한글 발음 목록"></section>
+
+        <section id="section-translations" class="card">
+          <div class="row" style="margin-bottom:14px;">
+            <div>
+              <h2 class="h2">한국어 번역</h2>
+              <p class="subtext">뜻을 가리고 먼저 말해 본 뒤 아래에서 확인해 보세요.</p>
+            </div>
+            <button id="toggle-trans-btn" type="button" class="btn btn-neutral btn-sm">번역 숨기기</button>
+          </div>
+          <div id="translations-body"></div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <!-- 영어 문장 넣기 -->
+        <section id="section-input" class="card">
+          <h2 class="h2">영어 문장 넣기</h2>
+          <p class="subtext" style="margin-bottom:14px;">
+            한 문장씩 넣거나 제목이 포함된 여러 회화 묶음을 붙여 넣어 제목별로 일괄 저장할 수 있어요.
+          </p>
+
+          <div class="tabs" role="tablist">
+            <button id="tab-single" type="button" class="tab-btn" role="tab">한 문장씩 넣기</button>
+            <button id="tab-multi" type="button" class="tab-btn active" role="tab">여러 문장·묶음 넣기</button>
+          </div>
+
+          <div id="input-single-wrap" style="display:none;">
+            <input id="input-single" type="text" class="input" placeholder="예: Could I get an iced Americano, please?" />
+          </div>
+          <div id="input-multi-wrap">
+            <textarea id="input-multi" rows="7" class="textarea" placeholder="[카페에서 주문하기]&#10;A: Could I get an iced latte?&#10;B: Sure, what size would you like?&#10;&#10;[길 묻기]&#10;A: Excuse me, where is the station?&#10;B: Go straight two blocks."></textarea>
+            <p class="subtext">제목 인식 · [제목], # 제목, 제목: ... 또는 한글 제목 줄을 넣으면 묶음 이름으로 자동 나뉩니다.</p>
+          </div>
+
+          <div id="detect-preview" class="detect-box" style="display:none;"></div>
+          <p id="input-msg" style="display:none;"></p>
+
+          <button id="btn-batch-save" type="button" class="btn btn-primary btn-full" style="display:none;margin-top:14px;"></button>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <button id="btn-append" type="button" class="btn btn-primary btn-sm">지금 목록에 추가</button>
+            <button id="btn-replace" type="button" class="btn btn-neutral btn-sm">새 연습장으로 열기</button>
+          </div>
+        </section>
+
+        <!-- 듣기·속도 설정 -->
+        <section id="section-settings" class="card">
+          <h2 class="h2">듣기·속도 설정</h2>
+          <p class="subtext" style="margin-bottom:16px;">
+            단계별 읽기 속도(0.5배~1.5배)와 반복 횟수, 쉬는 시간, 영어 목소리를 조절할 수 있어요.
+          </p>
+
+          <div class="row-nowrap">
+            <h3 class="h3">속도별 읽는 순서·횟수</h3>
+            <span id="total-repeats-label" class="tabular" style="font-size:12px;font-weight:700;color:#1D4ED8;"></span>
+          </div>
+          <p id="speed-summary-line" class="subtext tabular" style="margin-bottom:10px;"></p>
+
+          <div id="speed-presets" class="flex-wrap-gap" style="margin-bottom:12px;"></div>
+
+          <div class="row-nowrap" style="margin-bottom:10px;">
+            <span style="font-size:12px;color:#475569;font-weight:500;">속도 단계 수</span>
+            <div id="step-count-btns" style="display:flex;gap:4px;background:#F1F5F9;padding:4px;border-radius:10px;"></div>
+          </div>
+
+          <div id="speed-steps-list" class="step-box"></div>
+
+          <hr class="divider" />
+
+          <div class="row-nowrap" style="margin-bottom:10px;">
+            <h3 class="h3">읽는 사이 쉬는 시간</h3>
+            <span id="pause-value-label" class="tabular" style="font-size:14px;font-weight:700;color:#1D4ED8;"></span>
+          </div>
+          <div class="row-nowrap" style="margin-bottom:8px;">
+            <button id="pause-minus" type="button" class="btn btn-outline btn-sm">- 0.5초</button>
+            <div id="pause-presets" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;"></div>
+            <button id="pause-plus" type="button" class="btn btn-outline btn-sm">+ 0.5초</button>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="row-nowrap" style="margin-bottom:8px;">
+            <h3 class="h3">영어 목소리 고르기</h3>
+            <button id="btn-preview-voice" type="button" class="btn btn-soft btn-sm">목소리 들어 보기</button>
+          </div>
+          <select id="voice-select" class="select"></select>
+          <p id="voice-hint" class="subtext"></p>
+        </section>
+
+        <!-- 연습한 문장 모아 두기 -->
+        <section id="section-saved" class="card">
+          <h2 class="h2">연습한 문장 모아 두기</h2>
+          <p class="subtext" style="margin-bottom:14px;">
+            기본 화면에는 <strong>진행중</strong>과 <strong>예정</strong>만 보여 드려요. 위 그룹을 누르면 그 그룹만 따로 볼 수 있습니다.
+          </p>
+
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input id="save-title-input" type="text" class="input" placeholder="묶음 이름 (비워 두면 현재 제목)" />
+            <select id="save-status-select" class="select" style="width:auto;flex-shrink:0;">
+              <option value="in_progress">진행중</option>
+              <option value="planned">예정</option>
+              <option value="completed">완료</option>
+              <option value="unassigned">미지정</option>
+            </select>
+          </div>
+          <button id="btn-save-current" type="button" class="btn btn-dark btn-full"></button>
+          <p id="save-notice" class="notice-ok" style="display:none;">브라우저 보관함에 저장했어요.</p>
+
+          <hr class="divider" />
+
+          <div class="row-nowrap" style="margin-bottom:10px;">
+            <span id="group-view-label" style="font-size:12px;font-weight:600;color:#475569;"></span>
+            <button id="btn-reset-group-view" type="button" style="display:none;border:none;background:none;color:#1D4ED8;font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">진행중·예정으로 돌아가기</button>
+          </div>
+
+          <div id="status-filter-grid" class="status-grid"></div>
+          <div id="saved-sets-body"></div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <h2 class="h3" style="margin-bottom:8px;">이럴 때 좋아요</h2>
+      <p style="margin:0;line-height:1.65;">
+        출근길이나 비행기 안처럼 인터넷이 불안정할 때도 휴대폰이나 컴퓨터에서 HTML 파일 하나만 열어 영어 회화를 반복 연습할 수 있어요.
+        띄어쓰기 맞춘 한글 발음을 보며 0.7배 천천히부터 1.5배 빠른 속도까지 단계별로 따라 말하고, 진행중·예정·완료·미지정으로 묶음을 깔끔하게 관리해 보세요.
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var INITIAL_SNAPSHOT = {"currentTitle":"Starting the Day","sentences":[{"id":"sent-1795648672585-0-0","speaker":"","english":"Good morning, everyone! Rise and shine!","phonetic":"굿 모닝, 에브리원! 라이즌 샤인!","translation":"좋은 아침이에요, 여러분! 이제 일어나세요!"},{"id":"sent-1795648672585-0-1","speaker":"","english":"Five more minutes, please.","phonetic":"파이브 모어 미닛츠, 플리즈.","translation":"5분만 더 잘게요."},{"id":"sent-1795648672585-0-2","speaker":"","english":"Did you make your bed?","phonetic":"디쥬 메이큐어 베드?","translation":"침대 정리했니?"},{"id":"sent-1795648672585-0-3","speaker":"","english":"Yes, and I opened the window.","phonetic":"예스, 앤 아이 오픈드 더 윈도우.","translation":"응, 그리고 창문도 열어놨어."},{"id":"sent-1795648672585-0-4","speaker":"","english":"Breakfast is on the table.","phonetic":"브렉퍼스트 이즈 온 더 테이블.","translation":"아침 식사 차려놨어."},{"id":"sent-1795648672585-0-5","speaker":"","english":"Thank you for the meal!","phonetic":"땡큐 포 더 밀!","translation":"잘 먹겠습니다!"},{"id":"sent-1795648672585-0-6","speaker":"","english":"Please wash up and get dressed.","phonetic":"플리즈 워샵 앤 겟 드레스드.","translation":"어서 씻고 옷 입으렴."},{"id":"sent-1795648672585-0-7","speaker":"","english":"I'll be ready in ten minutes.","phonetic":"아일 비 레디 인 텐 미닛츠.","translation":"10분 안에 준비할게요."},{"id":"sent-1795648672585-0-8","speaker":"","english":"Let's all have a great day.","phonetic":"렛츠 올 해버 그레이트 데이.","translation":"우리 모두 좋은 하루 보내자."},{"id":"sent-1795648672585-0-9","speaker":"","english":"Same to you. See you tonight!","phonetic":"세임 투 유. 씨 유 투나잇!","translation":"너도 좋은 하루 보내. 저녁에 보자!"}],"settings":{"speedSteps":[{"speed":0.7,"repeat":2},{"speed":0.9,"repeat":2},{"speed":1,"repeat":3}],"pauseSeconds":2,"voiceURI":"","showTranslation":true},"savedSets":[{"id":"set-1795648672585-0","title":"Starting the Day","savedAt":"11월 26일 08:17","status":"in_progress","sentences":[{"id":"sent-1795648672585-0-0","speaker":"","english":"Good morning, everyone! Rise and shine!","phonetic":"굿 모닝, 에브리원! 라이즌 샤인!","translation":"좋은 아침이에요, 여러분! 이제 일어나세요!"},{"id":"sent-1795648672585-0-1","speaker":"","english":"Five more minutes, please.","phonetic":"파이브 모어 미닛츠, 플리즈.","translation":"5분만 더 잘게요."},{"id":"sent-1795648672585-0-2","speaker":"","english":"Did you make your bed?","phonetic":"디쥬 메이큐어 베드?","translation":"침대 정리했니?"},{"id":"sent-1795648672585-0-3","speaker":"","english":"Yes, and I opened the window.","phonetic":"예스, 앤 아이 오픈드 더 윈도우.","translation":"응, 그리고 창문도 열어놨어."},{"id":"sent-1795648672585-0-4","speaker":"","english":"Breakfast is on the table.","phonetic":"브렉퍼스트 이즈 온 더 테이블.","translation":"아침 식사 차려놨어."},{"id":"sent-1795648672585-0-5","speaker":"","english":"Thank you for the meal!","phonetic":"땡큐 포 더 밀!","translation":"잘 먹겠습니다!"},{"id":"sent-1795648672585-0-6","speaker":"","english":"Please wash up and get dressed.","phonetic":"플리즈 워샵 앤 겟 드레스드.","translation":"어서 씻고 옷 입으렴."},{"id":"sent-1795648672585-0-7","speaker":"","english":"I'll be ready in ten minutes.","phonetic":"아일 비 레디 인 텐 미닛츠.","translation":"10분 안에 준비할게요."},{"id":"sent-1795648672585-0-8","speaker":"","english":"Let's all have a great day.","phonetic":"렛츠 올 해버 그레이트 데이.","translation":"우리 모두 좋은 하루 보내자."},{"id":"sent-1795648672585-0-9","speaker":"","english":"Same to you. See you tonight!","phonetic":"세임 투 유. 씨 유 투나잇!","translation":"너도 좋은 하루 보내. 저녁에 보자!"}]},{"id":"set-1795648672585-1","title":"Packing Lunch","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648672585-1-0","speaker":"","english":"What should I put in your lunch box?","phonetic":"왓 슈다이 풋 인 유어 런치 박스?","translation":"도시락에 뭐 넣어줄까?"},{"id":"sent-1795648672585-1-1","speaker":"","english":"Rice balls and some fruit, please.","phonetic":"라이스 볼스 앤 썸 프룻, 플리즈.","translation":"주먹밥이랑 과일 좀 넣어주세요."},{"id":"sent-1795648672585-1-2","speaker":"","english":"Do you want any juice?","phonetic":"두 유 원 애니 쥬스?","translation":"주스 좀 마실래?"},{"id":"sent-1795648672585-1-3","speaker":"","english":"No, water is fine.","phonetic":"노, 워터 이즈 파인.","translation":"아뇨, 물이면 돼요."},{"id":"sent-1795648672585-1-4","speaker":"","english":"Don't forget your chopsticks.","phonetic":"돈 포겟 유어 찹스틱스.","translation":"젓가락 잊지 마라."},{"id":"sent-1795648672585-1-5","speaker":"","english":"I put them in my bag.","phonetic":"아이 풋 뎀 인 마이 백.","translation":"가방에 넣어뒀어요."},{"id":"sent-1795648672585-1-6","speaker":"","english":"Is this enough food for you?","phonetic":"이즈 디스 이너프 푸드 포 유?","translation":"이 정도면 양이 충분하니?"},{"id":"sent-1795648672585-1-7","speaker":"","english":"Yes, thanks. It looks tasty.","phonetic":"예스, 땡스. 잇 룩스 테이스티.","translation":"네, 고마워요. 맛있어 보여요."},{"id":"sent-1795648672585-1-8","speaker":"","english":"Eat slowly and enjoy your lunch.","phonetic":"잇 슬로울리 앤 엔조이 유어 런치.","translation":"천천히 맛있게 먹으렴."},{"id":"sent-1795648672585-1-9","speaker":"","english":"I will. Bye, Mom!","phonetic":"아이 윌. 바이, 맘!","translation":"그럴게요. 엄마, 다녀올게요!"}]},{"id":"set-1795648672585-2","title":"Healthy Snack Advice","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648672585-2-0","speaker":"","english":"You shouldn't eat too many sweets.","phonetic":"유 슈든 잇 투 매니 스윗츠.","translation":"단 걸 너무 많이 먹으면 안 돼."},{"id":"sent-1795648672585-2-1","speaker":"","english":"I know. They make my teeth hurt.","phonetic":"아이 노우. 데이 메이크 마이 티스 허트.","translation":"알아요. 먹으면 이가 아프더라고요."},{"id":"sent-1795648672585-2-2","speaker":"","english":"Try nuts instead of candy.","phonetic":"트라이 넛츠 인스테드 오브 캔디.","translation":"사탕 대신 견과류를 먹어보렴."},{"id":"sent-1795648672585-2-3","speaker":"","english":"Are they good for me?","phonetic":"아 데이 굿 포 미?","translation":"그게 저한테 좋은가요?"},{"id":"sent-1795648672585-2-4","speaker":"","english":"Brush your teeth after snacks.","phonetic":"브러쉬 유어 티스 애프터 스낵스.","translation":"간식 먹고 나면 양치질해라."},{"id":"sent-1795648672585-2-5","speaker":"","english":"Okay. I'll do it now.","phonetic":"오우케이 아일 두 잇 나우","translation":"알았어. 지금 바로 할게."},{"id":"sent-1795648672585-2-6","speaker":"","english":"Drink water, not soda.","phonetic":"드링크 워러 낫 소우다","translation":"탄산음료 말고 물 마셔."},{"id":"sent-1795648672585-2-7","speaker":"","english":"But soda tastes better.","phonetic":"벗 소우다 테이츠 베러","translation":"근데 탄산음료가 더 맛있잖아."},{"id":"sent-1795648672585-2-8","speaker":"","english":"A little is fine, but not every day.","phonetic":"어 리를 이즈 파인 벗 낫 에브리데이","translation":"조금은 괜찮지만 매일 마시면 안 돼."},{"id":"sent-1795648672585-2-9","speaker":"","english":"Deal. Only on weekends.","phonetic":"딜 온리 온 위켄즈","translation":"알겠어. 주말에만 마실게."}]},{"id":"set-1795648672585-3","title":"Visiting Someone's Home","savedAt":"11월 26일 08:17","status":"in_progress","sentences":[{"id":"sent-1795648672585-3-0","speaker":"","english":"Should we bring a gift?","phonetic":"슈위 브링 어 기프트","translation":"선물을 사갈까?"},{"id":"sent-1795648672585-3-1","speaker":"","english":"Yes, flowers or fruit would be nice.","phonetic":"예스 플라워즈 오어 프룻 우드 비 나이스","translation":"응, 꽃이나 과일이 좋을 것 같아."},{"id":"sent-1795648672585-3-2","speaker":"","english":"Please ring the bell and wait.","phonetic":"플리즈 링 더 벨 앤 웨이트","translation":"초인종 누르고 기다려."},{"id":"sent-1795648672585-3-3","speaker":"","english":"Okay. Let's smile when they open.","phonetic":"오우케이 렛츠 스마일 웬 데이 오우픈","translation":"알겠어. 문 열어주시면 웃으면서 인사하자."},{"id":"sent-1795648672585-3-4","speaker":"","english":"Say hello politely to everyone.","phonetic":"세이 헬로우 폴라이틀리 투 에브리원","translation":"모두에게 공손하게 인사해."},{"id":"sent-1795648672585-3-5","speaker":"","english":"Hello, thank you for having us.","phonetic":"헬로우 땡큐 포 해빙 어스","translation":"안녕하세요, 초대해 주셔서 감사합니다."},{"id":"sent-1795648672585-3-6","speaker":"","english":"Don't touch things without asking.","phonetic":"돈 터치 띵즈 위다웃 애스킹","translation":"물어보지 않고 물건을 만지지 마."},{"id":"sent-1795648672585-3-7","speaker":"","english":"I'll keep my hands to myself.","phonetic":"아일 킵 마이 핸즈 투 마이셀프","translation":"함부로 만지지 않도록 주의할게."},{"id":"sent-1795648672585-3-8","speaker":"","english":"Let's not stay too late.","phonetic":"렛츠 낫 스테이 투 레이트","translation":"너무 늦게까지 있지 말자."},{"id":"sent-1795648672585-3-9","speaker":"","english":"Right. We should thank them and go.","phonetic":"라이트 위 슈드 땡크 뎀 앤 고우","translation":"맞아. 인사드리고 금방 일어나자."}]},{"id":"set-1795648672585-4","title":"Gifts for Neighbors","savedAt":"11월 26일 08:17","status":"planned","sentences":[{"id":"sent-1795648672585-4-0","speaker":"","english":"I baked some bread for the neighbors.","phonetic":"아이 베이크드 섬 브레드 포 더 네이버즈","translation":"이웃집에 줄 빵을 좀 구웠어."},{"id":"sent-1795648672585-4-1","speaker":"","english":"They'll love it.","phonetic":"데일 러브 잇","translation":"분명 좋아하실 거야."},{"id":"sent-1795648672585-4-2","speaker":"","english":"Let's introduce ourselves to them.","phonetic":"렛츠 인트로듀스 아워셀브즈 투 뎀","translation":"우리 가서 인사드리자."},{"id":"sent-1795648672585-4-3","speaker":"","english":"I'm nervous, but let's go.","phonetic":"암 너버스 벗 렛츠 고우","translation":"떨리지만 가보자."},{"id":"sent-1795648672585-4-4","speaker":"","english":"Hello, we just moved in next door.","phonetic":"헬로우 위 저스트 무브드 인 넥스트 도어","translation":"안녕하세요, 바로 옆집으로 이사 왔어요."},{"id":"sent-1795648672585-4-5","speaker":"","english":"Welcome to the neighborhood!","phonetic":"웰컴 투 더 네이버후드","translation":"우리 동네에 온 걸 환영해요!"},{"id":"sent-1795648672585-4-6","speaker":"","english":"Please let us know if you need anything.","phonetic":"플리즈 렛 어스 노우 이프 유 니드 애니띵","translation":"필요한 거 있으면 언제든 말해줘요."},{"id":"sent-1795648672585-4-7","speaker":"","english":"Likewise. Don't hesitate to ask.","phonetic":"라이크와이즈 돈 헤지테이트 투 애스크","translation":"저도요. 부담 갖지 말고 언제든 물어보세요."},{"id":"sent-1795648672585-4-8","speaker":"","english":"Thank you for the warm welcome.","phonetic":"땡큐 포 더 웜 웰컴","translation":"따뜻하게 맞아주셔서 감사합니다."},{"id":"sent-1795648672585-4-9","speaker":"","english":"We hope we'll be good neighbors.","phonetic":"위 호프 윌 비 굿 네이버즈","translation":"좋은 이웃이 되었으면 좋겠네요."}]},{"id":"set-1795648672585-5","title":"A Rainy Day","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648672585-5-0","speaker":"","english":"It's pouring outside!","phonetic":"잇츠 포어링 아웃사이드","translation":"밖에 비가 엄청 쏟아져!"},{"id":"sent-1795648672585-5-1","speaker":"","english":"Bring the laundry in, quickly.","phonetic":"브링 더 론드리 인, 퀵클리","translation":"빨래 좀 빨리 걷어 들여."},{"id":"sent-1795648672585-5-2","speaker":"","english":"Where is my umbrella?","phonetic":"웨어 이즈 마이 엄브렐라","translation":"내 우산 어디 있지?"},{"id":"sent-1795648672585-5-3","speaker":"","english":"It's in the umbrella stand.","phonetic":"잇츠 인 디 엄브렐라 스탠드","translation":"우산꽂이에 있어."},{"id":"sent-1795648672585-5-4","speaker":"","english":"My shoes are all wet.","phonetic":"마이 슈즈 아 올 웻","translation":"신발이 다 젖었어."},{"id":"sent-1795648672585-5-5","speaker":"","english":"Let's put newspaper inside to dry.","phonetic":"렛츠 풋 뉴스페이퍼 인사이드 투 드라이","translation":"말리게 안에 신문지 좀 넣자."},{"id":"sent-1795648672585-5-6","speaker":"","english":"Be careful, the road is slippery.","phonetic":"비 케어풀, 더 로드 이즈 슬리퍼리","translation":"조심해, 길이 미끄러워."},{"id":"sent-1795648672585-5-7","speaker":"","english":"I'll walk slowly.","phonetic":"아윌 워크 슬로울리","translation":"천천히 걸을게."},{"id":"sent-1795648672585-5-8","speaker":"","english":"I love the sound of rain.","phonetic":"아이 러브 더 사운드 오브 레인","translation":"나는 빗소리가 너무 좋아."},{"id":"sent-1795648672585-5-9","speaker":"","english":"Let's drink hot tea and listen.","phonetic":"렛츠 드링크 핫 티 앤 리슨","translation":"따뜻한 차 마시면서 듣자."}]},{"id":"set-1795648672585-6","title":"A Snowy Day","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648672585-6-0","speaker":"","english":"Look! It's snowing outside.","phonetic":"룩! 잇츠 스노잉 아웃사이드","translation":"봐! 밖에 눈이 와."},{"id":"sent-1795648672585-6-1","speaker":"","english":"Can we go out and play?","phonetic":"캔 위 고 아웃 앤 플레이","translation":"우리 나가서 놀아도 돼?"},{"id":"sent-1795648672585-6-2","speaker":"","english":"Put on your hat and boots first.","phonetic":"풋 온 유어 햇 앤 부츠 퍼스트","translation":"먼저 모자랑 부츠부터 신어."},{"id":"sent-1795648672585-6-3","speaker":"","english":"Okay. Where are my mittens?","phonetic":"오케이. 웨어 아 마이 미튼즈","translation":"알겠어. 내 벙어리장갑 어디 있지?"},{"id":"sent-1795648672585-6-4","speaker":"","english":"Let's build a snowman together.","phonetic":"렛츠 빌드 어 스노우맨 투게더","translation":"우리 같이 눈사람 만들자."},{"id":"sent-1795648672585-6-5","speaker":"","english":"I'll find a carrot for the nose.","phonetic":"아윌 파인드 어 캐럿 포 더 노우즈","translation":"내가 코로 쓸 당근을 찾아볼게."},{"id":"sent-1795648672585-6-6","speaker":"","english":"The roads are icy. Drive carefully.","phonetic":"더 로즈 아 아이씨. 드라이브 케어풀리","translation":"길이 빙판길이야. 조심해서 운전해."},{"id":"sent-1795648672585-6-7","speaker":"","english":"I will. I'll go slowly.","phonetic":"아이 윌. 아윌 고 슬로울리","translation":"그럴게. 천천히 갈게."},{"id":"sent-1795648672585-6-8","speaker":"","english":"Come inside and warm up.","phonetic":"컴 인사이드 앤 웜 업","translation":"들어와서 몸 좀 녹여."},{"id":"sent-1795648672585-6-9","speaker":"","english":"Hot chocolate sounds perfect.","phonetic":"핫 초콜릿 사운즈 퍼펙트","translation":"핫초코 딱 좋네."}]},{"id":"set-1795648672585-7","title":"Oversleeping","savedAt":"11월 26일 08:17","status":"planned","sentences":[{"id":"sent-1795648672585-7-0","speaker":"","english":"Oh no, I overslept!","phonetic":"오 노, 아이 오버슬렙트","translation":"이런, 늦잠 잤어!"},{"id":"sent-1795648672585-7-1","speaker":"","english":"You still have time. Hurry up.","phonetic":"유 스틸 해브 타임. 허리 업","translation":"아직 시간 있어. 서둘러."},{"id":"sent-1795648672585-7-2","speaker":"","english":"Why didn't the alarm ring?","phonetic":"와이 디든트 디 알람 링","translation":"왜 알람이 안 울렸지?"},{"id":"sent-1795648672585-7-3","speaker":"","english":"You probably turned it off.","phonetic":"유 프로버블리 턴드 잇 오프","translation":"아마 네가 껐을걸."},{"id":"sent-1795648672585-7-4","speaker":"","english":"I'll skip breakfast today.","phonetic":"아윌 스킵 브렉퍼스트 투데이","translation":"오늘 아침은 거를래."},{"id":"sent-1795648672585-7-5","speaker":"","english":"At least take a banana with you.","phonetic":"앳 리스트 테이커 바내너 위쥬","translation":"적어도 바나나 하나는 가져가."},{"id":"sent-1795648672585-7-6","speaker":"","english":"I'm going to be late for school.","phonetic":"아임 고너 비 레이트 퍼 스쿨","translation":"학교에 늦을 것 같아."},{"id":"sent-1795648672585-7-7","speaker":"","english":"I'll drive you there.","phonetic":"아일 드라이뷰 데어","translation":"거기까지 차로 데려다줄게."},{"id":"sent-1795648672585-7-8","speaker":"","english":"Next time, go to bed earlier.","phonetic":"넥스 타임 고 투 베드 얼리어","translation":"다음번엔 더 일찍 자러 가."},{"id":"sent-1795648672585-7-9","speaker":"","english":"I promise I will.","phonetic":"아이 프라미스 아이 윌","translation":"꼭 그렇게 할게."}]},{"id":"set-1795648672585-8","title":"Power Outage","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648672585-8-0","speaker":"","english":"The lights went out!","phonetic":"더 라이츠 웬트 아웃","translation":"불이 꺼졌어!"},{"id":"sent-1795648672585-8-1","speaker":"","english":"Stay calm. I'll find a flashlight.","phonetic":"스테이 캄 아일 파인더 플래쉬라이트","translation":"진정해. 손전등을 찾아볼게."},{"id":"sent-1795648672585-8-2","speaker":"","english":"Is it only our house?","phonetic":"이짓 온리 아워 하우스","translation":"우리 집만 그런 거야?"},{"id":"sent-1795648672585-8-3","speaker":"","english":"No, the whole street is dark.","phonetic":"노우 더 홀 스트릿 이즈 다크","translation":"아니, 거리 전체가 어두워."},{"id":"sent-1795648672585-8-4","speaker":"","english":"Don't open the fridge too often.","phonetic":"돈 오픈 더 프릿지 투 오픈","translation":"냉장고를 너무 자주 열지 마."},{"id":"sent-1795648672585-8-5","speaker":"","english":"Okay. The food will stay cold.","phonetic":"오케이 더 푸드 윌 스테이 콜드","translation":"알겠어. 음식은 차갑게 유지될 거야."},{"id":"sent-1795648672585-8-6","speaker":"","english":"Let's light some candles carefully.","phonetic":"렛츠 라이트 썸 캔들즈 케어풀리","translation":"조심해서 양초 좀 켜자."},{"id":"sent-1795648672585-8-7","speaker":"","english":"Keep them away from the curtains.","phonetic":"킵 뎀 어웨이 프롬 더 커튼즈","translation":"커튼 근처에 두지 마."},{"id":"sent-1795648672585-8-8","speaker":"","english":"The power is back on!","phonetic":"더 파우어 이즈 백 온","translation":"전기가 다시 들어왔어!"},{"id":"sent-1795648672585-8-9","speaker":"","english":"Great. Let's reset the clocks.","phonetic":"그레이트 렛츠 리셋 더 클락스","translation":"잘됐다. 시계들 시간 다시 맞추자."}]},{"id":"set-1795648672585-9","title":"Family Memories","savedAt":"11월 26일 08:17","status":"planned","sentences":[{"id":"sent-1795648672585-9-0","speaker":"","english":"Look at this old photo album.","phonetic":"룩 앳 디스 올드 포우토 앨범","translation":"이 옛날 사진첩 좀 봐."},{"id":"sent-1795648672585-9-1","speaker":"","english":"Is that you when you were little?","phonetic":"이즈 댓 유 웬 유 워 리틀","translation":"그거 너 어렸을 때야?"},{"id":"sent-1795648672585-9-2","speaker":"","english":"You were so cute!","phonetic":"유 워 쏘 큐트","translation":"너 진짜 귀여웠다!"},{"id":"sent-1795648672585-9-3","speaker":"","english":"I remember","phonetic":"아이 리멤버","translation":"기억나."}]},{"id":"set-1795648641496-0","title":"Seasonal Clothes","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-0-0","speaker":"","english":"It's time to put away the winter clothes.","phonetic":"잇츠 타임 투 풋 어웨이 더 윈터 클로우즈","translation":"이제 겨울 옷을 정리할 시간이야."},{"id":"sent-1795648641496-0-1","speaker":"","english":"Where should we keep them?","phonetic":"웨어 슈드 위 킵 뎀","translation":"어디에 보관할까?"},{"id":"sent-1795648641496-0-2","speaker":"","english":"Let's wash them first.","phonetic":"렛츠 워시 뎀 퍼스트","translation":"먼저 빨래부터 하자."},{"id":"sent-1795648641496-0-3","speaker":"","english":"Then we can pack them in boxes.","phonetic":"덴 위 캔 팩 뎀 인 박시즈","translation":"그러고 나서 상자에 담아서 정리하면 돼."},{"id":"sent-1795648641496-0-4","speaker":"","english":"Do these still fit you?","phonetic":"두 디즈 스틸 핏 유","translation":"이거 아직 너한테 맞아?"},{"id":"sent-1795648641496-0-5","speaker":"","english":"No, they're too small now.","phonetic":"노, 데얼 투 스몰 나우","translation":"아니, 이제 너무 작아."},{"id":"sent-1795648641496-0-6","speaker":"","english":"We can donate the old ones.","phonetic":"위 캔 도네이트 디 올드 원즈","translation":"오래된 건 기부해도 되겠다."},{"id":"sent-1795648641496-0-7","speaker":"","english":"That's a nice idea.","phonetic":"댓츠 어 나이스 아이디어","translation":"좋은 생각이야."},{"id":"sent-1795648641496-0-8","speaker":"","english":"Please get the summer clothes out.","phonetic":"플리즈 겟 더 서머 클로우즈 아웃","translation":"여름 옷 좀 꺼내 줘."},{"id":"sent-1795648641496-0-9","speaker":"","english":"They're in the top closet.","phonetic":"데얼 인 더 탑 클로짓","translation":"저기 높은 벽장에 있어."}]},{"id":"set-1795648641496-1","title":"Spring Cleaning","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-1-0","speaker":"","english":"Let's do a big cleaning this weekend.","phonetic":"렛츠 두 어 빅 클리닝 디스 위켄드","translation":"이번 주말에 대청소하자."},{"id":"sent-1795648641496-1-1","speaker":"","english":"Okay. Where should we start?","phonetic":"오케이. 웨어 슈드 위 스타트","translation":"그래. 어디서부터 시작할까?"},{"id":"sent-1795648641496-1-2","speaker":"","english":"Let's start with the windows.","phonetic":"렛츠 스타트 위드 더 윈도우즈","translation":"창문부터 닦자."},{"id":"sent-1795648641496-1-3","speaker":"","english":"I'll get the glass cleaner.","phonetic":"아일 겟 더 글래스 클리너","translation":"유리 세정제 가져올게."},{"id":"sent-1795648641496-1-4","speaker":"","english":"Please move the sofa for me.","phonetic":"플리즈 무브 더 소파 포 미","translation":"소파 좀 옮겨 줄래?"},{"id":"sent-1795648641496-1-5","speaker":"","english":"It's heavy. Let's lift it together.","phonetic":"잇츠 헤비. 렛츠 리프트 잇 투게더","translation":"너무 무거운데. 같이 들자."},{"id":"sent-1795648641496-1-6","speaker":"","english":"There's so much dust behind it.","phonetic":"데어즈 쏘 머치 더스트 비하인드 잇","translation":"뒤에 먼지가 엄청 많네."},{"id":"sent-1795648641496-1-7","speaker":"","english":"We should have cleaned it earlier.","phonetic":"위 슈드 해브 클린드 잇 얼리어","translation":"진작 청소할 걸 그랬어."},{"id":"sent-1795648641496-1-8","speaker":"","english":"I'll organize the bookshelf.","phonetic":"아일 오가나이즈 더 북쉘프","translation":"나는 책장 정리할게."},{"id":"sent-1795648641496-1-9","speaker":"","english":"Great. I'll do the closet.","phonetic":"그레이트. 아일 두 더 클로짓","translation":"좋아. 나는 벽장을 할게."}]},{"id":"set-1795648641496-2","title":"Arranging Furniture","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-2-0","speaker":"","english":"Let's move the table closer to the window.","phonetic":"렛츠 무브 더 테이블 클로우저 투 더 윈도우","translation":"식탁을 창문 쪽으로 좀 더 옮기자."},{"id":"sent-1795648641496-2-1","speaker":"","english":"Good idea. We'll get more light.","phonetic":"굿 아이디어. 위얼 겟 모어 라이트","translation":"좋은 생각이야. 빛이 더 잘 들어오겠어."},{"id":"sent-1795648641496-2-2","speaker":"","english":"Is this where you want the bed?","phonetic":"이즈 디스 웨어 유 원트 더 베드","translation":"침대는 여기 두면 될까?"},{"id":"sent-1795648641496-2-3","speaker":"","english":"A little to the left, please.","phonetic":"어 리틀 투 더 레프트, 플리즈","translation":"왼쪽으로 조금만 더 옮겨 줘."},{"id":"sent-1795648641496-2-4","speaker":"","english":"That looks much better.","phonetic":"댓 룩스 머치 베터","translation":"훨씬 낫네."},{"id":"sent-1795648641496-2-5","speaker":"","english":"Yes, the room feels bigger now.","phonetic":"예스, 더 룸 필즈 비거 나우.","translation":"응, 방이 이제 더 넓어 보이네."},{"id":"sent-1795648641496-2-6","speaker":"","english":"Let's hang a picture on this wall.","phonetic":"렛츠 행 어 픽쳐 온 디스 월.","translation":"이 벽에 그림 하나 걸자."},{"id":"sent-1795648641496-2-7","speaker":"","english":"I'll bring the hammer and nails.","phonetic":"아일 브링 더 해머 앤 네일즈.","translation":"망치랑 못 가져올게."},{"id":"sent-1795648641496-2-8","speaker":"","english":"Careful! Don't scratch the floor.","phonetic":"케어풀! 돈 스크래치 더 플로어.","translation":"조심해! 바닥 긁히지 않게."},{"id":"sent-1795648641496-2-9","speaker":"","english":"I'll put a blanket underneath.","phonetic":"아일 풋 어 블랭킷 언더니스.","translation":"내가 아래에 담요를 깔게."}]},{"id":"set-1795648641496-3","title":"Plants and Garden","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-3-0","speaker":"","english":"The plants need some water.","phonetic":"더 플랜츠 니드 썸 워터.","translation":"화분들에 물이 좀 필요해."},{"id":"sent-1795648641496-3-1","speaker":"","english":"I'll water them in the morning.","phonetic":"아일 워터 뎀 인 더 모닝.","translation":"아침에 물 줄게."},{"id":"sent-1795648641496-3-2","speaker":"","english":"This one needs more sunlight.","phonetic":"디스 원 니즈 모어 썬라이트.","translation":"이건 햇빛이 더 필요해."},{"id":"sent-1795648641496-3-3","speaker":"","english":"Let's move it to the balcony.","phonetic":"렛츠 무브 잇 투 더 발코니.","translation":"베란다로 옮기자."},{"id":"sent-1795648641496-3-4","speaker":"","english":"Look! The flowers are blooming.","phonetic":"룩! 더 플라워즈 아 블루밍.","translation":"봐! 꽃이 피고 있어."},{"id":"sent-1795648641496-3-5","speaker":"","english":"They're so beautiful!","phonetic":"데이아 쏘 뷰티풀!","translation":"정말 예쁘다!"},{"id":"sent-1795648641496-3-6","speaker":"","english":"Should we plant tomatoes?","phonetic":"슈드 위 플랜트 토마토즈?","translation":"토마토를 심을까?"},{"id":"sent-1795648641496-3-7","speaker":"","english":"Yes, they're easy to grow.","phonetic":"예스, 데이아 이지 투 그로우.","translation":"응, 키우기 쉬워."},{"id":"sent-1795648641496-3-8","speaker":"","english":"Don't forget to pull out the weeds.","phonetic":"돈 포겟 투 풀 아웃 더 위즈.","translation":"잡초 뽑는 거 잊지 마."},{"id":"sent-1795648641496-3-9","speaker":"","english":"I'll do it after lunch.","phonetic":"아일 두 잇 애프터 런치.","translation":"점심 먹고 할게."}]},{"id":"set-1795648641496-4","title":"Baking Together","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-4-0","speaker":"","english":"Let's bake cookies today.","phonetic":"렛츠 베이크 쿠키즈 투데이.","translation":"오늘 쿠키 굽자."},{"id":"sent-1795648641496-4-1","speaker":"","english":"Yes! What do we need?","phonetic":"예스! 왓 두 위 니드?","translation":"좋아! 뭐가 필요해?"},{"id":"sent-1795648641496-4-2","speaker":"","english":"First, mix the butter and sugar.","phonetic":"퍼스트, 믹스 더 버터 앤 슈거.","translation":"우선 버터랑 설탕을 섞어."},{"id":"sent-1795648641496-4-3","speaker":"","english":"Like this? It's so sticky.","phonetic":"라이크 디스? 잇츠 쏘 스티키.","translation":"이렇게? 엄청 끈적거려."},{"id":"sent-1795648641496-4-4","speaker":"","english":"Now add the flour slowly.","phonetic":"나우 애드 더 플라워 슬로울리.","translation":"이제 밀가루를 천천히 넣어."},{"id":"sent-1795648641496-4-5","speaker":"","english":"How much should I put in?","phonetic":"하우 머치 슈드 아이 풋 인?","translation":"얼마나 넣어야 해?"},{"id":"sent-1795648641496-4-6","speaker":"","english":"Put them in the oven for ten minutes.","phonetic":"풋 뎀 인 디 어븐 포 텐 미닛츠.","translation":"오븐에 10분 정도 넣어둬."},{"id":"sent-1795648641496-4-7","speaker":"","english":"They smell amazing already.","phonetic":"데이 스멜 어메이징 올레디.","translation":"벌써 냄새가 끝내주네."},{"id":"sent-1795648641496-4-8","speaker":"","english":"Let them cool before you eat.","phonetic":"렛 뎀 쿨 비포 유 잇.","translation":"먹기 전에 좀 식혀."},{"id":"sent-1795648641496-4-9","speaker":"","english":"But I want one now!","phonetic":"벗 아이 원트 원 나우!","translation":"하지만 지금 당장 먹고 싶은걸!"}]},{"id":"set-1795648641496-5","title":"Snacks and Desserts","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-5-0","speaker":"","english":"Do you want a snack?","phonetic":"두유 원러 스낵?","translation":"간식 먹을래?"},{"id":"sent-1795648641496-5-1","speaker":"","english":"Yes, do we have any fruit?","phonetic":"예스, 두위 해브 에니 프룻?","translation":"응, 과일 좀 있어?"},{"id":"sent-1795648641496-5-2","speaker":"","english":"There are some apples in the basket.","phonetic":"데어라 썸 애플스 인더 배스킷.","translation":"바구니에 사과 좀 있어."},{"id":"sent-1795648641496-5-3","speaker":"","english":"I'll cut them for us.","phonetic":"아일 커덤 포러스.","translation":"우리 먹게 내가 깎을게."},{"id":"sent-1795648641496-5-4","speaker":"","english":"Would you like tea or juice?","phonetic":"우쥬 라이크 티 오어 쥬스?","translation":"차 마실래, 주스 마실래?"},{"id":"sent-1795648641496-5-5","speaker":"","english":"Tea, please. With honey.","phonetic":"티, 플리즈. 위드 허니.","translation":"차 부탁해. 꿀 넣어서."},{"id":"sent-1795648641496-5-6","speaker":"","english":"No more sweets before dinner.","phonetic":"노 모어 스위츠 비포 디너.","translation":"저녁 먹기 전까진 단 거 금지야."},{"id":"sent-1795648641496-5-7","speaker":"","english":"Just one candy, please.","phonetic":"저스트 원 캔디, 플리즈.","translation":"딱 사탕 하나만요."},{"id":"sent-1795648641496-5-8","speaker":"","english":"Dessert is for after the meal.","phonetic":"디저트 이즈 포 애프터 더 밀.","translation":"디저트는 식사 후에 먹는 거야."},{"id":"sent-1795648641496-5-9","speaker":"","english":"Okay. I'll wait.","phonetic":"오케이. 아일 웨이트.","translation":"알겠어. 기다릴게."}]},{"id":"set-1795648641496-6","title":"Preparing for Holidays","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-6-0","speaker":"","english":"The holiday is coming soon.","phonetic":"더 할러데이 이즈 커밍 순.","translation":"곧 연휴가 다가오네."},{"id":"sent-1795648641496-6-1","speaker":"","english":"We should plan the menu.","phonetic":"위 슈드 플랜 더 메뉴.","translation":"메뉴를 짜야겠어."},{"id":"sent-1795648641496-6-2","speaker":"","english":"Let's clean the house first.","phonetic":"렛츠 클린 더 하우스 퍼스트.","translation":"먼저 집부터 청소하자."},{"id":"sent-1795648641496-6-3","speaker":"","english":"I'll buy the ingredients tomorrow.","phonetic":"아일 바이 디 인그리디언츠 투마로우.","translation":"내일 식재료 사 올게."},{"id":"sent-1795648641496-6-4","speaker":"","english":"How many people are coming?","phonetic":"하우 메니 피플 아 커밍?","translation":"몇 명이나 와?"},{"id":"sent-1795648641496-6-5","speaker":"","english":"Around twelve relatives.","phonetic":"어라운드 트웰브 렐러티브스.","translation":"친척들 열두 명 정도."},{"id":"sent-1795648641496-6-6","speaker":"","english":"We need more chairs.","phonetic":"위 니드 모어 체어스.","translation":"의자가 더 필요해."},{"id":"sent-1795648641496-6-7","speaker":"","english":"We can borrow some from the neighbors.","phonetic":"위 캔 보로우 썸 프롬 더 네이버스.","translation":"이웃한테 좀 빌릴 수 있어."},{"id":"sent-1795648641496-6-8","speaker":"","english":"Let's prepare everything today.","phonetic":"렛츠 프리페어 에브리띵 투데이.","translation":"오늘 모든 걸 준비하자."},{"id":"sent-1795648641496-6-9","speaker":"","english":"Then we can relax tomorrow.","phonetic":"덴 위 캔 릴랙스 투마로우.","translation":"그러면 내일은 좀 쉴 수 있겠지."}]},{"id":"set-1795648641496-7","title":"Holiday Feast","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-7-0","speaker":"","english":"Everyone, please come to the table.","phonetic":"에브리원, 플리즈 컴 투 더 테이블.","translation":"다들 식탁으로 오세요."},{"id":"sent-1795648641496-7-1","speaker":"","english":"Wow, there is so much food!","phonetic":"와우, 데어 이즈 쏘 머치 푸드!","translation":"와, 음식 진짜 많다!"},{"id":"sent-1795648641496-7-2","speaker":"","english":"Please eat as much as you like.","phonetic":"플리즈 잇 애즈 머치 애쥬 라이크.","translation":"마음껏 드세요."},{"id":"sent-1795648641496-7-3","speaker":"","english":"Thank you. Everything looks delicious.","phonetic":"땡큐. 에브리띵 룩스 딜리셔스.","translation":"고마워요. 다 맛있어 보이네요."},{"id":"sent-1795648641496-7-4","speaker":"","english":"Who made this dish?","phonetic":"후 메이드 디스 디쉬?","translation":"이 요리 누가 만들었어요?"},{"id":"sent-1795648641496-7-5","speaker":"","english":"My grandmother's recipe.","phonetic":"마이 그랜마더스 레서피","translation":"우리 할머니의 레시피예요."},{"id":"sent-1795648641496-7-6","speaker":"","english":"Let's give a toast to the family.","phonetic":"렛츠 기버 토스트 투 더 패밀리","translation":"가족을 위해 건배해요."},{"id":"sent-1795648641496-7-7","speaker":"","english":"Cheers! To good health!","phonetic":"치어스! 투 굿 헬스!","translation":"건배! 모두 건강을 위하여!"},{"id":"sent-1795648641496-7-8","speaker":"","english":"Happy holidays, everyone!","phonetic":"해피 할리데이즈, 에브리원!","translation":"모두 즐거운 연휴 보내세요!"},{"id":"sent-1795648641496-7-9","speaker":"","english":"Same to you. Thank you!","phonetic":"세임 투 유. 땡큐!","translation":"그쪽도요. 고마워요!"}]},{"id":"set-1795648641496-8","title":"Giving Gifts","savedAt":"11월 26일 08:17","status":"unassigned","sentences":[{"id":"sent-1795648641496-8-0","speaker":"","english":"I bought you a small present.","phonetic":"아이 보트 유 어 스몰 프레전트","translation":"당신을 위해 작은 선물을 하나 샀어요."},{"id":"sent-1795648641496-8-1","speaker":"","english":"Thank you! What is it?","phonetic":"땡큐! 왓 이짓?","translation":"고마워요! 이게 뭐예요?"},{"id":"sent-1795648641496-8-2","speaker":"","english":"Please open it later.","phonetic":"플리즈 오퍼닛 레이터","translation":"나중에 열어봐 주세요."},{"id":"sent-1795648641496-8-3","speaker":"","english":"I can","phonetic":"아이 캔","translation":"저는 할 수 있어요."}]},{"id":"set-1795648594198-0","title":"Giving Compliments","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-0-0","speaker":"","english":"You cooked this really well.","phonetic":"유 쿡트 디스 리얼리 웰","translation":"이거 정말 맛있게 잘 만들었네."},{"id":"sent-1795648594198-0-1","speaker":"","english":"Thank you. I'm glad you like it.","phonetic":"땡큐 아임 글래드 유 라이킷","translation":"고마워요. 마음에 든다니 기쁘네요."},{"id":"sent-1795648594198-0-2","speaker":"","english":"Your room looks very tidy.","phonetic":"유어 룸 룩스 베리 타이디","translation":"방이 아주 깔끔해 보이네."},{"id":"sent-1795648594198-0-3","speaker":"","english":"I cleaned it by myself.","phonetic":"아이 클린딧 바이 마이셀프","translation":"제가 직접 청소했어요."},{"id":"sent-1795648594198-0-4","speaker":"","english":"That dress looks great on you.","phonetic":"댓 드레스 룩스 그레이트 온 유","translation":"그 드레스 너한테 정말 잘 어울린다."},{"id":"sent-1795648594198-0-5","speaker":"","english":"Thanks! I bought it last week.","phonetic":"땡스 아이 보릿 라스트 위크","translation":"고마워! 저번 주에 샀어."},{"id":"sent-1795648594198-0-6","speaker":"","english":"You are a great helper.","phonetic":"유 아 어 그레이트 헬퍼","translation":"너는 정말 훌륭한 조력자야."},{"id":"sent-1795648594198-0-7","speaker":"","english":"It makes me happy to help.","phonetic":"잇 메익스 미 해피 투 헬프","translation":"도울 수 있어서 행복해."},{"id":"sent-1795648594198-0-8","speaker":"","english":"I'm proud of you.","phonetic":"아임 프라우드 오브 유","translation":"너 정말 자랑스럽다."},{"id":"sent-1795648594198-0-9","speaker":"","english":"That means a lot to me.","phonetic":"댓 민즈 어 랏 투 미","translation":"그 말 정말 큰 힘이 돼."}]},{"id":"set-1795648594198-1","title":"Asking Politely","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-1-0","speaker":"","english":"Could you do me a favor?","phonetic":"쿠쥬 두 미 어 페이버","translation":"부탁 하나 해도 될까?"},{"id":"sent-1795648594198-1-1","speaker":"","english":"Of course. What is it?","phonetic":"오브 코스 왓 이짓","translation":"물론이지. 뭔데?"},{"id":"sent-1795648594198-1-2","speaker":"","english":"Would you mind closing the window?","phonetic":"우쥬 마인드 클로징 더 윈도우","translation":"창문 좀 닫아줄 수 있을까?"},{"id":"sent-1795648594198-1-3","speaker":"","english":"Not at all. It's a bit cold.","phonetic":"낫 앳 올 잇츠 어 빗 콜드","translation":"그럼, 안 그래도 좀 춥네."},{"id":"sent-1795648594198-1-4","speaker":"","english":"May I borrow your umbrella?","phonetic":"메이 아이 버로우 유어 엄브렐라","translation":"우산 좀 빌려도 될까요?"},{"id":"sent-1795648594198-1-5","speaker":"","english":"Sure. Just return it tomorrow.","phonetic":"슈어 저스트 리턴 잇 투마로우","translation":"그럼요. 내일 돌려주기만 해요."},{"id":"sent-1795648594198-1-6","speaker":"","english":"Could you speak a little slower?","phonetic":"쿠쥬 스피크 어 리틀 슬로우어","translation":"좀 더 천천히 말해줄 수 있어요?"},{"id":"sent-1795648594198-1-7","speaker":"","english":"Sure. Is this better?","phonetic":"슈어 이즈 디스 베터","translation":"네, 그럼요. 이 정도면 괜찮나요?"},{"id":"sent-1795648594198-1-8","speaker":"","english":"Would you help me carry this?","phonetic":"우쥬 헬프 미 캐리 디스","translation":"이거 나르는 것 좀 도와줄래?"},{"id":"sent-1795648594198-1-9","speaker":"","english":"Certainly. Where should I put it?","phonetic":"써튼리 웨어 슈드 아이 푸릿","translation":"물론이죠. 어디에 둘까요?"}]},{"id":"set-1795648594198-2","title":"Saying No Politely","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-2-0","speaker":"","english":"Would you like some more cake?","phonetic":"우쥬 라이크 썸 모어 케이크","translation":"케이크 좀 더 먹을래?"},{"id":"sent-1795648594198-2-1","speaker":"","english":"No, thank you. I'm full.","phonetic":"노 땡큐 아임 풀","translation":"아니, 고마워. 배불러."},{"id":"sent-1795648594198-2-2","speaker":"","english":"Can you come to dinner on Friday?","phonetic":"캔 유 컴 투 디너 온 프라이데이","translation":"금요일 저녁 식사하러 올 수 있어?"},{"id":"sent-1795648594198-2-3","speaker":"","english":"I'm sorry, I already have plans.","phonetic":"아임 쏘리 아이 올레디 해브 플랜즈","translation":"미안해, 이미 약속이 있어."},{"id":"sent-1795648594198-2-4","speaker":"","english":"Do you want to watch TV now?","phonetic":"두 유 원 투 와치 티비 나우","translation":"지금 TV 보고 싶어?"},{"id":"sent-1795648594198-2-5","speaker":"","english":"Not now. I'm busy studying.","phonetic":"낫 나우 아임 비지 스터디잉","translation":"지금은 아니야. 공부하느라 바빠."},{"id":"sent-1795648594198-2-6","speaker":"","english":"Could you lend me some money?","phonetic":"쿠 쥬 렌 미 썸 머니","translation":"돈 좀 빌려줄 수 있어?"},{"id":"sent-1795648594198-2-7","speaker":"","english":"I'm afraid I can't this time.","phonetic":"아임 어프레이드 아이 캔트 디스 타임","translation":"이번에는 좀 어려울 것 같아."},{"id":"sent-1795648594198-2-8","speaker":"","english":"Would you like to try this?","phonetic":"우 쥬 라이크 투 트라이 디스","translation":"이거 한번 해볼래?"},{"id":"sent-1795648594198-2-9","speaker":"","english":"I'll pass, but thank you for offering.","phonetic":"아일 패스 벗 땡큐 포 오퍼링","translation":"사양할게, 그래도 제안해 줘서 고마워."}]},{"id":"set-1795648594198-3","title":"Disagreeing Kindly","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-3-0","speaker":"","english":"I think we should paint the room blue.","phonetic":"아이 띵 위 슈드 페인트 더 룸 블루","translation":"방을 파란색으로 칠하는 게 좋을 것 같아."},{"id":"sent-1795648594198-3-1","speaker":"","english":"I see your point, but I prefer white.","phonetic":"아이 씨 유어 포인트 벗 아이 프리퍼 화이트","translation":"무슨 말인지 알겠는데, 난 흰색이 더 좋아."},{"id":"sent-1795648594198-3-2","speaker":"","english":"Let's try it my way this time.","phonetic":"렛츠 트라이 잇 마이 웨이 디스 타임","translation":"이번엔 내 방식대로 해보자."},{"id":"sent-1795648594198-3-3","speaker":"","english":"Okay, but let's talk about it first.","phonetic":"오케이 벗 렛츠 토크 어바웃 잇 퍼스트","translation":"알겠어, 하지만 먼저 얘기부터 나누자."},{"id":"sent-1795648594198-3-4","speaker":"","english":"I don't agree with that.","phonetic":"아이 돈 어그리 위드 댓","translation":"그 의견에는 동의할 수 없어."},{"id":"sent-1795648594198-3-5","speaker":"","english":"Can you tell me why?","phonetic":"캔 유 텔 미 와이","translation":"왜 그런지 말해줄래?"},{"id":"sent-1795648594198-3-6","speaker":"","english":"Maybe we can find a middle ground.","phonetic":"메이비 위 캔 파인 어 미들 그라운드","translation":"절충안을 찾아볼 수 있을지도 몰라."},{"id":"sent-1795648594198-3-7","speaker":"","english":"That's a fair idea.","phonetic":"댓츠 어 페어 아이디어","translation":"그거 괜찮은 생각이야."},{"id":"sent-1795648594198-3-8","speaker":"","english":"Let's decide together.","phonetic":"렛츠 디사이드 투게더","translation":"함께 결정하자."},{"id":"sent-1795648594198-3-9","speaker":"","english":"Agreed. Let's vote.","phonetic":"어그리드 렛츠 보트","translation":"동의해. 투표하자."}]},{"id":"set-1795648594198-4","title":"Making Up","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-4-0","speaker":"","english":"I'm sorry for what I said earlier.","phonetic":"아임 쏘리 포 왓 아이 세드 얼리어","translation":"아까 했던 말 미안해."},{"id":"sent-1795648594198-4-1","speaker":"","english":"I'm sorry too. I was upset.","phonetic":"아임 쏘리 투 아이 워즈 업셋","translation":"나도 미안해. 내가 좀 예민했어."},{"id":"sent-1795648594198-4-2","speaker":"","english":"Can we talk about it?","phonetic":"캔 위 토크 어바웃 잇","translation":"이 문제에 대해 이야기 좀 할 수 있을까?"},{"id":"sent-1795648594198-4-3","speaker":"","english":"Yes, I'd like that.","phonetic":"예스 아일 라이크 댓","translation":"응, 그러고 싶어."},{"id":"sent-1795648594198-4-4","speaker":"","english":"I didn't mean to hurt you.","phonetic":"아이 디든트 민 투 허트 유","translation":"너한테 상처 주려던 건 아니었어."},{"id":"sent-1795648594198-4-5","speaker":"","english":"I know. I forgive you.","phonetic":"아이 노우 아이 포기브 유","translation":"알아, 용서할게."},{"id":"sent-1795648594198-4-6","speaker":"","english":"Let's start over.","phonetic":"렛츠 스타트 오버","translation":"다시 시작하자."},{"id":"sent-1795648594198-4-7","speaker":"","english":"That sounds good to me.","phonetic":"댓 사운즈 굿 투 미","translation":"그거 좋은 것 같아."},{"id":"sent-1795648594198-4-8","speaker":"","english":"Thank you for understanding.","phonetic":"땡큐 포 언더스탠딩","translation":"이해해 줘서 고마워."},{"id":"sent-1795648594198-4-9","speaker":"","english":"We're family. We help each other.","phonetic":"위어 패밀리 위 헬프 이치 아더","translation":"우린 가족이잖아. 서로 도와야지."}]},{"id":"set-1795648594198-5","title":"Comforting Someone","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-5-0","speaker":"","english":"You seem down. What happened?","phonetic":"유 씸 다운. 왓 해픈드?","translation":"기운이 없어 보이네. 무슨 일이야?"},{"id":"sent-1795648594198-5-1","speaker":"","english":"I failed my test today.","phonetic":"아이 페일드 마이 테스트 투데이.","translation":"오늘 시험을 망쳤어."},{"id":"sent-1795648594198-5-2","speaker":"","english":"I'm sorry to hear that.","phonetic":"아임 쏘리 투 히어 댓.","translation":"그거 참 안됐다."},{"id":"sent-1795648594198-5-3","speaker":"","english":"I studied hard, but it wasn't enough.","phonetic":"아이 스터디드 하드, 벗 잇 워즌트 이너프.","translation":"열심히 공부했는데, 충분하지 않았어."},{"id":"sent-1795648594198-5-4","speaker":"","english":"Everyone makes mistakes sometimes.","phonetic":"에브리원 메익스 미스테익스 썸타임즈.","translation":"누구나 가끔은 실수하는걸."},{"id":"sent-1795648594198-5-5","speaker":"","english":"I just feel really sad.","phonetic":"아이 져스트 필 리얼리 새드.","translation":"그냥 너무 속상해."},{"id":"sent-1795648594198-5-6","speaker":"","english":"I'm here if you want to talk.","phonetic":"아임 히어 이프 유 원투 톡.","translation":"이야기하고 싶으면 내가 여기 있을게."},{"id":"sent-1795648594198-5-7","speaker":"","english":"Thanks. That helps a lot.","phonetic":"땡스. 댓 헬프스 어 랏.","translation":"고마워. 정말 큰 힘이 돼."},{"id":"sent-1795648594198-5-8","speaker":"","english":"You'll do better next time.","phonetic":"유 윌 두 베러 넥스트 타임.","translation":"다음엔 더 잘할 거야."},{"id":"sent-1795648594198-5-9","speaker":"","english":"I'll try my best.","phonetic":"아 윌 트라이 마이 베스트.","translation":"최선을 다해볼게."}]},{"id":"set-1795648594198-6","title":"Encouraging Others","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-6-0","speaker":"","english":"Don't give up. You can do it.","phonetic":"돈 기브 업. 유 캔 두 잇.","translation":"포기하지 마. 넌 할 수 있어."},{"id":"sent-1795648594198-6-1","speaker":"","english":"Thanks. I'll try again.","phonetic":"땡스. 아 윌 트라이 어게인.","translation":"고마워. 다시 해볼게."},{"id":"sent-1795648594198-6-2","speaker":"","english":"You're getting better every day.","phonetic":"유어 게팅 베러 에브리 데이.","translation":"너는 매일매일 더 나아지고 있어."},{"id":"sent-1795648594198-6-3","speaker":"","english":"Do you really think so?","phonetic":"두 유 리얼리 띵크 쏘?","translation":"정말 그렇게 생각해?"},{"id":"sent-1795648594198-6-4","speaker":"","english":"Take your time. There's no rush.","phonetic":"테이크 유어 타임. 데어즈 노 러쉬.","translation":"천천히 해. 서두를 거 없어."},{"id":"sent-1795648594198-6-5","speaker":"","english":"Okay. I'll go step by step.","phonetic":"오케이. 아 윌 고 스텝 바이 스텝.","translation":"알겠어. 차근차근 해볼게."},{"id":"sent-1795648594198-6-6","speaker":"","english":"Good luck with your interview!","phonetic":"굿 럭 위드 유어 인터뷰!","translation":"면접 잘 봐!"},{"id":"sent-1795648594198-6-7","speaker":"","english":"Thanks. I'm a little nervous.","phonetic":"땡스. 아임 어 리틀 너버스.","translation":"고마워. 좀 긴장되네."},{"id":"sent-1795648594198-6-8","speaker":"","english":"I believe in you.","phonetic":"아이 빌리브 인 유.","translation":"나는 너를 믿어."},{"id":"sent-1795648594198-6-9","speaker":"","english":"That gives me confidence.","phonetic":"댓 기브즈 미 컨피던스.","translation":"그 말이 자신감을 줘."}]},{"id":"set-1795648594198-7","title":"Keeping Promises and Time","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-7-0","speaker":"","english":"Please be home by nine.","phonetic":"플리즈 비 홈 바이 나인.","translation":"9시까지는 집에 들어와."},{"id":"sent-1795648594198-7-1","speaker":"","english":"I promise. I'll be on time.","phonetic":"아이 프라미스. 아 윌 비 온 타임.","translation":"약속할게. 시간 맞춰 올게."},{"id":"sent-1795648594198-7-2","speaker":"","english":"You're late again.","phonetic":"유어 레이트 어게인.","translation":"너 또 늦었네."},{"id":"sent-1795648594198-7-3","speaker":"","english":"I'm sorry. The traffic was bad.","phonetic":"아임 쏘리. 더 트래픽 워즈 배드.","translation":"미안해. 차가 너무 막혔어."},{"id":"sent-1795648594198-7-4","speaker":"","english":"Let me know if you'll be late.","phonetic":"렛 미 노 이프 유 윌 비 레이트.","translation":"늦을 것 같으면 알려줘."},{"id":"sent-1795648594198-7-5","speaker":"","english":"I'll text you right away.","phonetic":"아일 텍스츄 라이러웨이","translation":"바로 문자 할게요."},{"id":"sent-1795648594198-7-6","speaker":"","english":"Shall we meet at six?","phonetic":"쉘 위 밋 앳 식스?","translation":"6시에 만날까요?"},{"id":"sent-1795648594198-7-7","speaker":"","english":"Yes, I'll be there on time.","phonetic":"예스, 아일 비 데어 온 타임","translation":"네, 제시간에 갈게요."},{"id":"sent-1795648594198-7-8","speaker":"","english":"I keep my promises.","phonetic":"아이 킵 마이 프라미시즈","translation":"전 약속을 꼭 지켜요."},{"id":"sent-1795648594198-7-9","speaker":"","english":"I know, and I trust you.","phonetic":"아이 노우, 앤 아이 트러스츄","translation":"알아요, 그리고 당신을 믿어요."}]},{"id":"set-1795648594198-8","title":"Manners in Public","savedAt":"11월 26일 08:16","status":"unassigned","sentences":[{"id":"sent-1795648594198-8-0","speaker":"","english":"Please stand in line.","phonetic":"플리즈 스탠딘 라인","translation":"줄을 서 주세요."},{"id":"sent-1795648594198-8-1","speaker":"","english":"Oh, I didn't see the line. Sorry.","phonetic":"오, 아이 디든 씨 더 라인. 쏘리","translation":"아, 줄 있는 줄 몰랐네요. 죄송해요."},{"id":"sent-1795648594198-8-2","speaker":"","english":"Please give your seat to the elderly.","phonetic":"플리즈 기뷰어 싯 투 디 엘더리","translation":"어르신께 자리를 양보해 주세요."},{"id":"sent-1795648594198-8-3","speaker":"","english":"Of course. Please sit here.","phonetic":"옵 코스. 플리즈 싯 히어","translation":"그럼요. 여기 앉으세요."},{"id":"sent-1795648594198-8-4","speaker":"","english":"Keep your voice low on the bus.","phonetic":"킵 유어 보이스 로우 온 더 버스","translation":"버스에서는 조용히 해 주세요."},{"id":"sent-1795648594198-8-5","speaker":"","english":"Okay. I'll whisper.","phonetic":"오케이. 아일 위스퍼","translation":"알겠어요. 속삭일게요."},{"id":"sent-1795648594198-8-6","speaker":"","english":"Don't litter in the park","phonetic":"돈 리러 인 더 파크","translation":"공원에 쓰레기를 버리지 마세요."}]},{"id":"set-1795648517189-0","title":"Talking About Weather","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-0-0","speaker":"","english":"What's the weather like today?","phonetic":"왓츠 더 웨더 라잌 투데이?","translation":"오늘 날씨 어때?"},{"id":"sent-1795648517189-0-1","speaker":"","english":"It's sunny, but a bit windy.","phonetic":"잇츠 써니, 벗 어 빗 윈디.","translation":"맑지만 바람이 좀 부네."},{"id":"sent-1795648517189-0-2","speaker":"","english":"Do I need an umbrella?","phonetic":"두 아이 니드 언 엄브렐라?","translation":"우산 챙겨야 할까?"},{"id":"sent-1795648517189-0-3","speaker":"","english":"Yes, it might rain this afternoon.","phonetic":"예스, 잇 마잇 레인 디스 애프터눈.","translation":"응, 오후에 비가 올 수도 있어."},{"id":"sent-1795648517189-0-4","speaker":"","english":"It's really hot outside.","phonetic":"잇츠 리얼리 핫 아웃사이드.","translation":"밖이 정말 덥다."},{"id":"sent-1795648517189-0-5","speaker":"","english":"Let's turn on the air conditioner.","phonetic":"렛츠 터넌 디 에어 컨디셔너.","translation":"에어컨 좀 켜자."},{"id":"sent-1795648517189-0-6","speaker":"","english":"It's freezing this morning.","phonetic":"잇츠 프리징 디스 모닝.","translation":"오늘 아침은 엄청 추워."},{"id":"sent-1795648517189-0-7","speaker":"","english":"Wear a scarf and gloves.","phonetic":"웨어 어 스카프 앤드 글러브즈.","translation":"스카프랑 장갑 챙겨 입어."},{"id":"sent-1795648517189-0-8","speaker":"","english":"The forecast says it will snow.","phonetic":"더 포캐스트 세이즈 잇 윌 스노우.","translation":"일기예보에서 눈이 온다더라."},{"id":"sent-1795648517189-0-9","speaker":"","english":"Great! The kids will love it.","phonetic":"그레이트! 더 키즈 윌 러브 잇.","translation":"잘됐다! 애들이 정말 좋아하겠어."}]},{"id":"set-1795648517189-1","title":"Feeling Sick","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-1-0","speaker":"","english":"You don't look well. What's wrong?","phonetic":"유 돈 룩 웰. 왓츠 롱?","translation":"안색이 안 좋아 보이네. 무슨 일이야?"},{"id":"sent-1795648517189-1-1","speaker":"","english":"I have a headache and a sore throat.","phonetic":"아이 해버 헤데이크 앤더 소어 뜨로우트.","translation":"머리가 아프고 목이 따가워."},{"id":"sent-1795648517189-1-2","speaker":"","english":"Do you have a fever?","phonetic":"두 유 해버 피버?","translation":"열은 좀 나?"},{"id":"sent-1795648517189-1-3","speaker":"","english":"Let me check with the thermometer.","phonetic":"렛 미 체크 위드 더 떰모미터.","translation":"체온계로 한번 재볼게."},{"id":"sent-1795648517189-1-4","speaker":"","english":"You should rest today.","phonetic":"유 슈드 레스트 투데이.","translation":"오늘은 좀 쉬어야겠어."},{"id":"sent-1795648517189-1-5","speaker":"","english":"Yes, I'll stay in bed.","phonetic":"예스, 아일 스테이 인 베드.","translation":"그래, 누워 있어야겠다."},{"id":"sent-1795648517189-1-6","speaker":"","english":"Drink plenty of warm water.","phonetic":"드링크 플렌티 오브 웜 워터.","translation":"따뜻한 물을 많이 마셔."},{"id":"sent-1795648517189-1-7","speaker":"","english":"Thanks for taking care of me.","phonetic":"땡스 포 테이킹 케어 오브 미.","translation":"챙겨줘서 고마워."},{"id":"sent-1795648517189-1-8","speaker":"","english":"I hope you feel better soon.","phonetic":"아이 호프 유 필 베터 쏜.","translation":"얼른 나았으면 좋겠다."},{"id":"sent-1795648517189-1-9","speaker":"","english":"Thank you. I'm sure I will.","phonetic":"땡큐. 아임 슈어 아이 윌.","translation":"고마워. 금방 나을 거야."}]},{"id":"set-1795648517189-2","title":"Doctor and Medicine","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-2-0","speaker":"","english":"I think we should see a doctor.","phonetic":"아이 띵 위 슈드 씨 어 닥터.","translation":"병원에 가봐야 할 것 같은데."},{"id":"sent-1795648517189-2-1","speaker":"","english":"Okay. I'll make an appointment.","phonetic":"오케이. 아일 메이크 언 어포인트먼트.","translation":"알았어. 예약할게."},{"id":"sent-1795648517189-2-2","speaker":"","english":"What did the doctor say?","phonetic":"왓 디드 더 닥터 세이?","translation":"의사 선생님이 뭐라셔?"},{"id":"sent-1795648517189-2-3","speaker":"","english":"It's just a cold. I need rest.","phonetic":"잇츠 저스트 어 콜드. 아이 니드 레스트.","translation":"그냥 감기래. 쉬어야 해."},{"id":"sent-1795648517189-2-4","speaker":"","english":"Take this medicine after meals.","phonetic":"테이크 디스 메디슨 애프터 밀즈.","translation":"이 약 식후에 챙겨 먹어."},{"id":"sent-1795648517189-2-5","speaker":"","english":"How many times a day?","phonetic":"하우 매니 타임저 데이?","translation":"하루에 몇 번이요?"},{"id":"sent-1795648517189-2-6","speaker":"","english":"Three times a day for five days.","phonetic":"쓰리 타임저 데이 포 파이브 데이즈.","translation":"5일 동안 하루 세 번이요."},{"id":"sent-1795648517189-2-7","speaker":"","english":"I'll set an alarm so I don't forget.","phonetic":"아일 쎄런 얼람 쏘 아이 돈 포겟.","translation":"잊어버리지 않게 알람을 맞춰둘게요."},{"id":"sent-1795648517189-2-8","speaker":"","english":"Be sure to finish all the medicine.","phonetic":"비 슈어 투 피니쉬 올 더 메디슨.","translation":"약은 꼭 다 드셔야 해요."},{"id":"sent-1795648517189-2-9","speaker":"","english":"I will. Thanks for reminding me.","phonetic":"아이 윌. 땡스 포 리마인딩 미.","translation":"그럴게요. 상기시켜 줘서 고마워요."}]},{"id":"set-1795648517189-3","title":"Healthy Eating","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-3-0","speaker":"","english":"Let's eat healthier this month.","phonetic":"렛츠 잇 헬씨어 디스 먼쓰.","translation":"이번 달에는 더 건강하게 먹자."},{"id":"sent-1795648517189-3-1","speaker":"","english":"Good idea. Less sugar, more vegetables.","phonetic":"굿 아이디어. 레스 슈가, 모어 베지터블즈.","translation":"좋은 생각이야. 설탕은 줄이고 채소는 더 먹자."},{"id":"sent-1795648517189-3-2","speaker":"","english":"Do you want a salad with dinner?","phonetic":"두 유 원어 샐러드 위드 디너?","translation":"저녁에 샐러드 먹을래?"},{"id":"sent-1795648517189-3-3","speaker":"","english":"Yes, with olive oil dressing.","phonetic":"예스, 위드 올리브 오일 드레싱.","translation":"응, 올리브 오일 드레싱 뿌려서."},{"id":"sent-1795648517189-3-4","speaker":"","english":"You shouldn't skip breakfast.","phonetic":"유 슈든 스킵 브렉퍼스트.","translation":"아침을 거르면 안 돼."},{"id":"sent-1795648517189-3-5","speaker":"","english":"I know, but I wake up late.","phonetic":"아이 노우, 벗 아이 웨이컵 레이트.","translation":"알지만, 아침에 너무 늦게 일어나서."},{"id":"sent-1795648517189-3-6","speaker":"","english":"Try drinking more water.","phonetic":"트라이 드링킹 모어 워터.","translation":"물을 더 마시려고 노력해 봐."},{"id":"sent-1795648517189-3-7","speaker":"","english":"I'll carry a bottle with me.","phonetic":"아일 캐리 어 바를 위드 미.","translation":"물병을 가지고 다녀야겠어."},{"id":"sent-1795648517189-3-8","speaker":"","english":"Fruit is a good snack.","phonetic":"프루릿 이저 굿 스낵.","translation":"과일은 좋은 간식이지."},{"id":"sent-1795648517189-3-9","speaker":"","english":"I'll buy apples and bananas.","phonetic":"아일 바이 애플즈 앤 버내너즈.","translation":"사과랑 바나나 좀 사 올게."}]},{"id":"set-1795648517189-4","title":"Exercising Together","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-4-0","speaker":"","english":"Do you want to go for a jog?","phonetic":"두 유 원 투 고 포 어 죠그?","translation":"조깅하러 갈래?"},{"id":"sent-1795648517189-4-1","speaker":"","english":"Sure. Let me put on my sneakers.","phonetic":"슈어. 렛 미 푸런 마이 스니커즈.","translation":"좋아. 운동화 좀 신을게."},{"id":"sent-1795648517189-4-2","speaker":"","english":"How far should we run?","phonetic":"하우 파 슈드 위 런?","translation":"얼마나 멀리 뛸까?"},{"id":"sent-1795648517189-4-3","speaker":"","english":"Let's try three kilometers.","phonetic":"렛츠 트라이 쓰리 킬로미터즈.","translation":"3킬로미터만 뛰어보자."},{"id":"sent-1795648517189-4-4","speaker":"","english":"I'm out of breath.","phonetic":"아임 아우러 브레스.","translation":"숨이 차네."},{"id":"sent-1795648517189-4-5","speaker":"","english":"Take a break and drink some water.","phonetic":"테이커 브레이크 앤 드링크 섬 워터.","translation":"잠시 쉬면서 물 좀 마셔."},{"id":"sent-1795648517189-4-6","speaker":"","english":"Let's stretch before we start.","phonetic":"렛츠 스트레취 비포 위 스타트.","translation":"시작하기 전에 스트레칭하자."},{"id":"sent-1795648517189-4-7","speaker":"","english":"Okay. Don't forget your legs.","phonetic":"오케이. 돈 포겟 유어 레그즈.","translation":"그래. 다리 푸는 거 잊지 마."},{"id":"sent-1795648517189-4-8","speaker":"","english":"I feel great after exercising.","phonetic":"아이 필 그레이트 애프터 엑서사이징.","translation":"운동하고 나니 기분이 정말 좋아."},{"id":"sent-1795648517189-4-9","speaker":"","english":"Let's do this every morning.","phonetic":"렛츠 두 디스 에브리 모닝.","translation":"매일 아침 이렇게 하자."}]},{"id":"set-1795648517189-5","title":"Deciding Where to Eat","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-5-0","speaker":"","english":"Where shall we eat tonight?","phonetic":"웨어 셸 위 잇 투나잇","translation":"오늘 저녁에 어디서 먹을까?"},{"id":"sent-1795648517189-5-1","speaker":"","english":"How about Italian food?","phonetic":"하우 어바웃 이탈리언 푸드","translation":"이탈리아 음식 어때?"},{"id":"sent-1795648517189-5-2","speaker":"","english":"I don't feel like cooking today.","phonetic":"아이 돈 필 라이크 쿠킹 투데이","translation":"오늘은 요리하기가 좀 귀찮네."},{"id":"sent-1795648517189-5-3","speaker":"","english":"Then let's eat out.","phonetic":"덴 렛츠 잇 아웃","translation":"그럼 외식하자."},{"id":"sent-1795648517189-5-4","speaker":"","english":"Should I make a reservation?","phonetic":"슈다이 메이커 레저베이션","translation":"예약할까?"},{"id":"sent-1795648517189-5-5","speaker":"","english":"Yes, for four people at seven.","phonetic":"예스 포 포 피플 앳 세븐","translation":"응, 7시에 4명으로 예약해 줘."},{"id":"sent-1795648517189-5-6","speaker":"","english":"Is it far from here?","phonetic":"이지 잇 파 프롬 히어","translation":"여기서 멀어?"},{"id":"sent-1795648517189-5-7","speaker":"","english":"No, it's a ten-minute walk.","phonetic":"노 잇츠 어 텐 미닛 워크","translation":"아니, 걸어서 10분 거리야."},{"id":"sent-1795648517189-5-8","speaker":"","english":"Can we go somewhere cheaper?","phonetic":"캔 위 고 썸웨어 치퍼","translation":"좀 더 싼 곳으로 갈 수 있을까?"},{"id":"sent-1795648517189-5-9","speaker":"","english":"Sure. There's a nice noodle place.","phonetic":"슈어 데어즈 어 나이스 누들 플레이스","translation":"물론이지. 괜찮은 국숫집이 있어."}]},{"id":"set-1795648517189-6","title":"Restaurant Manners","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-6-0","speaker":"","english":"Excuse me, could we see the menu?","phonetic":"익스큐즈 미 쿠쥬 씨 더 메뉴","translation":"저기요, 메뉴판 좀 볼 수 있을까요?"},{"id":"sent-1795648517189-6-1","speaker":"","english":"Of course. Here you are.","phonetic":"어브 코스 히어 유 아","translation":"네, 여기 있습니다."},{"id":"sent-1795648517189-6-2","speaker":"","english":"Are you ready to order?","phonetic":"아 유 레디 투 오더","translation":"주문하시겠어요?"},{"id":"sent-1795648517189-6-3","speaker":"","english":"Yes, I'll have the steak, medium.","phonetic":"예스 아일 해브 더 스테이크 미디엄","translation":"네, 스테이크 미디엄으로 주세요."},{"id":"sent-1795648517189-6-4","speaker":"","english":"Please keep your voice down.","phonetic":"플리즈 킵 유어 보이스 다운","translation":"목소리 좀 낮춰 주세요."},{"id":"sent-1795648517189-6-5","speaker":"","english":"Sorry, I got excited.","phonetic":"쏘리 아이 갓 익사이티드","translation":"죄송해요, 신이 나서 그만요."},{"id":"sent-1795648517189-6-6","speaker":"","english":"Could we have the bill, please?","phonetic":"쿠쥬 해브 더 빌 플리즈","translation":"계산서 좀 주시겠어요?"},{"id":"sent-1795648517189-6-7","speaker":"","english":"I'll take care of it this time.","phonetic":"아일 테이크 케어 오브 잇 디스 타임","translation":"이번엔 제가 낼게요."},{"id":"sent-1795648517189-6-8","speaker":"","english":"Should we leave a tip?","phonetic":"슈드 위 리브 어 팁","translation":"팁을 줘야 할까?"},{"id":"sent-1795648517189-6-9","speaker":"","english":"Yes, about fifteen percent.","phonetic":"예스 어바웃 피프틴 퍼센트","translation":"응, 한 15퍼센트 정도 주자."}]},{"id":"set-1795648517189-7","title":"Ordering Delivery","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-7-0","speaker":"","english":"Let's order pizza tonight.","phonetic":"렛츠 오더 피짜 투나잇","translation":"오늘 저녁에 피자 시켜 먹자."},{"id":"sent-1795648517189-7-1","speaker":"","english":"What toppings do you want?","phonetic":"왓 타핑스 두 유 원트","translation":"어떤 토핑으로 할 거야?"},{"id":"sent-1795648517189-7-2","speaker":"","english":"Can you check the delivery time?","phonetic":"캔 유 체크 더 딜리버리 타임","translation":"배달 시간 좀 확인해 줄래?"},{"id":"sent-1795648517189-7-3","speaker":"","english":"It says about forty minutes.","phonetic":"잇 세즈 어바웃 포티 미닛츠","translation":"40분 정도 걸린다고 하네."},{"id":"sent-1795648517189-7-4","speaker":"","english":"Someone is at the door.","phonetic":"썸원 이즈 앳 더 도어","translation":"누가 문 앞에 왔어."},{"id":"sent-1795648517189-7-5","speaker":"","english":"That must be the food.","phonetic":"댓 머스비 더 푸드","translation":"음식이 도착했나 봐요."},{"id":"sent-1795648517189-7-6","speaker":"","english":"Please pay the delivery person.","phonetic":"플리즈 페이 더 딜리버리 퍼슨","translation":"배달하시는 분께 계산해 주세요."},{"id":"sent-1795648517189-7-7","speaker":"","english":"I'll use my card.","phonetic":"아윌 유즈 마이 카드","translation":"제 카드로 계산할게요."},{"id":"sent-1795648517189-7-8","speaker":"","english":"This is not what I ordered.","phonetic":"디스 이즈 낫 왓 아이 오더드","translation":"이건 제가 주문한 게 아니에요."},{"id":"sent-1795648517189-7-9","speaker":"","english":"Let's call the restaurant.","phonetic":"렛츠 콜 더 레스토랑","translation":"식당에 전화해 봐요."}]},{"id":"set-1795648517189-8","title":"At the Supermarket","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-8-0","speaker":"","english":"Where can I find the rice?","phonetic":"웨어 캐나이 파인 더 라이스","translation":"쌀은 어디서 찾을 수 있죠?"},{"id":"sent-1795648517189-8-1","speaker":"","english":"It's in aisle five, on the left.","phonetic":"잇츠 인 아일 파이브, 온 더 레프트","translation":"5번 통로 왼쪽 편에 있어요."},{"id":"sent-1795648517189-8-2","speaker":"","english":"Is this on sale?","phonetic":"이즈 디스 온 세일","translation":"이거 할인 중인가요?"},{"id":"sent-1795648517189-8-3","speaker":"","english":"Yes, it's buy one, get one free.","phonetic":"예스, 잇츠 바이 원, 겟 원 프리","translation":"네, 하나 사면 하나 더 드리는 행사 중이에요."},{"id":"sent-1795648517189-8-4","speaker":"","english":"Let's get a bigger cart.","phonetic":"렛츠 겟 어 비거 카트","translation":"더 큰 카트 가져올까요?"},{"id":"sent-1795648517189-8-5","speaker":"","english":"Okay. We have a lot to buy.","phonetic":"오케이. 위 해버 랏 투 바이","translation":"좋아요. 살 게 많네요."},{"id":"sent-1795648517189-8-6","speaker":"","english":"Do you have a membership card?","phonetic":"두 유 해버 멤버십 카드","translation":"멤버십 카드 있으세요?"},{"id":"sent-1795648517189-8-7","speaker":"","english":"Yes, here you go.","phonetic":"예스, 히어 유 고","translation":"네, 여기 있어요."},{"id":"sent-1795648517189-8-8","speaker":"","english":"Would you like a bag?","phonetic":"우쥬 라이커 백","translation":"봉투 필요하세요?"},{"id":"sent-1795648517189-8-9","speaker":"","english":"No, thanks. I brought my own.","phonetic":"노, 땡스. 아이 브로 마이 오운","translation":"아뇨, 괜찮아요. 제 거 가져왔어요."}]},{"id":"set-1795648517189-9","title":"Shopping for Clothes","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-9-0","speaker":"","english":"Do you like this shirt?","phonetic":"두 유 라이크 디스 셔트","translation":"이 셔츠 마음에 드세요?"},{"id":"sent-1795648517189-9-1","speaker":"","english":"It looks nice. Try it on.","phonetic":"잇 룩스 나이스. 트라이 잇 온","translation":"예쁘네요. 한번 입어 보세요."},{"id":"sent-1795648517189-9-2","speaker":"","english":"Does it fit well?","phonetic":"더즈 잇 핏 웰","translation":"잘 맞나요?"},{"id":"sent-1795648517189-9-3","speaker":"","english":"It's a little too tight.","phonetic":"잇츠 어 리틀 투 타이트","translation":"좀 많이 꽉 끼네요."},{"id":"sent-1795648517189-9-4","speaker":"","english":"Do you have a bigger size?","phonetic":"두 유 해버 비거 사이즈","translation":"더 큰 사이즈 있나요?"},{"id":"sent-1795648517189-9-5","speaker":"","english":"Let me check in the back.","phonetic":"렛 미 체크 인 더 백","translation":"뒤쪽에 재고 있는지 확인해 볼게요."},{"id":"sent-1795648517189-9-6","speaker":"","english":"That color suits you.","phonetic":"댓 컬러 쑷스 유","translation":"그 색깔이 잘 어울리네요."},{"id":"sent-1795648517189-9-7","speaker":"","english":"Really? I'll take it.","phonetic":"리얼리? 아윌 테이킷","translation":"정말요? 그럼 이걸로 살게요."},{"id":"sent-1795648517189-9-8","speaker":"","english":"Can I get a refund if it doesn't fit?","phonetic":"캐나이 게러 리펀드 이팃 더즌 핏","translation":"안 맞으면 환불받을 수 있나요?"},{"id":"sent-1795648517189-9-9","speaker":"","english":"Yes, within seven days.","phonetic":"예스, 위딘 세븐 데이즈","translation":"네, 7일 이내라면 가능합니다."}]},{"id":"set-1795648517189-10","title":"Family Car Trips","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-10-0","speaker":"","english":"Please buckle your seat belt.","phonetic":"플리즈 버클 유어 싯 벨트","translation":"안전벨트 좀 매주세요."},{"id":"sent-1795648517189-10-1","speaker":"","english":"Okay. Are we leaving now?","phonetic":"오케이 아 위 리빙 나우","translation":"알겠어요. 이제 떠나는 거예요?"},{"id":"sent-1795648517189-10-2","speaker":"","english":"Do we have enough gas?","phonetic":"두 위 해브 이너프 개스","translation":"기름 충분해요?"},{"id":"sent-1795648517189-10-3","speaker":"","english":"We should fill up on the way.","phonetic":"위 슈드 필 업 온 더 웨이","translation":"가는 길에 좀 채워야겠네요."},{"id":"sent-1795648517189-10-4","speaker":"","english":"Which way should I turn?","phonetic":"위치 웨이 슈다이 턴","translation":"어느 쪽으로 돌까요?"},{"id":"sent-1795648517189-10-5","speaker":"","english":"Turn left at the next light.","phonetic":"턴 레프트 앳 더 넥스트 라이트","translation":"다음 신호등에서 좌회전하세요."},{"id":"sent-1795648517189-10-6","speaker":"","english":"Are we there yet?","phonetic":"아 위 데어 옏","translation":"다 왔어요?"},{"id":"sent-1795648517189-10-7","speaker":"","english":"Almost. Ten more minutes.","phonetic":"올모스트 텐 모어 미닛츠","translation":"거의 다 왔어요. 10분만 더요."},{"id":"sent-1795648517189-10-8","speaker":"","english":"Where should I park?","phonetic":"웨어 슈다이 파크","translation":"어디에 주차할까요?"},{"id":"sent-1795648517189-10-9","speaker":"","english":"There's a spot over there.","phonetic":"데어즈 어 스팟 오버 데어","translation":"저기 자리 하나 있네요."}]},{"id":"set-1795648517189-11","title":"Packing for a Trip","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-11-0","speaker":"","english":"Have you packed your bag?","phonetic":"해브 유 팩트 유어 백","translation":"가방 다 쌌어요?"},{"id":"sent-1795648517189-11-1","speaker":"","english":"Almost. I need my charger.","phonetic":"올모스트 아이 니드 마이 차지어","translation":"거의 다요. 충전기가 필요해요."},{"id":"sent-1795648517189-11-2","speaker":"","english":"Don't forget your passport.","phonetic":"돈 포겟 유어 패스포트","translation":"여권 잊지 마세요."},{"id":"sent-1795648517189-11-3","speaker":"","english":"It's in my backpack.","phonetic":"잇츠 인 마이 백팩","translation":"제 배낭 안에 있어요."},{"id":"sent-1795648517189-11-4","speaker":"","english":"How many clothes should I bring?","phonetic":"하우 매니 클로즈 슈다이 브링","translation":"옷은 얼마나 가져가야 할까요?"},{"id":"sent-1795648517189-11-5","speaker":"","english":"Three outfits should be enough.","phonetic":"쓰리 아웃핏츠 슈드 비 이너프","translation":"세 벌 정도면 충분할 거예요."},{"id":"sent-1795648517189-11-6","speaker":"","english":"Do we need a travel pillow?","phonetic":"두 위 니드 어 트래블 필로우","translation":"여행용 베개 필요할까요?"},{"id":"sent-1795648517189-11-7","speaker":"","english":"Yes, for the long flight.","phonetic":"예스 포 더 롱 플라이트","translation":"네, 비행시간이 길어서요."},{"id":"sent-1795648517189-11-8","speaker":"","english":"Let's check the weather there.","phonetic":"렛츠 체크 더 웨더 데어","translation":"거기 날씨 확인해 봐요."},{"id":"sent-1795648517189-11-9","speaker":"","english":"It will be rainy all week.","phonetic":"잇 윌 비 레이니 올 위크","translation":"일주일 내내 비가 온대요."}]},{"id":"set-1795648517189-12","title":"Airport and Hotel","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-12-0","speaker":"","english":"Where is the check-in counter?","phonetic":"웨어 이즈 더 체크인 카운터","translation":"체크인 카운터가 어디죠?"},{"id":"sent-1795648517189-12-1","speaker":"","english":"It's on the second floor.","phonetic":"잇츠 온 더 세컨 플로어","translation":"2층에 있어요."},{"id":"sent-1795648517189-12-2","speaker":"","english":"Do you have anything to declare?","phonetic":"두 유 해브 애니씽 투 디클레어","translation":"신고할 물품 있으신가요?"},{"id":"sent-1795648517189-12-3","speaker":"","english":"No, nothing at all.","phonetic":"노 나씽 앳 올","translation":"아니요, 전혀 없습니다."},{"id":"sent-1795648517189-12-4","speaker":"","english":"I have a reservation under Kim.","phonetic":"아이 해브 어 레저베이션 언더 킴","translation":"김(Kim) 이름으로 예약했어요."},{"id":"sent-1795648517189-12-5","speaker":"","english":"May I see your passport?","phonetic":"메이 아이 씨 유어 패스포트?","translation":"여권 좀 보여주시겠어요?"},{"id":"sent-1795648517189-12-6","speaker":"","english":"What time is breakfast served?","phonetic":"왓 타임 이즈 브렉퍼스트 서브드?","translation":"조식은 몇 시에 제공되나요?"},{"id":"sent-1795648517189-12-7","speaker":"","english":"From seven to ten.","phonetic":"프럼 세븐 투 텐.","translation":"7시부터 10시까지입니다."},{"id":"sent-1795648517189-12-8","speaker":"","english":"Could you wake us up at six?","phonetic":"쿠쥬 웨이크 어스 업 앳 식스?","translation":"6시에 깨워 주실 수 있나요?"},{"id":"sent-1795648517189-12-9","speaker":"","english":"Certainly. I'll arrange a morning call.","phonetic":"서튼리. 아일 어레인지 어 모닝 콜.","translation":"네, 물론이죠. 모닝콜을 준비해 드릴게요."}]},{"id":"set-1795648517189-13","title":"Holiday Plans","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-13-0","speaker":"","english":"What are we doing this weekend?","phonetic":"왓 아 위 두잉 디스 위켄드?","translation":"이번 주말에 뭐 할 거야?"},{"id":"sent-1795648517189-13-1","speaker":"","english":"Let's visit Grandma's house.","phonetic":"렛츠 비짓 그랜마스 하우스.","translation":"할머니 댁에 가자."},{"id":"sent-1795648517189-13-2","speaker":"","english":"Should we bring something?","phonetic":"슈드 위 브링 썸씽?","translation":"뭐 좀 가져갈까?"},{"id":"sent-1795648517189-13-3","speaker":"","english":"Let's bring some fruit.","phonetic":"렛츠 브링 썸 프룻.","translation":"과일 좀 가져가자."},{"id":"sent-1795648517189-13-4","speaker":"","english":"Do you want to see a movie?","phonetic":"두 유 원 투 씨 어 무비?","translation":"영화 볼래?"},{"id":"sent-1795648517189-13-5","speaker":"","english":"Sure. What's playing?","phonetic":"슈어. 왓츠 플레이잉?","translation":"좋아. 무슨 영화 상영 중이야?"},{"id":"sent-1795648517189-13-6","speaker":"","english":"I'd like to stay home and relax.","phonetic":"아이드 라이크 투 스테이 홈 앤드 리랙스.","translation":"난 집에 있으면서 쉬고 싶어."},{"id":"sent-1795648517189-13-7","speaker":"","english":"That sounds good to me too.","phonetic":"댓 사운즈 굿 투 미 투.","translation":"나도 그게 좋겠다."},{"id":"sent-1795648517189-13-8","speaker":"","english":"Let's have a picnic tomorrow.","phonetic":"렛츠 해버 피크닉 투모로우.","translation":"내일 소풍 가자."},{"id":"sent-1795648517189-13-9","speaker":"","english":"I'll make the sandwiches.","phonetic":"아일 메이크 더 샌드위치즈.","translation":"샌드위치는 내가 만들게."}]},{"id":"set-1795648517189-14","title":"Birthday Party","savedAt":"11월 26일 08:15","status":"unassigned","sentences":[{"id":"sent-1795648517189-14-0","speaker":"","english":"Happy birthday! Make a wish!","phonetic":"해피 벌스데이! 메이크 어 위시!","translation":"생일 축하해! 소원 빌어!"},{"id":"sent-1795648517189-14-1","speaker":"","english":"Thank you. I wished for a puppy.","phonetic":"땡큐. 아이 위시트 포 어 퍼피.","translation":"고마워. 강아지를 갖고 싶다고 소원을 빌었어."},{"id":"sent-1795648517189-14-2","speaker":"","english":"Shall I cut the cake?","phonetic":"샬 아이 컷 더 케이크?","translation":"케이크 자를까?"},{"id":"sent-1795648517189-14-3","speaker":"","english":"Yes, I want a big piece.","phonetic":"예스, 아이 원트 어 빅 피스.","translation":"응, 큰 걸로 한 조각 줘."},{"id":"sent-1795648517189-14-4","speaker":"","english":"Did you invite your friends?","phonetic":"디쥬 인바이트 유어 프렌즈?","translation":"친구들 초대했어?"},{"id":"sent-1795648517189-14-5","speaker":"","english":"Yes, six friends are coming.","phonetic":"예스, 식스 프렌즈 아 커밍.","translation":"응, 여섯 명 올 거야."},{"id":"sent-1795648517189-14-6","speaker":"","english":"Here is your present.","phonetic":"히어 이즈 유어 프레전트.","translation":"여기 네 선물이야."},{"id":"sent-1795648517189-14-7","speaker":"","english":"Wow! Can I open it now?","phonetic":"와우! 캔 아이 오픈 잇 나우?","translation":"와! 지금 뜯어봐도 돼?"},{"id":"sent-1795648517189-14-8","speaker":"","english":"Let's take a family photo.","phonetic":"렛츠 테이크 어 패밀리 포토.","translation":"가족사진 찍자."},{"id":"sent-1795648517189-14-9","speaker":"","english":"Everyone, say cheese!","phonetic":"에브리원, 세이 치즈!","translation":"다들, 김치!"}]},{"id":"set-1795648472669-0","title":"Doing Laundry","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-0-0","speaker":"","english":"The laundry basket is full.","phonetic":"더 런드리 배스킷 이즈 풀","translation":"빨래 바구니가 가득 찼어."},{"id":"sent-1795648472669-0-1","speaker":"","english":"I'll start a load right now.","phonetic":"아일 스타러 로우드 라이트 나우","translation":"지금 바로 세탁기 돌릴게."},{"id":"sent-1795648472669-0-2","speaker":"","english":"Can you separate the white clothes?","phonetic":"캔유 세퍼레이트 더 와이트 클로우즈","translation":"흰 옷 좀 분리해 줄래?"},{"id":"sent-1795648472669-0-3","speaker":"","english":"Sure. Colors go in a different load.","phonetic":"슈어 컬러즈 고우 이너 디퍼런트 로우드","translation":"응, 색깔 옷은 따로 빨아야지."},{"id":"sent-1795648472669-0-4","speaker":"","english":"Did you add the detergent?","phonetic":"디쥬 애드 더 디터전트","translation":"세제 넣었어?"},{"id":"sent-1795648472669-0-5","speaker":"","english":"Yes, and the fabric softener too.","phonetic":"예스 앤 더 패브릭 소프트너 투","translation":"응, 섬유 유연제도 넣었어."},{"id":"sent-1795648472669-0-6","speaker":"","english":"Could you hang the clothes out to dry?","phonetic":"쿠쥬 행 더 클로우즈 아웃 투 드라이","translation":"빨래 좀 널어 줄 수 있어?"},{"id":"sent-1795648472669-0-7","speaker":"","english":"Okay. It's sunny, so they'll dry quickly.","phonetic":"오케이 잇츠 써니 쏘 데일 드라이 퀵클리","translation":"알겠어. 해가 쨍쨍해서 금방 마르겠네."},{"id":"sent-1795648472669-0-8","speaker":"","english":"Please fold the towels.","phonetic":"플리즈 폴드 더 타월즈","translation":"수건 좀 개 줘."},{"id":"sent-1795648472669-0-9","speaker":"","english":"I'll do it after I finish this.","phonetic":"아일 두 잇 애프터 아이 피니쉬 디스","translation":"이거 다 하고 할게."}]},{"id":"set-1795648472669-1","title":"Trash and Recycling","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-1-0","speaker":"","english":"Can you take out the trash?","phonetic":"캔유 테이크 아웃 더 트래쉬","translation":"쓰레기 좀 버려 줄래?"},{"id":"sent-1795648472669-1-1","speaker":"","english":"Sure. Is it recycling day too?","phonetic":"슈어 이짓 리사이클링 데이 투","translation":"응, 오늘 재활용하는 날이야?"},{"id":"sent-1795648472669-1-2","speaker":"","english":"Please separate the plastic and paper.","phonetic":"플리즈 세퍼레이트 더 플라스틱 앤 페이퍼","translation":"플라스틱이랑 종이 좀 분류해 줘."},{"id":"sent-1795648472669-1-3","speaker":"","english":"Okay. Where do the cans go?","phonetic":"오케이 웨어 두 더 캔즈 고우","translation":"알겠어. 캔은 어디에 둬?"},{"id":"sent-1795648472669-1-4","speaker":"","english":"Rinse the bottles before recycling them.","phonetic":"린스 더 보틀즈 비포 리사이클링 뎀","translation":"재활용하기 전에 병들 좀 헹궈 줘."},{"id":"sent-1795648472669-1-5","speaker":"","english":"I already did that.","phonetic":"아이 올레디 디드 댓","translation":"이미 다 했어."},{"id":"sent-1795648472669-1-6","speaker":"","english":"The trash bag is almost full.","phonetic":"더 트래쉬 배기즈 올모스트 풀","translation":"쓰레기 봉투가 거의 다 찼네."},{"id":"sent-1795648472669-1-7","speaker":"","english":"I'll put in a new one.","phonetic":"아일 풋 이너 뉴 원","translation":"새 걸로 갈아 놓을게."},{"id":"sent-1795648472669-1-8","speaker":"","english":"Don't forget the food waste.","phonetic":"돈 포겟 더 푸드 웨이스트","translation":"음식물 쓰레기 잊지 마."},{"id":"sent-1795648472669-1-9","speaker":"","english":"Thanks for reminding me.","phonetic":"땡스 포 리마인딩 미","translation":"알려줘서 고마워."}]},{"id":"set-1795648472669-2","title":"Planning Groceries","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-2-0","speaker":"","english":"What do we need from the store?","phonetic":"왓 두 위 니드 프럼 더 스토어","translation":"가게에서 뭐 사 와야 하지?"},{"id":"sent-1795648472669-2-1","speaker":"","english":"We're out of milk and eggs.","phonetic":"위아 아웃 오브 밀크 앤 에그즈","translation":"우유랑 달걀이 다 떨어졌어."},{"id":"sent-1795648472669-2-2","speaker":"","english":"Let's make a shopping list.","phonetic":"렛츠 메이크 어 쇼핑 리스트","translation":"쇼핑 목록 만들자."},{"id":"sent-1795648472669-2-3","speaker":"","english":"Good idea. I'll write it down.","phonetic":"굿 아이디어 아일 라이 릿 다운","translation":"좋은 생각이야. 적어 둘게."},{"id":"sent-1795648472669-2-4","speaker":"","english":"Do we need any vegetables?","phonetic":"두 위 니드 애니 베지터블즈","translation":"채소 필요한 거 있어?"},{"id":"sent-1795648472669-2-5","speaker":"","english":"Yes, some carrots and onions.","phonetic":"예스, 썸 캐럿츠 앤 어니언즈.","translation":"응, 당근이랑 양파 좀."},{"id":"sent-1795648472669-2-6","speaker":"","english":"How much is the budget this week?","phonetic":"하우 머치 이즈 더 버짓 디스 위크?","translation":"이번 주 예산이 얼마야?"},{"id":"sent-1795648472669-2-7","speaker":"","english":"About one hundred dollars.","phonetic":"어바웃 원 헌드레드 달러스.","translation":"대략 100달러 정도."},{"id":"sent-1795648472669-2-8","speaker":"","english":"I'll go shopping this afternoon.","phonetic":"아일 고 샵핑 디스 애프터눈.","translation":"오늘 오후에 장 보러 갈게."},{"id":"sent-1795648472669-2-9","speaker":"","english":"Thanks. Take the reusable bags.","phonetic":"땡스. 테이크 디 리유저블 백스.","translation":"고마워. 장바구니 챙겨가."}]},{"id":"set-1795648472669-3","title":"Thanks and Sorry","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-3-0","speaker":"","english":"Thank you for helping me today.","phonetic":"땡큐 포 헬핑 미 투데이.","translation":"오늘 도와줘서 고마워."},{"id":"sent-1795648472669-3-1","speaker":"","english":"You're welcome. Anytime.","phonetic":"유어 웰컴. 애니타임.","translation":"천만에. 언제든지 말해."},{"id":"sent-1795648472669-3-2","speaker":"","english":"I'm sorry I forgot the milk.","phonetic":"아임 쏘리 아이 포갓 더 밀크.","translation":"미안, 우유 사는 걸 깜빡했어."},{"id":"sent-1795648472669-3-3","speaker":"","english":"That's okay. It happens.","phonetic":"댓츠 오케이. 잇 해픈즈.","translation":"괜찮아. 그럴 수 있지."},{"id":"sent-1795648472669-3-4","speaker":"","english":"Thanks for cooking dinner.","phonetic":"땡스 포 쿡킹 디너.","translation":"저녁 차려줘서 고마워."},{"id":"sent-1795648472669-3-5","speaker":"","english":"My pleasure. I enjoyed it.","phonetic":"마이 플레져. 아이 인조이드 잇.","translation":"별말씀을요. 저도 즐거웠어요."},{"id":"sent-1795648472669-3-6","speaker":"","english":"Excuse me, may I get past?","phonetic":"익스큐즈 미, 메이 아이 겟 패스트?","translation":"실례합니다, 좀 지나가도 될까요?"},{"id":"sent-1795648472669-3-7","speaker":"","english":"Of course. Go ahead.","phonetic":"어브 코스. 고 어헤드.","translation":"물론이죠. 먼저 가세요."},{"id":"sent-1795648472669-3-8","speaker":"","english":"I apologize for being late.","phonetic":"아이 어팔러자이즈 포 빙 레이트.","translation":"늦어서 죄송합니다."},{"id":"sent-1795648472669-3-9","speaker":"","english":"No problem. Come on in.","phonetic":"노 프라블럼. 컴 온 인.","translation":"괜찮아요. 어서 들어와요."}]},{"id":"set-1795648472669-4","title":"Coming Home","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-4-0","speaker":"","english":"I'm home!","phonetic":"아임 홈!","translation":"다녀왔습니다!"},{"id":"sent-1795648472669-4-1","speaker":"","english":"Welcome back! How was your day?","phonetic":"웰컴 백! 하우 워즈 유어 데이?","translation":"어서 와! 오늘 하루 어땠어?"},{"id":"sent-1795648472669-4-2","speaker":"","english":"You look tired.","phonetic":"유 룩 타이어드.","translation":"피곤해 보이네."},{"id":"sent-1795648472669-4-3","speaker":"","english":"It was a long day, but I'm okay.","phonetic":"잇 워즈 어 롱 데이, 벗 아임 오케이.","translation":"긴 하루였지만, 괜찮아."},{"id":"sent-1795648472669-4-4","speaker":"","english":"Wash your hands before dinner.","phonetic":"워시 유어 핸즈 비포 디너.","translation":"저녁 먹기 전에 손 씻어."},{"id":"sent-1795648472669-4-5","speaker":"","english":"Okay. I'll be right there.","phonetic":"오케이. 아일 비 라이트 데어.","translation":"알겠어. 금방 갈게."},{"id":"sent-1795648472669-4-6","speaker":"","english":"Did the kids get home safely?","phonetic":"디드 더 키즈 겟 홈 세이플리?","translation":"애들은 집에 잘 들어왔어?"},{"id":"sent-1795648472669-4-7","speaker":"","english":"Yes, they're doing their homework.","phonetic":"예스, 데이얼 두잉 데어 홈워크.","translation":"응, 숙제하고 있어."},{"id":"sent-1795648472669-4-8","speaker":"","english":"What's for dinner tonight?","phonetic":"왓츠 포 디너 투나잇?","translation":"오늘 저녁 뭐야?"},{"id":"sent-1795648472669-4-9","speaker":"","english":"Your favorite, beef stew.","phonetic":"유어 페이버릿, 비프 스튜.","translation":"당신이 좋아하는 비프 스튜야."}]},{"id":"set-1795648472669-5","title":"Dinner Table Talk","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-5-0","speaker":"","english":"How was school today?","phonetic":"하우 워즈 스쿨 투데이?","translation":"오늘 학교 어땠니?"},{"id":"sent-1795648472669-5-1","speaker":"","english":"It was fun. We played soccer.","phonetic":"잇 워즈 펀. 위 플레이드 사커.","translation":"재밌었어. 축구 했거든."},{"id":"sent-1795648472669-5-2","speaker":"","english":"Did anything interesting happen?","phonetic":"디드 애니씽 인트레스팅 해픈?","translation":"뭐 재밌는 일 있었니?"},{"id":"sent-1795648472669-5-3","speaker":"","english":"My friend brought a puppy to class.","phonetic":"마이 프렌드 브로러 퍼피 투 클래스.","translation":"친구가 강아지를 교실에 데려왔어."},{"id":"sent-1795648472669-5-4","speaker":"","english":"Would you like to tell us about your day?","phonetic":"우쥬 라이크 투 텔 어스 어바웃 유어 데이?","translation":"오늘 하루 어땠는지 이야기해 줄래?"},{"id":"sent-1795648472669-5-5","speaker":"","english":"Sure. First, I had a big test.","phonetic":"슈어. 퍼스트, 아이 해더 빅 테스트.","translation":"응. 일단 큰 시험을 하나 봤어."},{"id":"sent-1795648472669-5-6","speaker":"","english":"That sounds wonderful!","phonetic":"댓 사운즈 원더풀!","translation":"정말 멋지구나!"},{"id":"sent-1795648472669-5-7","speaker":"","english":"Yes, I'm very proud of myself.","phonetic":"예스, 아임 베리 프라우드 오브 마이셀프.","translation":"응, 나 자신도 무척 자랑스러워."},{"id":"sent-1795648472669-5-8","speaker":"","english":"Let's talk more after dinner.","phonetic":"렛츠 토크 모어 애프터 디너.","translation":"저녁 먹고 더 얘기하자."},{"id":"sent-1795648472669-5-9","speaker":"","english":"Okay. Can I have dessert first?","phonetic":"오케이. 캐나이 해브 디저트 퍼스트?","translation":"알겠어요. 디저트부터 먹어도 돼요?"}]},{"id":"set-1795648472669-6","title":"Bedtime","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-6-0","speaker":"","english":"It's time to go to bed.","phonetic":"잇츠 타임 투 고 투 베드.","translation":"이제 잘 시간이야."},{"id":"sent-1795648472669-6-1","speaker":"","english":"Just five more minutes, please.","phonetic":"저스트 파이브 모어 미닛츠, 플리즈.","translation":"5분만 더요, 제발요."},{"id":"sent-1795648472669-6-2","speaker":"","english":"Did you brush your teeth?","phonetic":"디쥬 브러쉬 유어 티쓰?","translation":"이 닦았니?"},{"id":"sent-1795648472669-6-3","speaker":"","english":"Yes, and I washed my face.","phonetic":"예스, 앤 아이 워시트 마이 페이스.","translation":"응, 세수도 다 했어."},{"id":"sent-1795648472669-6-4","speaker":"","english":"Do you want me to read you a story?","phonetic":"두 유 원 미 투 리쥬 어 스토리?","translation":"내가 동화책 읽어줄까?"},{"id":"sent-1795648472669-6-5","speaker":"","english":"Yes, the one about the bear.","phonetic":"예스, 더 원 어바웃 더 베어.","translation":"응, 곰 나오는 거 읽어줘."},{"id":"sent-1795648472669-6-6","speaker":"","english":"Turn off the lights, please.","phonetic":"턴 오프 더 라이츠, 플리즈.","translation":"불 좀 꺼줄래."},{"id":"sent-1795648472669-6-7","speaker":"","english":"Okay. Good night, sleep tight.","phonetic":"오케이. 굿 나잇, 슬립 타이트.","translation":"알겠어. 잘 자렴."},{"id":"sent-1795648472669-6-8","speaker":"","english":"Sweet dreams. I love you.","phonetic":"스윗 드림즈. 아이 러브 유.","translation":"좋은 꿈 꾸렴. 사랑해."},{"id":"sent-1795648472669-6-9","speaker":"","english":"I love you too. Good night!","phonetic":"아이 러브 유 투. 굿 나잇!","translation":"나도 사랑해요. 잘 자요!"}]},{"id":"set-1795648472669-7","title":"Weekend Morning","savedAt":"11월 26일 08:14","status":"unassigned","sentences":[{"id":"sent-1795648472669-7-0","speaker":"","english":"It's Saturday. We can sleep in.","phonetic":"잇츠 새터데이. 위 캔 슬립 인.","translation":"토요일이니까 늦잠 자도 돼."},{"id":"sent-1795648472669-7-1","speaker":"","english":"But I'm already awake.","phonetic":"벗 아임 올레디 어웨이크.","translation":"그치만 벌써 깼는걸요."},{"id":"sent-1795648472669-7-2","speaker":"","english":"What should we do today?","phonetic":"왓 슈드 위 두 투데이?","translation":"오늘 뭐 할까?"},{"id":"sent-1795648472669-7-3","speaker":"","english":"Let's go to the park.","phonetic":"렛츠 고 투 더 파크.","translation":"공원에 가자."},{"id":"sent-1795648472669-7-4","speaker":"","english":"Shall I make pancakes?","phonetic":"쉘 아이 메이크 팬케익스?","translation":"내가 팬케이크 만들어 줄까?"},{"id":"sent-1795648472669-7-5","speaker":"","english":"Yes, with lots of syrup!","phonetic":"예스, 위드 라츠 어 시럽!","translation":"네, 시럽 많이요!"},{"id":"sent-1795648472669-7-6","speaker":"","english":"Don't forget to bring a towel.","phonetic":"돈 포겟 투 브링 어 타월.","translation":"수건 가져오는 거 잊지 마세요."},{"id":"sent-1795648472669-7-7","speaker":"","english":"I put it in the bag already.","phonetic":"아이 푸릿 인 더 배그 올레디.","translation":"가방에 벌써 넣어뒀어요."},{"id":"sent-1795648472669-7-8","speaker":"","english":"Let's leave in thirty minutes.","phonetic":"렛츠 리브 인 써티 미닛츠.","translation":"30분 뒤에 출발해요."},{"id":"sent-1795648472669-7-9","speaker":"","english":"Okay. I'll get dressed.","phonetic":"오케이. 아윌 겟 드레스드.","translation":"알겠어요. 옷 입을게요."}]},{"id":"set-1795647094895-0","title":"Doing Laundry","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-0-0","speaker":"","english":"The laundry basket is full.","phonetic":"더 론드리 배스킷 이즈 풀","translation":"빨래 바구니가 가득 찼어."},{"id":"sent-1795647094895-0-1","speaker":"","english":"I'll start a load right now.","phonetic":"아일 스타러 로우드 라이트 나우","translation":"지금 당장 빨래 시작할게."},{"id":"sent-1795647094895-0-2","speaker":"","english":"Can you separate the white clothes?","phonetic":"캔 유 쎄퍼레이트 더 와잇 클로즈","translation":"흰 옷 좀 따로 분류해 줄래?"},{"id":"sent-1795647094895-0-3","speaker":"","english":"Sure. Colors go in a different load.","phonetic":"슈어 컬러즈 고 인너 디퍼런 로우드","translation":"응, 색깔 옷은 다른 빨래로 해야지."},{"id":"sent-1795647094895-0-4","speaker":"","english":"Did you add the detergent?","phonetic":"디쥬 애드 더 디터전트","translation":"세제 넣었어?"},{"id":"sent-1795647094895-0-5","speaker":"","english":"Yes, and the fabric softener too.","phonetic":"예스 앤 더 패브릭 쏘프너 투","translation":"응, 섬유 유연제도 넣었어."},{"id":"sent-1795647094895-0-6","speaker":"","english":"Could you hang the clothes out to dry?","phonetic":"쿠쥬 행 더 클로즈 아웃 투 드라이","translation":"빨래 좀 널어 줄 수 있어?"},{"id":"sent-1795647094895-0-7","speaker":"","english":"Okay. It's sunny, so they'll dry quickly.","phonetic":"오케이 잇츠 써니 쏘 데일 드라이 퀵클리","translation":"응, 날이 좋아서 금방 마를 거야."},{"id":"sent-1795647094895-0-8","speaker":"","english":"Please fold the towels.","phonetic":"플리즈 폴드 더 타월즈","translation":"수건 좀 개 줘."},{"id":"sent-1795647094895-0-9","speaker":"","english":"I'll do it after I finish this.","phonetic":"아일 두 잇 애프터 아이 피니쉬 디스","translation":"이거 다 하고 할게."}]},{"id":"set-1795647094895-1","title":"Trash and Recycling","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-1-0","speaker":"","english":"Can you take out the trash?","phonetic":"캔 유 테이카웃 더 트래쉬","translation":"쓰레기 좀 버려 줄래?"},{"id":"sent-1795647094895-1-1","speaker":"","english":"Sure. Is it recycling day too?","phonetic":"슈어 이짓 리사이클링 데이 투","translation":"응, 오늘 재활용하는 날이기도 해?"},{"id":"sent-1795647094895-1-2","speaker":"","english":"Please separate the plastic and paper.","phonetic":"플리즈 쎄퍼레이트 더 플래스틱 앤 페이퍼","translation":"플라스틱이랑 종이 좀 분류해 줘."},{"id":"sent-1795647094895-1-3","speaker":"","english":"Okay. Where do the cans go?","phonetic":"오케이 웨어 두 더 캔즈 고","translation":"알겠어. 캔은 어디에 둬?"},{"id":"sent-1795647094895-1-4","speaker":"","english":"Rinse the bottles before recycling them.","phonetic":"린스 더 바틀즈 비포어 리사이클링 뎀","translation":"재활용하기 전에 병들 좀 헹궈 줘."},{"id":"sent-1795647094895-1-5","speaker":"","english":"I already did that.","phonetic":"아이 얼레디 디드 댓","translation":"그건 벌써 했어."},{"id":"sent-1795647094895-1-6","speaker":"","english":"The trash bag is almost full.","phonetic":"더 트래쉬 배기즈 올모스트 풀","translation":"쓰레기 봉투가 거의 다 찼네."},{"id":"sent-1795647094895-1-7","speaker":"","english":"I'll put in a new one.","phonetic":"아일 푸린 어 뉴 원","translation":"새 걸로 갈아 놓을게."},{"id":"sent-1795647094895-1-8","speaker":"","english":"Don't forget the food waste.","phonetic":"돈 포겟 더 푸드 웨이스트","translation":"음식물 쓰레기 잊지 마."},{"id":"sent-1795647094895-1-9","speaker":"","english":"Thanks for reminding me.","phonetic":"땡스 포 리마인딩 미","translation":"상기시켜 줘서 고마워."}]},{"id":"set-1795647094895-2","title":"Planning Groceries","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-2-0","speaker":"","english":"What do we need from the store?","phonetic":"왓 두 위 니드 프럼 더 스토어","translation":"가게에서 뭐 사 와야 하지?"},{"id":"sent-1795647094895-2-1","speaker":"","english":"We're out of milk and eggs.","phonetic":"위아 아웃 오브 밀크 앤 에그즈","translation":"우유랑 달걀이 다 떨어졌어."},{"id":"sent-1795647094895-2-2","speaker":"","english":"Let's make a shopping list.","phonetic":"렛츠 메이커 샵핑 리스트","translation":"쇼핑 목록을 만들자."},{"id":"sent-1795647094895-2-3","speaker":"","english":"Good idea. I'll write it down.","phonetic":"굿 아이디어 아일 라이 릿 다운","translation":"좋은 생각이야. 내가 적어 둘게."},{"id":"sent-1795647094895-2-4","speaker":"","english":"Do we need any vegetables?","phonetic":"두 위 니드 애니 베저터블즈","translation":"채소도 더 필요한 거 있어?"},{"id":"sent-1795647094895-2-5","speaker":"","english":"Yes, some carrots and onions.","phonetic":"예스, 썸 캐럿츠 앤 어니언즈.","translation":"네, 당근이랑 양파 좀요."},{"id":"sent-1795647094895-2-6","speaker":"","english":"How much is the budget this week?","phonetic":"하우 머취 이즈 더 버짓 디스 위크?","translation":"이번 주 예산이 얼마예요?"},{"id":"sent-1795647094895-2-7","speaker":"","english":"About one hundred dollars.","phonetic":"어바웃 원 헌드레드 달럴즈.","translation":"한 100달러 정도요."},{"id":"sent-1795647094895-2-8","speaker":"","english":"I'll go shopping this afternoon.","phonetic":"아일 고 샵핑 디스 애프터눈.","translation":"오늘 오후에 장 보러 갈게요."},{"id":"sent-1795647094895-2-9","speaker":"","english":"Thanks. Take the reusable bags.","phonetic":"땡스. 테이크 더 리유저블 백스.","translation":"고마워요. 장바구니 챙겨가세요."}]},{"id":"set-1795647094895-3","title":"Thanks and Sorry","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-3-0","speaker":"","english":"Thank you for helping me today.","phonetic":"땡큐 포 헬핑 미 투데이.","translation":"오늘 도와줘서 고마워요."},{"id":"sent-1795647094895-3-1","speaker":"","english":"You're welcome. Anytime.","phonetic":"유어 웰컴. 애니타임.","translation":"천만에요. 언제든지요."},{"id":"sent-1795647094895-3-2","speaker":"","english":"I'm sorry I forgot the milk.","phonetic":"아임 쏘리 아이 포갓 더 밀크.","translation":"미안해요, 우유 사는 걸 깜빡했어요."},{"id":"sent-1795647094895-3-3","speaker":"","english":"That's okay. It happens.","phonetic":"댓츠 오케이. 잇 해픈즈.","translation":"괜찮아요. 그럴 수 있죠."},{"id":"sent-1795647094895-3-4","speaker":"","english":"Thanks for cooking dinner.","phonetic":"땡스 포 쿡킹 디너.","translation":"저녁 차려줘서 고마워요."},{"id":"sent-1795647094895-3-5","speaker":"","english":"My pleasure. I enjoyed it.","phonetic":"마이 플레져. 아이 인조이드 잇.","translation":"천만에요. 즐거웠어요."},{"id":"sent-1795647094895-3-6","speaker":"","english":"Excuse me, may I get past?","phonetic":"익스큐즈 미, 메이 아이 겟 패스트?","translation":"실례합니다, 좀 지나가도 될까요?"},{"id":"sent-1795647094895-3-7","speaker":"","english":"Of course. Go ahead.","phonetic":"어브 코스. 고 어헤드.","translation":"그럼요. 먼저 가세요."},{"id":"sent-1795647094895-3-8","speaker":"","english":"I apologize for being late.","phonetic":"아이 어팔러자이즈 포 비잉 레이트.","translation":"늦어서 죄송합니다."},{"id":"sent-1795647094895-3-9","speaker":"","english":"No problem. Come on in.","phonetic":"노 프라블럼. 컴 온 인.","translation":"괜찮습니다. 어서 들어오세요."}]},{"id":"set-1795647094895-4","title":"Coming Home","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-4-0","speaker":"","english":"I'm home!","phonetic":"아임 홈!","translation":"다녀왔습니다!"},{"id":"sent-1795647094895-4-1","speaker":"","english":"Welcome back! How was your day?","phonetic":"웰컴 백! 하우 워즈 유어 데이?","translation":"잘 왔어요! 오늘 하루 어땠나요?"},{"id":"sent-1795647094895-4-2","speaker":"","english":"You look tired.","phonetic":"유 룩 타이어드.","translation":"피곤해 보이네요."},{"id":"sent-1795647094895-4-3","speaker":"","english":"It was a long day, but I'm okay.","phonetic":"잇 워즈 어 롱 데이, 벗 아임 오케이.","translation":"긴 하루였지만, 괜찮아요."},{"id":"sent-1795647094895-4-4","speaker":"","english":"Wash your hands before dinner.","phonetic":"와쉬 유어 핸즈 비포 디너.","translation":"저녁 먹기 전에 손 씻으세요."},{"id":"sent-1795647094895-4-5","speaker":"","english":"Okay. I'll be right there.","phonetic":"오케이. 아일 비 라잇 데어.","translation":"알겠어요. 금방 갈게요."},{"id":"sent-1795647094895-4-6","speaker":"","english":"Did the kids get home safely?","phonetic":"디드 더 키즈 겟 홈 세이플리?","translation":"아이들은 집에 잘 들어왔나요?"},{"id":"sent-1795647094895-4-7","speaker":"","english":"Yes, they're doing their homework.","phonetic":"예스, 데어 두잉 데어 홈워크.","translation":"네, 지금 숙제하고 있어요."},{"id":"sent-1795647094895-4-8","speaker":"","english":"What's for dinner tonight?","phonetic":"왓츠 포 디너 투나잇?","translation":"오늘 저녁은 뭐예요?"},{"id":"sent-1795647094895-4-9","speaker":"","english":"Your favorite, beef stew.","phonetic":"유어 페이버릿, 비프 스튜.","translation":"당신이 좋아하는 소고기 스튜예요."}]},{"id":"set-1795647094895-5","title":"Dinner Table Talk","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-5-0","speaker":"","english":"How was school today?","phonetic":"하우 워즈 스쿨 투데이?","translation":"오늘 학교 어땠어?"},{"id":"sent-1795647094895-5-1","speaker":"","english":"It was fun. We played soccer.","phonetic":"잇 워즈 펀. 위 플레이드 사커.","translation":"재미있었어. 축구 했거든."},{"id":"sent-1795647094895-5-2","speaker":"","english":"Did anything interesting happen?","phonetic":"디드 애니씽 인트레스팅 해픈?","translation":"재미있는 일 있었니?"},{"id":"sent-1795647094895-5-3","speaker":"","english":"My friend brought a puppy to class.","phonetic":"마이 프렌드 브로러 퍼피 투 클래스.","translation":"친구가 강아지를 교실에 데려왔어."},{"id":"sent-1795647094895-5-4","speaker":"","english":"Would you like to tell us about your day?","phonetic":"우쥬 라이크 투 텔 어스 어바웃 유어 데이?","translation":"오늘 하루 어땠는지 이야기해 줄래?"},{"id":"sent-1795647094895-5-5","speaker":"","english":"Sure. First, I had a big test.","phonetic":"슈어. 퍼스트, 아이 해더 빅 테스트.","translation":"그럼. 우선, 큰 시험을 봤어."},{"id":"sent-1795647094895-5-6","speaker":"","english":"That sounds wonderful!","phonetic":"댓 사운즈 원더풀!","translation":"와, 정말 잘됐다!"},{"id":"sent-1795647094895-5-7","speaker":"","english":"Yes, I'm very proud of myself.","phonetic":"예스, 아임 베리 프라우드 오브 마이셀프.","translation":"응, 나 스스로가 정말 자랑스러워."},{"id":"sent-1795647094895-5-8","speaker":"","english":"Let's talk more after dinner.","phonetic":"렛츠 톡 모어 애프터 디너.","translation":"저녁 먹고 더 얘기하자."},{"id":"sent-1795647094895-5-9","speaker":"","english":"Okay. Can I have dessert first?","phonetic":"오케이. 캔 아이 해브 디저트 퍼스트?","translation":"알겠어. 디저트 먼저 먹어도 돼?"}]},{"id":"set-1795647094895-6","title":"Bedtime","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-6-0","speaker":"","english":"It's time to go to bed.","phonetic":"잇츠 타임 투 고 투 베드.","translation":"이제 잘 시간이야."},{"id":"sent-1795647094895-6-1","speaker":"","english":"Just five more minutes, please.","phonetic":"저스트 파이브 모어 미닛츠, 플리즈.","translation":"딱 5분만 더요, 제발."},{"id":"sent-1795647094895-6-2","speaker":"","english":"Did you brush your teeth?","phonetic":"디쥬 브러쉬 유어 티쓰?","translation":"이 닦았니?"},{"id":"sent-1795647094895-6-3","speaker":"","english":"Yes, and I washed my face.","phonetic":"예스, 앤 아이 워쉬드 마이 페이스.","translation":"응, 세수도 했어."},{"id":"sent-1795647094895-6-4","speaker":"","english":"Do you want me to read you a story?","phonetic":"두 유 원 미 투 리쥬 어 스토리?","translation":"책 읽어 줄까?"},{"id":"sent-1795647094895-6-5","speaker":"","english":"Yes, the one about the bear.","phonetic":"예스, 더 원 어바웃 더 베어.","translation":"응, 곰 나오는 거요."},{"id":"sent-1795647094895-6-6","speaker":"","english":"Turn off the lights, please.","phonetic":"턴 오프 더 라이츠, 플리즈.","translation":"불 좀 꺼줘."},{"id":"sent-1795647094895-6-7","speaker":"","english":"Okay. Good night, sleep tight.","phonetic":"오케이. 굿 나잇, 슬립 타이트.","translation":"알겠어. 잘 자, 푹 자렴."},{"id":"sent-1795647094895-6-8","speaker":"","english":"Sweet dreams. I love you.","phonetic":"스윗 드림스. 아이 러브 유.","translation":"좋은 꿈 꿔. 사랑해."},{"id":"sent-1795647094895-6-9","speaker":"","english":"I love you too. Good night!","phonetic":"아이 러브 유 투. 굿 나잇!","translation":"나도 사랑해요. 잘 자!"}]},{"id":"set-1795647094895-7","title":"Weekend Morning","savedAt":"11월 26일 07:51","status":"unassigned","sentences":[{"id":"sent-1795647094895-7-0","speaker":"","english":"It's Saturday. We can sleep in.","phonetic":"잇츠 새터데이. 위 캔 슬립 인.","translation":"토요일이니까 늦잠 자도 돼."},{"id":"sent-1795647094895-7-1","speaker":"","english":"But I'm already awake.","phonetic":"벗 아임 올레디 어웨이크.","translation":"근데 벌써 깼는걸요."},{"id":"sent-1795647094895-7-2","speaker":"","english":"What should we do today?","phonetic":"왓 슈드 위 두 투데이?","translation":"오늘 뭐 할까?"},{"id":"sent-1795647094895-7-3","speaker":"","english":"Let's go to the park.","phonetic":"렛츠 고 투 더 파크.","translation":"공원에 가자."},{"id":"sent-1795647094895-7-4","speaker":"","english":"Shall I make pancakes?","phonetic":"쉘 아이 메이크 팬케익스?","translation":"팬케이크 만들어 줄까?"},{"id":"sent-1795647094895-7-5","speaker":"","english":"Yes, with lots of syrup!","phonetic":"예스, 위드 라츠 어 시럽!","translation":"네, 시럽 많이 뿌려주세요!"},{"id":"sent-1795647094895-7-6","speaker":"","english":"Don't forget to bring a towel.","phonetic":"돈 포겟 투 브링 어 타월.","translation":"수건 가져오는 거 잊지 마."},{"id":"sent-1795647094895-7-7","speaker":"","english":"I put it in the bag already.","phonetic":"아이 푸릿 인 더 백 얼레디.","translation":"이미 가방에 넣어뒀어."},{"id":"sent-1795647094895-7-8","speaker":"","english":"Let's leave in thirty minutes.","phonetic":"렛츠 리브 인 써티 미닛츠.","translation":"30분 뒤에 출발하자."},{"id":"sent-1795647094895-7-9","speaker":"","english":"Okay. I'll get dressed.","phonetic":"오케이. 아일 겟 드레스드.","translation":"알겠어. 옷 입고 나올게."}]},{"id":"set-1795646599167","title":"Cleaning the House","savedAt":"11월 26일 07:43","status":"unassigned","sentences":[{"id":"sent-1795646562817-0","speaker":"","english":"The living room is a mess.","phonetic":"더 리빙 룸 이즈 어 메스","translation":"거실이 엉망진창이야."},{"id":"sent-1795646562817-1","speaker":"","english":"Let's clean it up together.","phonetic":"렛츠 클린 잇 업 투게더","translation":"우리 같이 치우자."},{"id":"sent-1795646562817-2","speaker":"","english":"Can you vacuum the floor?","phonetic":"캔 유 배큐엄 더 플로어","translation":"바닥 좀 청소기 돌려줄래?"},{"id":"sent-1795646562817-3","speaker":"","english":"Sure. Where's the vacuum cleaner?","phonetic":"슈어 웨어즈 더 배큐엄 클리너","translation":"응, 청소기가 어디 있지?"},{"id":"sent-1795646562817-4","speaker":"","english":"I'll dust the shelves.","phonetic":"아일 더스트 더 셸브즈","translation":"내가 선반 먼지를 털게."},{"id":"sent-1795646562817-5","speaker":"","english":"Then I'll mop the kitchen floor.","phonetic":"덴 아일 맙 더 키친 플로어","translation":"그다음엔 내가 주방 바닥을 닦을게."},{"id":"sent-1795646562817-6","speaker":"","english":"Please pick up your toys.","phonetic":"플리즈 픽 업 유어 토이즈","translation":"장난감 좀 치워줘."},{"id":"sent-1795646562817-7","speaker":"","english":"Okay, I'll put them in the box.","phonetic":"오케이 아일 풋 뎀 인 더 박스","translation":"알겠어, 상자에 담아둘게."},{"id":"sent-1795646562817-8","speaker":"","english":"The house looks so clean now!","phonetic":"더 하우스 룩스 쏘 클린 나우","translation":"집이 이제 정말 깨끗해졌네!"},{"id":"sent-1795646562817-9","speaker":"","english":"It feels so much better.","phonetic":"잇 필즈 쏘 머치 베터","translation":"기분이 훨씬 좋다."}]},{"id":"set-1795646534372","title":"Washing Dishes","savedAt":"11월 26일 07:42","status":"unassigned","sentences":[{"id":"sent-1795646516568-0","speaker":"","english":"Who is doing the dishes tonight?","phonetic":"후 이즈 두잉 더 디시즈 투나잇?","translation":"오늘 밤 설거지는 누가 해?"},{"id":"sent-1795646516568-1","speaker":"","english":"It's my turn. You cooked.","phonetic":"잇츠 마이 턴. 유 쿡드.","translation":"내 차례야. 네가 요리했잖아."},{"id":"sent-1795646516568-2","speaker":"","english":"Can you dry while I wash?","phonetic":"캔 유 드라이 와일 아이 워쉬?","translation":"내가 씻을 동안 넌 물기 좀 닦아줄래?"},{"id":"sent-1795646516568-3","speaker":"","english":"Okay. Where does this bowl go?","phonetic":"오케이. 웨어 더즈 디스 볼 고?","translation":"알았어. 이 그릇은 어디에 둬?"},{"id":"sent-1795646516568-4","speaker":"","english":"Be careful, that glass is fragile.","phonetic":"비 케어풀, 댓 글래스 이즈 프래질.","translation":"조심해, 그 유리잔 깨지기 쉬워."},{"id":"sent-1795646516568-5","speaker":"","english":"Don't worry. I've got it.","phonetic":"돈 워리. 아브 갓 잇.","translation":"걱정 마. 내가 잘 잡고 있어."},{"id":"sent-1795646516568-6","speaker":"","english":"This pan needs to soak for a while.","phonetic":"디스 팬 니즈 투 소크 포 어 와일.","translation":"이 팬은 잠시 불려 놔야겠어."},{"id":"sent-1795646516568-7","speaker":"","english":"I'll fill it with hot water.","phonetic":"아윌 필 잇 위드 핫 워터.","translation":"뜨거운 물을 받아 놓을게."},{"id":"sent-1795646516568-8","speaker":"","english":"Did you turn on the dishwasher?","phonetic":"디쥬 턴 온 더 디쉬워셔?","translation":"식기세척기 켰어?"},{"id":"sent-1795646516568-9","speaker":"","english":"Yes, it will be done in an hour.","phonetic":"예스, 잇 윌 비 던 인 언 아워.","translation":"응, 한 시간이면 다 될 거야."}]},{"id":"set-1795646468048","title":"After the Meal","savedAt":"11월 26일 07:41","status":"unassigned","sentences":[{"id":"sent-1795646447980-0","speaker":"","english":"That was a wonderful dinner.","phonetic":"댓 워저 원더플 디너","translation":"정말 훌륭한 저녁 식사였어요."},{"id":"sent-1795646447980-1","speaker":"","english":"I'm glad you liked it.","phonetic":"아임 글래쥬 라이킷","translation":"당신이 좋아했다니 기쁘네요."},{"id":"sent-1795646447980-2","speaker":"","english":"Are you finished eating?","phonetic":"아 류 피니쉬트 이팅","translation":"식사 다 하셨어요?"},{"id":"sent-1795646447980-3","speaker":"","english":"Yes, I'm full. Thank you for the meal.","phonetic":"예스 아임 풀 땡큐 포 더 밀","translation":"네, 배불러요. 잘 먹었습니다."},{"id":"sent-1795646447980-4","speaker":"","english":"Please put your dishes in the sink.","phonetic":"플리즈 풋 유어 디지즈 인 더 싱크","translation":"그릇을 싱크대에 좀 넣어주세요."},{"id":"sent-1795646447980-5","speaker":"","english":"Sure. I'll do it right now.","phonetic":"슈어 아윌 두 잇 라이트 나우","translation":"네, 지금 바로 할게요."},{"id":"sent-1795646447980-6","speaker":"","english":"Should I wipe the table?","phonetic":"슈다이 와입 더 테이블","translation":"식탁을 닦을까요?"},{"id":"sent-1795646447980-7","speaker":"","english":"Yes, the cloth is by the sink.","phonetic":"예스 더 클로쓰 이즈 바이 더 싱크","translation":"네, 행주가 싱크대 옆에 있어요."},{"id":"sent-1795646447980-8","speaker":"","english":"Is there any food left?","phonetic":"이즈 데어 애니 푸드 레프트","translation":"음식 남은 거 있나요?"},{"id":"sent-1795646447980-9","speaker":"","english":"Yes. Let's put it in the fridge.","phonetic":"예스 렛츠 풋 잇 인 더 프리쥐","translation":"네. 냉장고에 넣읍시다."}]},{"id":"set-1795646409711","title":"Table Manners","savedAt":"11월 26일 07:40","status":"unassigned","sentences":[{"id":"sent-1795646348532-0","speaker":"","english":"Please don't talk with your mouth full.","phonetic":"플리즈 돈 턱 위쥬어 마우스 풀","translation":"입에 음식을 넣고 말하지 마세요."},{"id":"sent-1795646348532-1","speaker":"","english":"Sorry. I'll finish chewing first.","phonetic":"쏘리 아윌 피니쉬 츄잉 퍼스트","translation":"죄송해요. 다 씹고 말할게요."},{"id":"sent-1795646348532-2","speaker":"","english":"Could you pass me the salt, please?","phonetic":"쿠쥬 패스 미 더 솔트 플리즈","translation":"소금 좀 건네줄래요?"},{"id":"sent-1795646348532-3","speaker":"","english":"Here you go.","phonetic":"히얼 유 고","translation":"여기 있어요."},{"id":"sent-1795646348532-4","speaker":"","english":"Please keep your elbows off the table.","phonetic":"플리즈 킵 유얼 엘보우즈 오프 더 테이블","translation":"식탁 위에 팔꿈치 좀 올리지 마세요."},{"id":"sent-1795646348532-5","speaker":"","english":"Okay. Is this better?","phonetic":"오케이 이즈 디스 베럴","translation":"네, 이렇게 하면 좀 나아요?"},{"id":"sent-1795646348532-6","speaker":"","english":"Try not to make noise when you eat soup.","phonetic":"트라이 낫 투 메이크 노이즈 웬 유 잇 숩","translation":"국 먹을 때 소리 내지 않도록 주의하세요."},{"id":"sent-1795646348532-7","speaker":"","english":"I'll try to be more careful.","phonetic":"아윌 트라이 투 비 모어 케어풀","translation":"더 조심하도록 노력할게요."},{"id":"sent-1795646348532-8","speaker":"","english":"Wait until everyone is seated to start.","phonetic":"웨잇 언틸 에브리원 이즈 씨티드 투 스타트","translation":"모두 자리에 앉을 때까지 기다렸다 시작하세요."},{"id":"sent-1795646348532-9","speaker":"","english":"Got it. Let's wait for Dad.","phonetic":"갓 잇 렛츠 웨잇 포 대드","translation":"알겠어요. 아빠 기다리죠."}]},{"id":"set-1795646297650","title":"Starting a Meal","savedAt":"11월 26일 07:38","status":"unassigned","sentences":[{"id":"sent-1795646247643-0","speaker":"","english":"Dinner is served. Please sit down.","phonetic":"디너 이즈 서브드. 플리즈 싯 다운.","translation":"저녁 준비됐어요. 앉으세요."},{"id":"sent-1795646247643-1","speaker":"","english":"It smells delicious!","phonetic":"잇 스멜스 딜리셔스!","translation":"정말 맛있는 냄새가 나요!"},{"id":"sent-1795646247643-2","speaker":"","english":"Help yourself to some more rice.","phonetic":"헬프 유어셀프 투 썸 모어 라이스.","translation":"밥 더 드세요."},{"id":"sent-1795646247643-3","speaker":"","english":"Thank you. I'd love some more.","phonetic":"땡큐. 아이드 러브 썸 모어.","translation":"감사합니다. 더 먹을게요."},{"id":"sent-1795646247643-4","speaker":"","english":"Would you like some soup?","phonetic":"우쥬 라이크 썸 숩?","translation":"수프 좀 드릴까요?"},{"id":"sent-1795646247643-5","speaker":"","english":"Yes, but just a small bowl, please.","phonetic":"예스, 벗 저스트 어 스몰 보울, 플리즈.","translation":"네, 하지만 조금만 주세요."},{"id":"sent-1795646247643-6","speaker":"","english":"Is the soup too salty?","phonetic":"이즈 더 숩 투 쏠티?","translation":"수프가 너무 짜진 않나요?"},{"id":"sent-1795646247643-7","speaker":"","english":"No, it's just right.","phonetic":"노, 잇츠 저스트 라이트.","translation":"아니요, 딱 좋아요."},{"id":"sent-1795646247643-8","speaker":"","english":"Enjoy your meal!","phonetic":"엔조이 유어 밀!","translation":"맛있게 드세요!"},{"id":"sent-1795646247643-9","speaker":"","english":"Thank you. You made all this?","phonetic":"땡큐. 유 메이드 올 디스?","translation":"감사합니다. 이거 전부 직접 만드신 거예요?"}]},{"id":"set-1795645295804","title":"making breakfast","savedAt":"11월 26일 07:21","status":"unassigned","sentences":[{"id":"sent-1795644556342-1","speaker":"","english":"What would you like for breakfast?","phonetic":"왓 우쥬 라이크 포 브렉퍼스트?","translation":"아침으로 뭘 먹고 싶어?"},{"id":"sent-1795644556342-2","speaker":"","english":"Maybe eggs and toast.","phonetic":"메이비 에그스 앤 토스트.","translation":"달걀이랑 토스트면 좋겠어."},{"id":"sent-1795644556342-3","speaker":"","english":"How do you want your eggs?","phonetic":"하우 두 유 원트 유어 에그스?","translation":"달걀은 어떻게 요리해 줄까?"},{"id":"sent-1795644556342-4","speaker":"","english":"Scrambled, please.","phonetic":"스크램블드, 플리즈.","translation":"스크램블로 해 줘."},{"id":"sent-1795644556342-5","speaker":"","english":"Can you set the table?","phonetic":"캔 유 셋 더 테이블?","translation":"식탁 좀 차려 줄래?"},{"id":"sent-1795644556342-6","speaker":"","english":"Sure. I'll get the plates and forks.","phonetic":"슈어. 아윌 겟 더 플레이츠 앤 포크스.","translation":"응, 접시랑 포크 가져올게."},{"id":"sent-1795644556342-7","speaker":"","english":"Is the toast ready yet?","phonetic":"이즈 더 토스트 레디 옛?","translation":"토스트 벌써 다 됐어?"},{"id":"sent-1795644556342-8","speaker":"","english":"Almost. It needs one more minute.","phonetic":"올모스트. 잇 니즈 원 모어 미닛.","translation":"거의 다 됐어. 1분만 더 있으면 돼."},{"id":"sent-1795644556342-9","speaker":"","english":"Breakfast is ready!","phonetic":"브렉퍼스트 이즈 레디!","translation":"아침 식사 다 됐다!"},{"id":"sent-1795644556342-10","speaker":"","english":"Great. I'm starving.","phonetic":"그레이트. 아임 스타빙.","translation":"잘됐다. 배고파 죽겠어."}]},{"id":"set-1795645244747","title":"내 영어 연습 · 2026년 11월 26일","savedAt":"11월 26일 07:20","status":"unassigned","sentences":[{"id":"sent-1795644556342-1","speaker":"","english":"What would you like for breakfast?","phonetic":"왓 우쥬 라이크 포 브렉퍼스트?","translation":"아침으로 뭘 먹고 싶어?"},{"id":"sent-1795644556342-2","speaker":"","english":"Maybe eggs and toast.","phonetic":"메이비 에그스 앤 토스트.","translation":"달걀이랑 토스트면 좋겠어."},{"id":"sent-1795644556342-3","speaker":"","english":"How do you want your eggs?","phonetic":"하우 두 유 원트 유어 에그스?","translation":"달걀은 어떻게 요리해 줄까?"},{"id":"sent-1795644556342-4","speaker":"","english":"Scrambled, please.","phonetic":"스크램블드, 플리즈.","translation":"스크램블로 해 줘."},{"id":"sent-1795644556342-5","speaker":"","english":"Can you set the table?","phonetic":"캔 유 셋 더 테이블?","translation":"식탁 좀 차려 줄래?"},{"id":"sent-1795644556342-6","speaker":"","english":"Sure. I'll get the plates and forks.","phonetic":"슈어. 아윌 겟 더 플레이츠 앤 포크스.","translation":"응, 접시랑 포크 가져올게."},{"id":"sent-1795644556342-7","speaker":"","english":"Is the toast ready yet?","phonetic":"이즈 더 토스트 레디 옛?","translation":"토스트 벌써 다 됐어?"},{"id":"sent-1795644556342-8","speaker":"","english":"Almost. It needs one more minute.","phonetic":"올모스트. 잇 니즈 원 모어 미닛.","translation":"거의 다 됐어. 1분만 더 있으면 돼."},{"id":"sent-1795644556342-9","speaker":"","english":"Breakfast is ready!","phonetic":"브렉퍼스트 이즈 레디!","translation":"아침 식사 다 됐다!"},{"id":"sent-1795644556342-10","speaker":"","english":"Great. I'm starving.","phonetic":"그레이트. 아임 스타빙.","translation":"잘됐다. 배고파 죽겠어."}]},{"id":"set-1795643426996","title":"1일차","savedAt":"11월 26일 06:50","status":"unassigned","sentences":[{"id":"init-1","speaker":"A","english":"Good morning! Did you sleep well?","phonetic":"굿 모닝! 디쥬 슬립 웰?","translation":"좋은 아침이에요! 잘 주무셨어요?"},{"id":"init-2","speaker":"B","english":"Yes, I slept like a log. How about you?","phonetic":"예스, 아이 슬렙트 라이커 로그. 하우 어바웃 유?","translation":"네, 푹 잤어요. 당신은요?"},{"id":"init-3","speaker":"A","english":"What's the plan for today?","phonetic":"왓츠 더 플랜 포 투데이?","translation":"오늘 계획이 어떻게 되세요?"},{"id":"init-4","speaker":"B","english":"I have a meeting at ten, and then I'll be home early.","phonetic":"아이 해버 미팅 앳 텐, 앤 덴 아일 비 홈 얼리.","translation":"10시에 회의가 있고, 그다음엔 일찍 집에 올 거예요."},{"id":"init-5","speaker":"A","english":"Do you want some coffee?","phonetic":"두 유 원트 썸 커피?","translation":"커피 좀 드실래요?"},{"id":"init-6","speaker":"B","english":"Yes, please. Just a little milk.","phonetic":"예스, 플리즈. 저스트 어 리틀 밀크.","translation":"네, 부탁해요. 우유만 조금 넣어 주세요."},{"id":"init-7","speaker":"A","english":"It looks cold outside","phonetic":"잇 룩스 콜드 아웃사이드","translation":"밖이 추워 보이네요."},{"id":"init-8","speaker":"B","english":"Then I should take a jacket.","phonetic":"덴 아이 슈드 테이커 재킷.","translation":"그럼 재킷을 챙겨야겠네요."},{"id":"init-9","speaker":"A","english":"Have a good day!","phonetic":"해버 굿 데이!","translation":"좋은 하루 보내세요!"},{"id":"init-10","speaker":"B","english":"Thanks. You too. See you tonight!","phonetic":"땡스. 유 투. 씨 유 투나잇!","translation":"고마워요. 당신도요. 오늘 저녁에 봐요!"}]}]};
+      var KEYS = {
+        SENTENCES: 'speaking_pad_standalone_sentences_v1',
+        TITLE: 'speaking_pad_standalone_title_v1',
+        SETTINGS: 'speaking_pad_standalone_settings_v1',
+        SAVED: 'speaking_pad_standalone_saved_v1'
+      };
+
+      function safeRead(key, fallback) {
+        try {
+          var raw = window.localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      }
+      function safeWrite(key, val) {
+        try {
+          window.localStorage.setItem(key, JSON.stringify(val));
+        } catch (e) {}
+      }
+      function esc(str) {
+        return String(str == null ? '' : str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+      function round1(n) { return Math.round(n * 10) / 10; }
+      function formatKoreanDate(d) {
+        return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+      }
+      function formatShortDate(d) {
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + hh + ':' + mm;
+      }
+
+      var state = {
+        title: safeRead(KEYS.TITLE, INITIAL_SNAPSHOT.currentTitle || ('말하기 연습 · ' + formatKoreanDate(new Date()))),
+        sentences: safeRead(KEYS.SENTENCES, INITIAL_SNAPSHOT.sentences || []),
+        settings: safeRead(KEYS.SETTINGS, INITIAL_SNAPSHOT.settings || {
+          speedSteps: [{ speed: 0.7, repeat: 2 }, { speed: 0.9, repeat: 2 }, { speed: 1.0, repeat: 3 }],
+          pauseSeconds: 2,
+          voiceURI: '',
+          showTranslation: true
+        }),
+        savedSets: safeRead(KEYS.SAVED, INITIAL_SNAPSHOT.savedSets || []),
+        inputMode: 'multi',
+        selectedGroup: null,
+        openClusterId: null,
+        editingSentenceId: null,
+        voices: [],
+        playback: {
+          isPlaying: false, mode: null, sentenceId: null, sentenceIndex: -1,
+          currentSpeed: null, repeatIndex: 0, repeatTotal: 1,
+          passNumber: 0, totalPasses: 0, phase: 'idle', pauseRemainingMs: 0
+        }
+      };
+
+      if (!Array.isArray(state.settings.speedSteps) || state.settings.speedSteps.length === 0) {
+        state.settings.speedSteps = [{ speed: 0.7, repeat: 2 }, { speed: 0.9, repeat: 2 }, { speed: 1.0, repeat: 3 }];
+      }
+
+      var speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance !== 'undefined';
+      var playAbort = null;
+
+      function persist() {
+        safeWrite(KEYS.TITLE, state.title);
+        safeWrite(KEYS.SENTENCES, state.sentences);
+        safeWrite(KEYS.SETTINGS, state.settings);
+        safeWrite(KEYS.SAVED, state.savedSets);
+      }
+
+      // Speaker + Title parser
+      var SPEAKER_RE = /^[A-Za-z0-9가-힣]{1,12}\s*:\s*.+$/;
+      var BRACKET_RE = /^(?:\[(.+?)\]|【(.+?)】|《(.+?)》|<(.+?)>)$/;
+      var PREFIX_RE = /^(?:#{1,6}\s*|[■▶●◆★※]\s*|(?:제목|주제|묶음|타이틀|Title)\s*[:：]\s*)(.+)$/i;
+      var NUMBERED_RE = /^(?:(?:Day|Unit|Lesson|Chapter|Part|Scene|Ep\.?)\s*\d+[\s.:)\-]*.*|\d{1,2}\s*[.)]\s*.*[가-힣].*)$/i;
+
+      function splitSpeaker(line) {
+        var t = line.trim();
+        var m = t.match(/^([A-Za-z0-9가-힣]{1,12})\s*:\s*(.+)$/);
+        return m ? { speaker: m[1].trim(), english: m[2].trim() } : { speaker: '', english: t };
+      }
+
+      function detectTitleLine(line, prevBlank, nextLine) {
+        var t = line.trim();
+        if (!t) return null;
+        var bm = t.match(BRACKET_RE);
+        if (bm) {
+          var inner = (bm[1] || bm[2] || bm[3] || bm[4] || '').trim();
+          if (inner) return inner;
+        }
+        var pm = t.match(PREFIX_RE);
+        if (pm && pm[1] && pm[1].trim()) return pm[1].trim();
+        if (SPEAKER_RE.test(t)) return null;
+        if (NUMBERED_RE.test(t) && t.length <= 60) return t;
+        var hasKo = /[가-힣]/.test(t);
+        var hasEn = /[A-Za-z]{2,}/.test(t);
+        if (hasKo && !hasEn && t.length <= 60) return t;
+        if (hasKo && t.length <= 50 && !/[.?!]$/.test(t) && nextLine && /[A-Za-z]{2,}/.test(nextLine)) return t;
+        if (prevBlank && t.length <= 45 && !/[.?!]$/.test(t) && nextLine && SPEAKER_RE.test(nextLine)) return t;
+        return null;
+      }
+
+      function parseTitledGroups(raw) {
+        var lines = raw.split(/\r?\n/);
+        var groups = [];
+        var cur = null;
+        var prevBlank = true;
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line) { prevBlank = true; continue; }
+          var nextLine = null;
+          for (var j = i + 1; j < lines.length; j++) {
+            if (lines[j].trim()) { nextLine = lines[j].trim(); break; }
+          }
+          var title = detectTitleLine(line, prevBlank, nextLine);
+          if (title !== null) {
+            if (cur && cur.lines.length > 0) groups.push(cur);
+            cur = { title: title, hasExplicitTitle: true, lines: [] };
+            prevBlank = false;
+            continue;
+          }
+          var parsed = splitSpeaker(line);
+          if (parsed.english) {
+            if (!cur) cur = { title: '', hasExplicitTitle: false, lines: [] };
+            cur.lines.push(parsed);
+          }
+          prevBlank = false;
+        }
+        if (cur && cur.lines.length > 0) groups.push(cur);
+        return groups;
+      }
+
+      // Unassigned similarity clusterer (5~8 items per group)
+      var THEMES = [
+        { id: 'daily', label: '아침·일상 인사', kw: ['morning','sleep','weather','jacket','home','tonight','today','hello','아침','인사','일상','날씨','하루','저녁','집','주말'] },
+        { id: 'food', label: '카페·식당·음식', kw: ['coffee','cafe','latte','milk','menu','order','restaurant','lunch','dinner','food','drink','카페','커피','식당','음식','주문','점심','식사'] },
+        { id: 'work', label: '직장·회의·업무', kw: ['meeting','work','office','project','email','schedule','report','team','client','회의','업무','직장','회사','출근','퇴근','보고','발표'] },
+        { id: 'travel', label: '여행·공항·숙소', kw: ['airport','flight','passport','hotel','check-in','room','reservation','luggage','ticket','travel','여행','공항','호텔','숙소','예약','여권','비행기'] },
+        { id: 'transit', label: '길찾기·교통', kw: ['station','subway','bus','taxi','street','block','left','right','map','drive','길','지하철','버스','택시','교통','이동','정류장'] },
+        { id: 'shopping', label: '쇼핑·결제', kw: ['shop','store','buy','price','size','pay','card','receipt','discount','refund','쇼핑','매장','가격','결제','사이즈','마트','환불'] },
+        { id: 'social', label: '약속·만남·취미', kw: ['friend','movie','plan','meet','party','hobby','gym','exercise','music','약속','친구','영화','취미','운동','만남','계획'] },
+        { id: 'health', label: '병원·건강·도움', kw: ['doctor','hospital','sick','medicine','pharmacy','headache','pain','help','병원','약국','건강','증상','진료','도움'] },
+        { id: 'expr', label: '전화·감정·표현', kw: ['call','phone','sorry','thanks','think','feel','opinion','favor','전화','연락','감사','사과','감정','부탁','표현'] }
+      ];
+
+      function detectTheme(set) {
+        var tText = (set.title || '').toLowerCase();
+        var bText = (set.sentences || []).slice(0, 12).map(function (s) { return (s.english + ' ' + s.translation).toLowerCase(); }).join(' ');
+        var best = null, bestScore = 0;
+        THEMES.forEach(function (th) {
+          var sc = 0;
+          th.kw.forEach(function (k) {
+            if (tText.indexOf(k) !== -1) sc += 4;
+            if (bText.indexOf(k) !== -1) sc += 1;
+          });
+          if (sc > bestScore) { bestScore = sc; best = th; }
+        });
+        return best ? { id: best.id, label: best.label } : { id: 'general', label: '생활 회화' };
+      }
+
+      function splitBalanced(arr) {
+        if (arr.length <= 8) return [arr];
+        var cnt = Math.ceil(arr.length / 8);
+        var base = Math.floor(arr.length / cnt);
+        var rem = arr.length % cnt;
+        var out = [], cur = 0;
+        for (var i = 0; i < cnt; i++) {
+          var sz = base + (i < rem ? 1 : 0);
+          out.push(arr.slice(cur, cur + sz));
+          cur += sz;
+        }
+        return out;
+      }
+
+      function compositeName(labels, idx) {
+        var counts = {};
+        labels.forEach(function (l) { counts[l] = (counts[l] || 0) + 1; });
+        var ranked = Object.keys(counts).filter(function (k) { return k !== '생활 회화'; })
+          .sort(function (a, b) { return counts[b] - counts[a]; })
+          .map(function (l) { return l.split('·')[0]; });
+        if (ranked.length >= 2) return ranked[0] + '·' + ranked[1] + ' 모음';
+        if (ranked.length === 1) return ranked[0] + '·생활 모음';
+        return '생활 회화 모음 ' + idx;
+      }
+
+      function groupUnassigned(sets) {
+        if (!sets.length) return [];
+        var tagged = sets.map(function (s) { return { set: s, theme: detectTheme(s) }; });
+        if (tagged.length <= 8) {
+          var labels = tagged.map(function (x) { return x.theme.label; });
+          var uniq = Array.from(new Set(labels));
+          return [{ id: 'c-1', name: uniq.length === 1 ? (labels[0] + ' 모음') : compositeName(labels, 1), sets: sets }];
+        }
+        var byTheme = {};
+        tagged.forEach(function (x) {
+          if (!byTheme[x.theme.id]) byTheme[x.theme.id] = { label: x.theme.label, items: [] };
+          byTheme[x.theme.id].items.push(x);
+        });
+        var clusters = [], leftovers = [];
+        Object.keys(byTheme).forEach(function (tid) {
+          var b = byTheme[tid];
+          if (b.items.length >= 5) {
+            var sl = splitBalanced(b.items);
+            sl.forEach(function (s, idx) {
+              clusters.push({ id: 'c-' + tid + '-' + idx, name: b.label + ' 모음' + (sl.length > 1 ? ' ' + (idx + 1) : ''), sets: s.map(function (x) { return x.set; }) });
+            });
+          } else {
+            leftovers = leftovers.concat(b.items);
+          }
+        });
+        if (leftovers.length > 0) {
+          if (leftovers.length < 5 && clusters.length > 0) {
+            var last = clusters[clusters.length - 1];
+            var comb = last.sets.concat(leftovers.map(function (x) { return x.set; }));
+            if (comb.length <= 8) {
+              last.sets = comb;
+            } else {
+              var reb = splitBalanced(comb);
+              var baseName = last.name.replace(/\s+\d+$/, '');
+              clusters.pop();
+              reb.forEach(function (s, idx) {
+                clusters.push({ id: last.id + '-r' + idx, name: baseName + ' ' + (idx + 1), sets: s });
+              });
+            }
+          } else {
+            var sl2 = splitBalanced(leftovers);
+            var used = {};
+            sl2.forEach(function (s, idx) {
+              var nm = compositeName(s.map(function (x) { return x.theme.label; }), idx + 1);
+              used[nm] = (used[nm] || 0) + 1;
+              clusters.push({ id: 'c-mix-' + idx, name: used[nm] > 1 ? (nm + ' ' + used[nm]) : nm, sets: s.map(function (x) { return x.set; }) });
+            });
+          }
+        }
+        return clusters;
+      }
+
+      // Speech engine
+      function loadVoices() {
+        if (!speechSupported) return;
+        try {
+          var all = window.speechSynthesis.getVoices();
+          var en = all.filter(function (v) { return (v.lang || '').toLowerCase().indexOf('en') === 0; });
+          state.voices = (en.length ? en : all).map(function (v) {
+            return { voiceURI: v.voiceURI, name: v.name, lang: v.lang };
+          });
+          renderSettings();
+        } catch (e) {}
+      }
+
+      function findVoice(uri) {
+        if (!speechSupported) return null;
+        try {
+          var all = window.speechSynthesis.getVoices();
+          if (uri) {
+            for (var i = 0; i < all.length; i++) if (all[i].voiceURI === uri) return all[i];
+          }
+          for (var j = 0; j < all.length; j++) {
+            if ((all[j].lang || '').toLowerCase() === 'en-us') return all[j];
+          }
+          for (var k = 0; k < all.length; k++) {
+            if ((all[k].lang || '').toLowerCase().indexOf('en') === 0) return all[k];
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function stopSpeech() {
+        if (playAbort) { playAbort.aborted = true; playAbort = null; }
+        if (speechSupported) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+        state.playback = {
+          isPlaying: false, mode: null, sentenceId: null, sentenceIndex: -1,
+          currentSpeed: null, repeatIndex: 0, repeatTotal: 1,
+          passNumber: 0, totalPasses: 0, phase: 'idle', pauseRemainingMs: 0
+        };
+        renderPractice();
+      }
+
+      function speakOnce(text, rate, token) {
+        return new Promise(function (resolve) {
+          if (token.aborted || !speechSupported || !text.trim()) { resolve(); return; }
+          try {
+            window.speechSynthesis.cancel();
+            var u = new window.SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            u.rate = Math.max(0.5, Math.min(1.5, rate));
+            var v = findVoice(state.settings.voiceURI);
+            if (v) { u.voice = v; u.lang = v.lang || 'en-US'; }
+            var done = false;
+            function finish() {
+              if (done) return;
+              done = true;
+              clearTimeout(timer);
+              resolve();
+            }
+            u.onend = finish;
+            u.onerror = finish;
+            var est = Math.max(7000, Math.ceil((text.length * 140) / Math.max(0.5, rate)) + 4000);
+            var timer = setTimeout(finish, est);
+            window.speechSynthesis.speak(u);
+          } catch (e) { resolve(); }
+        });
+      }
+
+      function waitPause(ms, token, onTick) {
+        return new Promise(function (resolve) {
+          if (token.aborted || ms <= 0) { resolve(); return; }
+          var start = Date.now();
+          onTick(ms);
+          var iv = setInterval(function () {
+            if (token.aborted) { clearInterval(iv); clearTimeout(to); resolve(); return; }
+            var rem = Math.max(0, ms - (Date.now() - start));
+            onTick(rem);
+          }, 100);
+          var to = setTimeout(function () {
+            clearInterval(iv);
+            onTick(0);
+            resolve();
+          }, ms);
+        });
+      }
+
+      async function runSequence(targets, mode) {
+        if (!speechSupported || !targets.length) return;
+        stopSpeech();
+        var token = { aborted: false };
+        playAbort = token;
+        var steps = state.settings.speedSteps;
+        var totalPasses = steps.reduce(function (a, b) { return a + b.repeat; }, 0);
+        var pauseMs = Math.round(state.settings.pauseSeconds * 1000);
+
+        try {
+          for (var t = 0; t < targets.length; t++) {
+            if (token.aborted) break;
+            var item = targets[t];
+            var pass = 0;
+            for (var si = 0; si < steps.length; si++) {
+              if (token.aborted) break;
+              var st = steps[si];
+              for (var ri = 0; ri < st.repeat; ri++) {
+                if (token.aborted) break;
+                pass++;
+                state.playback = {
+                  isPlaying: true, mode: mode, sentenceId: item.sentence.id, sentenceIndex: item.index,
+                  currentSpeed: st.speed, repeatIndex: ri, repeatTotal: st.repeat,
+                  passNumber: pass, totalPasses: totalPasses, phase: 'speaking', pauseRemainingMs: 0
+                };
+                renderPractice();
+                await speakOnce(item.sentence.english, st.speed, token);
+                if (token.aborted) break;
+                await waitPause(pauseMs, token, function (rem) {
+                  if (!token.aborted) {
+                    state.playback = {
+                      isPlaying: true, mode: mode, sentenceId: item.sentence.id, sentenceIndex: item.index,
+                      currentSpeed: st.speed, repeatIndex: ri, repeatTotal: st.repeat,
+                      passNumber: pass, totalPasses: totalPasses, phase: 'pausing', pauseRemainingMs: rem
+                    };
+                    renderPlaybackBannerOnly();
+                  }
+                });
+              }
+            }
+          }
+        } finally {
+          if (playAbort === token) stopSpeech();
+        }
+      }
+
+      function renderPlaybackBannerOnly() {
+        var pb = state.playback;
+        var banner = document.getElementById('playback-status');
+        if (!pb.isPlaying) { banner.style.display = 'none'; return; }
+        banner.style.display = 'flex';
+        var msg = pb.phase === 'speaking'
+          ? (pb.currentSpeed.toFixed(1) + 'x 읽는 중 (' + (pb.repeatIndex + 1) + '/' + pb.repeatTotal + '번)')
+          : ('따라 말해 보세요 (' + (pb.pauseRemainingMs / 1000).toFixed(1) + '초)');
+        banner.innerHTML = '<span class="tabular">' + (pb.sentenceIndex + 1) + '번 문장 · ' + esc(msg) + '</span>' +
+          '<span class="tabular" style="font-size:12px;color:#64748B;font-weight:500;">' + pb.passNumber + ' / ' + pb.totalPasses + '회차</span>';
+      }
+
+      function renderPractice() {
+        var pb = state.playback;
+        var hBtn = document.getElementById('header-play-btn');
+        var mBtn = document.getElementById('main-play-btn');
+        hBtn.textContent = pb.isPlaying ? '멈추기' : '전체 읽기';
+        hBtn.className = 'btn btn-sm ' + (pb.isPlaying ? 'btn-dark' : 'btn-primary');
+        mBtn.textContent = pb.isPlaying ? '읽기 멈추기' : '전체 순서 읽기';
+        mBtn.className = 'btn ' + (pb.isPlaying ? 'btn-dark' : 'btn-primary');
+        mBtn.disabled = !speechSupported || state.sentences.length === 0;
+        document.getElementById('no-speech-note').style.display = speechSupported ? 'none' : 'block';
+
+        document.getElementById('board-title').textContent = state.title;
+        var sp = state.settings.speedSteps.map(function (s) { return s.speed.toFixed(1) + '(' + s.repeat + '번)'; }).join(' → ');
+        var pl = state.settings.pauseSeconds % 1 === 0 ? (state.settings.pauseSeconds + '초') : (state.settings.pauseSeconds.toFixed(1) + '초');
+        document.getElementById('board-meta').textContent = state.sentences.length + '문장 · 속도 ' + sp + ' · 쉬는 시간 ' + pl;
+
+        renderPlaybackBannerOnly();
+
+        var listEl = document.getElementById('sentences-list');
+        if (state.sentences.length === 0) {
+          listEl.innerHTML = '<div class="card" style="text-align:center;color:#64748B;font-size:14px;">연습할 문장이 비어 있어요. 영어 문장 넣기 칸에서 문장을 추가해 보세요.</div>';
+        } else {
+          listEl.innerHTML = state.sentences.map(function (s, idx) {
+            var isCur = pb.isPlaying && pb.sentenceId === s.id;
+            var isEdit = state.editingSentenceId === s.id;
+            var activeMeta = isCur
+              ? ('<span class="tabular" style="color:#1D4ED8;font-weight:600;">· ' + (pb.phase === 'speaking' ? (pb.currentSpeed.toFixed(1) + 'x (' + (pb.repeatIndex + 1) + '/' + pb.repeatTotal + '번)') : '쉬는 시간') + '</span>')
+              : '';
+            var delBtn = state.sentences.length > 1
+              ? '<button type="button" class="btn-danger-ghost" data-del-sent="' + esc(s.id) + '" aria-label="삭제">✕</button>'
+              : '';
+            var playBtn = (isCur && pb.mode === 'single')
+              ? '<button type="button" class="btn btn-dark btn-sm" data-stop-one="1">멈추기</button>'
+              : '<button type="button" class="btn btn-soft btn-sm" data-play-one="' + idx + '"' + (speechSupported ? '' : ' disabled') + '>이 문장만 다시 듣기</button>';
+            var editBlock = isEdit
+              ? '<div class="edit-box">' +
+                  '<input type="text" class="input" data-edit-phonetic="' + esc(s.id) + '" value="' + esc(s.phonetic || '') + '" placeholder="띄어쓰기 맞춘 한글 발음" />' +
+                  '<input type="text" class="input" data-edit-trans="' + esc(s.id) + '" value="' + esc(s.translation || '') + '" placeholder="한국어 번역" />' +
+                  '<div style="display:flex;gap:8px;">' +
+                    '<button type="button" class="btn btn-primary btn-sm" data-save-edit="' + esc(s.id) + '">저장</button>' +
+                    '<button type="button" class="btn btn-outline btn-sm" data-cancel-edit="1">취소</button>' +
+                  '</div>' +
+                '</div>'
+              : '';
+
+            return '<article class="sentence-card' + (isCur ? ' active' : '') + '">' +
+              '<div class="row-nowrap" style="align-items:flex-start;">' +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div class="meta-line">' +
+                    '<span class="tabular" style="font-weight:600;">' + String(idx + 1).padStart(2, '0') + '</span>' +
+                    (s.speaker ? '<span style="font-weight:700;color:#475569;">' + esc(s.speaker) + '</span>' : '') +
+                    activeMeta +
+                  '</div>' +
+                  '<p class="english-text">' + esc(s.english) + '</p>' +
+                  '<p class="phonetic-text">' + (s.phonetic ? esc(s.phonetic) : '<span style="color:#94A3B8;font-size:13px;font-weight:400;">한글 발음이 비어 있어요. 아래 «발음·번역 적기»에서 입력할 수 있어요.</span>') + '</p>' +
+                '</div>' +
+                delBtn +
+              '</div>' +
+              '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #F1F5F9;display:flex;flex-wrap:wrap;gap:8px;">' +
+                playBtn +
+                '<button type="button" class="btn btn-outline btn-sm" data-open-edit="' + esc(s.id) + '">발음·번역 적기</button>' +
+              '</div>' +
+              editBlock +
+            '</article>';
+          }).join('');
+        }
+
+        // Translations at bottom
+        var tBtn = document.getElementById('toggle-trans-btn');
+        tBtn.textContent = state.settings.showTranslation ? '번역 숨기기' : '번역 보이기';
+        var tBody = document.getElementById('translations-body');
+        if (!state.settings.showTranslation) {
+          tBody.innerHTML = '<div style="padding:20px;border-radius:12px;background:#F8FAFC;border:1px solid #E2E8F0;text-align:center;font-size:14px;color:#475569;">번역을 가려 두었어요. 위 영어 문장과 한글 발음만 보고 먼저 소리 내어 말해 보세요.</div>';
+        } else if (state.sentences.length === 0) {
+          tBody.innerHTML = '<p class="subtext">표시할 번역이 없습니다.</p>';
+        } else {
+          tBody.innerHTML = state.sentences.map(function (s, idx) {
+            return '<div class="trans-item">' +
+              '<span class="tabular" style="font-size:12px;font-weight:600;color:#94A3B8;flex-shrink:0;">' + String(idx + 1).padStart(2, '0') + '</span>' +
+              '<div>' + (s.speaker ? '<strong style="color:#64748B;margin-right:6px;">' + esc(s.speaker) + ':</strong>' : '') + (s.translation ? esc(s.translation) : '<span style="color:#94A3B8;font-size:13px;">번역 없음</span>') + '</div>' +
+            '</div>';
+          }).join('');
+        }
+      }
+
+      var PRESETS = [
+        { label: '0.7(2)·0.9(2)·1.0(3) 기본', steps: [{ speed: 0.7, repeat: 2 }, { speed: 0.9, repeat: 2 }, { speed: 1.0, repeat: 3 }] },
+        { label: '0.8(2)·1.0(2)·1.2(3) 빠르게', steps: [{ speed: 0.8, repeat: 2 }, { speed: 1.0, repeat: 2 }, { speed: 1.2, repeat: 3 }] },
+        { label: '1.0(2)·1.2(2)·1.4(3) 실전', steps: [{ speed: 1.0, repeat: 2 }, { speed: 1.2, repeat: 2 }, { speed: 1.4, repeat: 3 }] }
+      ];
+
+      function renderSettings() {
+        var steps = state.settings.speedSteps;
+        var totalRep = steps.reduce(function (a, b) { return a + b.repeat; }, 0);
+        document.getElementById('total-repeats-label').textContent = '총 ' + totalRep + '회 읽기';
+        document.getElementById('speed-summary-line').textContent = steps.map(function (s) { return s.speed.toFixed(1) + 'x(' + s.repeat + '번)'; }).join(' → ');
+
+        document.getElementById('speed-presets').innerHTML = PRESETS.map(function (p, pi) {
+          var active = p.steps.length === steps.length && p.steps.every(function (st, i) {
+            return Math.abs(st.speed - steps[i].speed) < 0.01 && st.repeat === steps[i].repeat;
+          });
+          return '<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : 'btn-outline') + '" data-preset="' + pi + '">' + esc(p.label) + '</button>';
+        }).join('');
+
+        document.getElementById('step-count-btns').innerHTML = [1, 2, 3].map(function (c) {
+          return '<button type="button" class="tab-btn' + (steps.length === c ? ' active' : '') + '" style="min-height:34px;padding:0 12px;" data-step-count="' + c + '">' + c + '단계</button>';
+        }).join('');
+
+        document.getElementById('speed-steps-list').innerHTML = steps.map(function (s, i) {
+          return '<div class="step-row">' +
+            '<div class="row-nowrap"><span style="font-size:12px;font-weight:700;">' + (i + 1) + '단계</span><span class="tabular" style="font-size:12px;color:#64748B;">' + s.speed.toFixed(1) + 'x · ' + s.repeat + '번 읽기</span></div>' +
+            '<div class="step-controls">' +
+              '<div class="stepper"><span>속도</span><div style="display:flex;align-items:center;gap:4px;">' +
+                '<button type="button" class="btn-icon" data-sp-dec="' + i + '"' + (s.speed <= 0.5 ? ' disabled' : '') + '>−</button>' +
+                '<span class="tabular" style="min-width:38px;text-align:center;font-weight:700;">' + s.speed.toFixed(1) + 'x</span>' +
+                '<button type="button" class="btn-icon" data-sp-inc="' + i + '"' + (s.speed >= 1.5 ? ' disabled' : '') + '>+</button>' +
+              '</div></div>' +
+              '<div class="stepper"><span>횟수</span><div style="display:flex;align-items:center;gap:4px;">' +
+                '<button type="button" class="btn-icon" data-rp-dec="' + i + '"' + (s.repeat <= 1 ? ' disabled' : '') + '>−</button>' +
+                '<span class="tabular" style="min-width:34px;text-align:center;font-weight:700;color:#1D4ED8;">' + s.repeat + '번</span>' +
+                '<button type="button" class="btn-icon" data-rp-inc="' + i + '"' + (s.repeat >= 5 ? ' disabled' : '') + '>+</button>' +
+              '</div></div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        var ps = state.settings.pauseSeconds;
+        document.getElementById('pause-value-label').textContent = ps % 1 === 0 ? (ps + '초') : (ps.toFixed(1) + '초');
+        document.getElementById('pause-minus').disabled = ps <= 0.5;
+        document.getElementById('pause-plus').disabled = ps >= 6;
+        document.getElementById('pause-presets').innerHTML = [1, 2, 3, 4, 5].map(function (sec) {
+          var on = Math.abs(ps - sec) < 0.01;
+          return '<button type="button" class="btn btn-sm ' + (on ? 'btn-primary' : 'btn-outline') + '" style="min-width:42px;padding:6px 8px;" data-pause-set="' + sec + '">' + sec + '초</button>';
+        }).join('');
+
+        var vSel = document.getElementById('voice-select');
+        vSel.innerHTML = '<option value="">기기 기본 영어 목소리 (자동)</option>' +
+          state.voices.map(function (v) {
+            return '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === state.settings.voiceURI ? ' selected' : '') + '>' + esc(v.name + ' (' + v.lang + ')') + '</option>';
+          }).join('');
+        document.getElementById('voice-hint').textContent = speechSupported
+          ? (state.voices.length ? ('이 기기 영어 목소리 ' + state.voices.length + '개를 찾았어요.') : '기기 기본 영어 목소리로 읽어 드려요.')
+          : '이 브라우저는 음성 읽기를 지원하지 않아요.';
+      }
+
+      var STATUS_LABELS = { in_progress: '진행중', planned: '예정', completed: '완료', unassigned: '미지정' };
+      var STATUS_ORDER = ['in_progress', 'planned', 'completed', 'unassigned'];
+
+      function renderSetRows(items) {
+        return '<ul class="set-list">' + items.map(function (s) {
+          return '<li class="set-item">' +
+            '<div class="row-nowrap" style="align-items:flex-start;margin-bottom:8px;">' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-size:14px;font-weight:600;color:#0F172A;">' + esc(s.title) + '</div>' +
+                '<div class="tabular" style="font-size:12px;color:#64748B;">' + s.sentences.length + '문장 · ' + esc(s.savedAt || '') + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn-danger-ghost" data-del-set="' + esc(s.id) + '" aria-label="삭제">✕</button>' +
+            '</div>' +
+            '<div class="row-nowrap">' +
+              '<select class="select" style="width:auto;padding:6px 10px;font-size:12px;" data-status-set="' + esc(s.id) + '">' +
+                STATUS_ORDER.map(function (k) {
+                  return '<option value="' + k + '"' + (s.status === k ? ' selected' : '') + '>상태: ' + STATUS_LABELS[k] + '</option>';
+                }).join('') +
+              '</select>' +
+              '<button type="button" class="btn btn-soft btn-sm" data-load-set="' + esc(s.id) + '">불러오기</button>' +
+            '</div>' +
+          '</li>';
+        }).join('') + '</ul>';
+      }
+
+      function renderSavedSets() {
+        var selStatus = document.getElementById('save-status-select').value;
+        var saveBtn = document.getElementById('btn-save-current');
+        saveBtn.textContent = '현재 문장 (' + state.sentences.length + '개) ' + STATUS_LABELS[selStatus] + '으로 저장';
+        saveBtn.disabled = state.sentences.length === 0;
+
+        var buckets = { in_progress: [], planned: [], completed: [], unassigned: [] };
+        state.savedSets.forEach(function (s) {
+          var k = buckets[s.status] ? s.status : 'unassigned';
+          s.status = k;
+          buckets[k].push(s);
+        });
+
+        document.getElementById('group-view-label').textContent = state.selectedGroup
+          ? (STATUS_LABELS[state.selectedGroup] + ' 그룹만 보는 중')
+          : '기본 보기 · 진행중·예정';
+        document.getElementById('btn-reset-group-view').style.display = state.selectedGroup ? 'inline' : 'none';
+
+        document.getElementById('status-filter-grid').innerHTML = STATUS_ORDER.map(function (k) {
+          var isSel = state.selectedGroup === k;
+          var isDef = state.selectedGroup === null && (k === 'in_progress' || k === 'planned');
+          var cls = 'status-btn' + (isSel ? ' selected' : (isDef ? ' default-on' : ''));
+          return '<button type="button" class="' + cls + '" data-group-tab="' + k + '"><span>' + STATUS_LABELS[k] + '</span><span class="tabular">' + buckets[k].length + '</span></button>';
+        }).join('');
+
+        var body = document.getElementById('saved-sets-body');
+        if (state.savedSets.length === 0) {
+          body.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:#64748B;background:#F8FAFC;border-radius:12px;">아직 저장한 문장 묶음이 없어요.</div>';
+          return;
+        }
+
+        if (state.selectedGroup === null) {
+          var defTotal = buckets.in_progress.length + buckets.planned.length;
+          if (defTotal === 0) {
+            body.innerHTML = '<div style="padding:16px;text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;font-size:12px;color:#475569;">' +
+              '진행중·예정 묶음이 아직 없어요.' + (buckets.unassigned.length ? (' 미지정에 ' + buckets.unassigned.length + '개 묶음이 모여 있어요.') : '') +
+              (buckets.unassigned.length ? '<div style="margin-top:10px;"><button type="button" class="btn btn-outline btn-sm" data-group-tab="unassigned">미지정 그룹 열어 보기</button></div>' : '') +
+            '</div>';
+          } else {
+            body.innerHTML = ['in_progress', 'planned'].map(function (k) {
+              var list = buckets[k];
+              return '<div style="margin-bottom:16px;">' +
+                '<div class="row-nowrap" style="padding-bottom:6px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;"><span>' + STATUS_LABELS[k] + '</span><span class="tabular" style="color:#64748B;font-weight:500;">' + list.length + '개</span></div>' +
+                (list.length ? renderSetRows(list) : '<p class="subtext" style="padding:8px 0;">비어 있어요.</p>') +
+              '</div>';
+            }).join('');
+          }
+        } else if (state.selectedGroup === 'unassigned') {
+          var clusters = groupUnassigned(buckets.unassigned);
+          if (!clusters.length) {
+            body.innerHTML = '<p class="subtext" style="text-align:center;padding:16px 0;">미지정 묶음이 없어요.</p>';
+          } else {
+            body.innerHTML = '<div class="row-nowrap" style="padding-bottom:6px;margin-bottom:10px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;"><span>미지정 · 유사 주제 묶음</span><span class="tabular" style="color:#64748B;font-weight:500;">' + clusters.length + '개 소그룹 · 총 ' + buckets.unassigned.length + '개</span></div>' +
+              clusters.map(function (c) {
+                var open = clusters.length === 1 || state.openClusterId === c.id;
+                return '<div class="cluster-box">' +
+                  '<button type="button" class="cluster-btn" data-cluster="' + esc(c.id) + '">' +
+                    '<span>' + esc(c.name) + '</span>' +
+                    '<span class="tabular" style="font-size:12px;color:#64748B;">' + c.sets.length + '개 ' + (open ? '▾' : '▸') + '</span>' +
+                  '</button>' +
+                  (open ? ('<div class="cluster-body">' + renderSetRows(c.sets) + '</div>') : '') +
+                '</div>';
+              }).join('');
+          }
+        } else {
+          var items = buckets[state.selectedGroup];
+          body.innerHTML = '<div class="row-nowrap" style="padding-bottom:6px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;"><span>' + STATUS_LABELS[state.selectedGroup] + '</span><span class="tabular" style="color:#64748B;font-weight:500;">' + items.length + '개</span></div>' +
+            (items.length ? renderSetRows(items) : '<p class="subtext" style="text-align:center;padding:16px 0;">이 그룹에 저장된 묶음이 없어요.</p>');
+        }
+      }
+
+      function updateDetectPreview() {
+        var box = document.getElementById('detect-preview');
+        var batchBtn = document.getElementById('btn-batch-save');
+        if (state.inputMode !== 'multi') {
+          box.style.display = 'none';
+          batchBtn.style.display = 'none';
+          return;
+        }
+        var raw = document.getElementById('input-multi').value;
+        var groups = parseTitledGroups(raw);
+        var titled = groups.filter(function (g) { return g.hasExplicitTitle && g.lines.length > 0; });
+        if (!titled.length) {
+          box.style.display = 'none';
+          batchBtn.style.display = 'none';
+          return;
+        }
+        var total = groups.reduce(function (a, g) { return a + g.lines.length; }, 0);
+        box.style.display = 'block';
+        box.innerHTML = '<div style="font-weight:700;color:#1E40AF;margin-bottom:6px;" class="tabular">제목 묶음 ' + groups.length + '개 감지됨 · 총 ' + total + '문장</div>' +
+          groups.map(function (g, i) {
+            return '<div class="row-nowrap" style="margin-top:3px;"><strong>' + esc(g.title || ('제목 없는 묶음 ' + (i + 1))) + '</strong><span class="tabular" style="color:#64748B;">' + g.lines.length + '문장</span></div>';
+          }).join('');
+        batchBtn.style.display = 'inline-flex';
+        batchBtn.textContent = '제목별로 ' + groups.length + '개 묶음 일괄 저장';
+      }
+
+      function showInputMsg(text, isWarn) {
+        var el = document.getElementById('input-msg');
+        el.textContent = text;
+        el.className = isWarn ? 'notice-warn' : 'notice-ok';
+        el.style.display = 'block';
+      }
+
+      function getCurrentInputText() {
+        return state.inputMode === 'single'
+          ? document.getElementById('input-single').value
+          : document.getElementById('input-multi').value;
+      }
+      function clearInputText() {
+        document.getElementById('input-single').value = '';
+        document.getElementById('input-multi').value = '';
+        updateDetectPreview();
+      }
+
+      // Event bindings
+      document.getElementById('header-play-btn').addEventListener('click', function () {
+        if (state.playback.isPlaying) stopSpeech();
+        else runSequence(state.sentences.map(function (s, i) { return { sentence: s, index: i }; }), 'all');
+      });
+      document.getElementById('main-play-btn').addEventListener('click', function () {
+        if (state.playback.isPlaying) stopSpeech();
+        else runSequence(state.sentences.map(function (s, i) { return { sentence: s, index: i }; }), 'all');
+      });
+      document.getElementById('toggle-trans-btn').addEventListener('click', function () {
+        state.settings.showTranslation = !state.settings.showTranslation;
+        persist();
+        renderPractice();
+      });
+
+      document.getElementById('sentences-list').addEventListener('click', function (e) {
+        var t = e.target.closest('button');
+        if (!t) return;
+        if (t.dataset.playOne !== undefined) {
+          var idx = Number(t.dataset.playOne);
+          if (state.sentences[idx]) runSequence([{ sentence: state.sentences[idx], index: idx }], 'single');
+        } else if (t.dataset.stopOne) {
+          stopSpeech();
+        } else if (t.dataset.delSent) {
+          var id = t.dataset.delSent;
+          if (state.playback.sentenceId === id) stopSpeech();
+          state.sentences = state.sentences.filter(function (s) { return s.id !== id; });
+          persist(); renderPractice(); renderSavedSets();
+        } else if (t.dataset.openEdit) {
+          state.editingSentenceId = t.dataset.openEdit;
+          renderPractice();
+        } else if (t.dataset.cancelEdit) {
+          state.editingSentenceId = null;
+          renderPractice();
+        } else if (t.dataset.saveEdit) {
+          var eid = t.dataset.saveEdit;
+          var pIn = document.querySelector('[data-edit-phonetic="' + CSS.escape(eid) + '"]');
+          var tIn = document.querySelector('[data-edit-trans="' + CSS.escape(eid) + '"]');
+          state.sentences = state.sentences.map(function (s) {
+            return s.id === eid ? Object.assign({}, s, { phonetic: pIn ? pIn.value.trim() : s.phonetic, translation: tIn ? tIn.value.trim() : s.translation }) : s;
+          });
+          state.editingSentenceId = null;
+          persist(); renderPractice();
+        }
+      });
+
+      document.getElementById('tab-single').addEventListener('click', function () {
+        state.inputMode = 'single';
+        document.getElementById('tab-single').classList.add('active');
+        document.getElementById('tab-multi').classList.remove('active');
+        document.getElementById('input-single-wrap').style.display = 'block';
+        document.getElementById('input-multi-wrap').style.display = 'none';
+        updateDetectPreview();
+      });
+      document.getElementById('tab-multi').addEventListener('click', function () {
+        state.inputMode = 'multi';
+        document.getElementById('tab-multi').classList.add('active');
+        document.getElementById('tab-single').classList.remove('active');
+        document.getElementById('input-multi-wrap').style.display = 'block';
+        document.getElementById('input-single-wrap').style.display = 'none';
+        updateDetectPreview();
+      });
+      document.getElementById('input-multi').addEventListener('input', updateDetectPreview);
+
+      function applyInput(mode) {
+        var raw = getCurrentInputText().trim();
+        if (!raw) { showInputMsg('연습할 영어 문장을 입력해 주세요.', true); return; }
+        var groups = parseTitledGroups(raw);
+        var flat = [];
+        groups.forEach(function (g) { flat = flat.concat(g.lines); });
+        if (!flat.length) { showInputMsg('영어 문장을 한 줄 이상 입력해 주세요.', true); return; }
+        stopSpeech();
+        var stamp = Date.now();
+        var added = flat.map(function (l, i) {
+          return { id: 's-' + stamp + '-' + i, speaker: l.speaker, english: l.english, phonetic: '', translation: '' };
+        });
+        if (mode === 'replace') {
+          state.sentences = added;
+          state.title = (groups.length === 1 && groups[0].hasExplicitTitle && groups[0].title)
+            ? groups[0].title
+            : ('내 영어 연습 · ' + formatKoreanDate(new Date()));
+        } else {
+          state.sentences = state.sentences.concat(added);
+        }
+        persist();
+        clearInputText();
+        showInputMsg(added.length + '문장을 반영했어요. 바로 듣기 연습을 시작하거나 발음·번역을 직접 적어 둘 수 있어요.', false);
+        renderPractice();
+        renderSavedSets();
+      }
+
+      document.getElementById('btn-append').addEventListener('click', function () { applyInput('append'); });
+      document.getElementById('btn-replace').addEventListener('click', function () { applyInput('replace'); });
+      document.getElementById('btn-batch-save').addEventListener('click', function () {
+        var raw = document.getElementById('input-multi').value.trim();
+        var groups = parseTitledGroups(raw).filter(function (g) { return g.lines.length > 0; });
+        if (!groups.length) { showInputMsg('제목과 영어 문장을 함께 넣어 주세요.', true); return; }
+        stopSpeech();
+        var now = new Date();
+        var stamp = now.getTime();
+        var savedAt = formatShortDate(now);
+        var created = groups.map(function (g, gi) {
+          return {
+            id: 'set-' + stamp + '-' + gi,
+            title: g.title || ('연습 묶음 ' + (gi + 1)),
+            savedAt: savedAt,
+            status: 'unassigned',
+            sentences: g.lines.map(function (l, li) {
+              return { id: 's-' + stamp + '-' + gi + '-' + li, speaker: l.speaker, english: l.english, phonetic: '', translation: '' };
+            })
+          };
+        });
+        state.savedSets = created.concat(state.savedSets);
+        state.sentences = created[0].sentences.map(function (x) { return Object.assign({}, x); });
+        state.title = created[0].title;
+        persist();
+        clearInputText();
+        showInputMsg(created.length + '개 묶음을 미지정 그룹에 일괄 저장하고 첫 번째 묶음을 열었어요.', false);
+        renderPractice();
+        renderSavedSets();
+      });
+
+      document.getElementById('section-settings').addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        var st = state.settings.speedSteps;
+        if (b.dataset.preset !== undefined) {
+          state.settings.speedSteps = PRESETS[Number(b.dataset.preset)].steps.map(function (x) { return Object.assign({}, x); });
+        } else if (b.dataset.stepCount !== undefined) {
+          var cnt = Number(b.dataset.stepCount);
+          if (cnt < st.length) state.settings.speedSteps = st.slice(0, cnt);
+          else {
+            while (st.length < cnt) {
+              var last = st[st.length - 1] || { speed: 0.9, repeat: 2 };
+              st.push({ speed: round1(Math.min(1.5, last.speed + 0.1)), repeat: st.length === 2 ? 3 : 2 });
+            }
+          }
+        } else if (b.dataset.spDec !== undefined) {
+          var i1 = Number(b.dataset.spDec);
+          st[i1].speed = round1(Math.max(0.5, st[i1].speed - 0.1));
+        } else if (b.dataset.spInc !== undefined) {
+          var i2 = Number(b.dataset.spInc);
+          st[i2].speed = round1(Math.min(1.5, st[i2].speed + 0.1));
+        } else if (b.dataset.rpDec !== undefined) {
+          var i3 = Number(b.dataset.rpDec);
+          st[i3].repeat = Math.max(1, st[i3].repeat - 1);
+        } else if (b.dataset.rpInc !== undefined) {
+          var i4 = Number(b.dataset.rpInc);
+          st[i4].repeat = Math.min(5, st[i4].repeat + 1);
+        } else if (b.dataset.pauseSet !== undefined) {
+          state.settings.pauseSeconds = Number(b.dataset.pauseSet);
+        } else if (b.id === 'pause-minus') {
+          state.settings.pauseSeconds = round1(Math.max(0.5, state.settings.pauseSeconds - 0.5));
+        } else if (b.id === 'pause-plus') {
+          state.settings.pauseSeconds = round1(Math.min(6, state.settings.pauseSeconds + 0.5));
+        } else if (b.id === 'btn-preview-voice') {
+          stopSpeech();
+          var tok = { aborted: false };
+          playAbort = tok;
+          speakOnce((state.sentences[0] && state.sentences[0].english) || 'Good morning! Did you sleep well?', 1.0, tok);
+          return;
+        } else {
+          return;
+        }
+        persist(); renderSettings(); renderPractice();
+      });
+
+      document.getElementById('voice-select').addEventListener('change', function (e) {
+        state.settings.voiceURI = e.target.value;
+        persist();
+      });
+
+      document.getElementById('save-status-select').addEventListener('change', renderSavedSets);
+      document.getElementById('btn-save-current').addEventListener('click', function () {
+        if (!state.sentences.length) return;
+        var titleVal = document.getElementById('save-title-input').value.trim() || state.title;
+        var statusVal = document.getElementById('save-status-select').value;
+        state.savedSets.unshift({
+          id: 'set-' + Date.now(),
+          title: titleVal,
+          savedAt: formatShortDate(new Date()),
+          status: statusVal,
+          sentences: state.sentences.map(function (s) { return Object.assign({}, s); })
+        });
+        document.getElementById('save-title-input').value = '';
+        persist();
+        renderSavedSets();
+        var n = document.getElementById('save-notice');
+        n.style.display = 'block';
+        setTimeout(function () { n.style.display = 'none'; }, 2400);
+      });
+
+      document.getElementById('btn-reset-group-view').addEventListener('click', function () {
+        state.selectedGroup = null;
+        renderSavedSets();
+      });
+
+      document.getElementById('section-saved').addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.groupTab) {
+          var g = b.dataset.groupTab;
+          state.selectedGroup = state.selectedGroup === g ? null : g;
+          if (g === 'unassigned') state.openClusterId = null;
+          renderSavedSets();
+        } else if (b.dataset.cluster) {
+          var cid = b.dataset.cluster;
+          state.openClusterId = state.openClusterId === cid ? null : cid;
+          renderSavedSets();
+        } else if (b.dataset.loadSet) {
+          var found = state.savedSets.find(function (x) { return x.id === b.dataset.loadSet; });
+          if (found) {
+            stopSpeech();
+            state.sentences = found.sentences.map(function (x) { return Object.assign({}, x); });
+            state.title = found.title;
+            persist(); renderPractice(); renderSavedSets();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        } else if (b.dataset.delSet) {
+          state.savedSets = state.savedSets.filter(function (x) { return x.id !== b.dataset.delSet; });
+          persist(); renderSavedSets();
+        }
+      });
+
+      document.getElementById('section-saved').addEventListener('change', function (e) {
+        if (e.target && e.target.dataset && e.target.dataset.statusSet) {
+          var sid = e.target.dataset.statusSet;
+          var nextStatus = e.target.value;
+          state.savedSets = state.savedSets.map(function (x) {
+            return x.id === sid ? Object.assign({}, x, { status: nextStatus }) : x;
+          });
+          persist(); renderSavedSets();
+        }
+      });
+
+      if (speechSupported) {
+        loadVoices();
+        try { window.speechSynthesis.addEventListener('voiceschanged', loadVoices); } catch (e) {}
+      }
+
+      renderPractice();
+      renderSettings();
+      renderSavedSets();
+    })();
+  </script>
+</body>
+</html>

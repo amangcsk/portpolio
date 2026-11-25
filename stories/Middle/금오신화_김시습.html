@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>금오신화 - 김시습 이야기책</title>
+<style>
+:root{--bg-cream:#FAF6EE;--bg-paper:#FFFDF9;--primary-color:#4a3f6b;--accent-color:#c28b38;--text-main:#2c2523;--border-warm:#E8DFC8;--shadow-book:0 20px 45px -10px rgba(74,52,28,.18);--font-story:'Nanum Myeongjo','Gowun Batang','Malgun Gothic',serif;--font-body:'Gowun Batang','Malgun Gothic',serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-cream);color:var(--text-main);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column}
+header{background:rgba(255,253,249,.96);border-bottom:1px solid var(--border-warm);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand-title{font-family:var(--font-story);font-size:1.35rem;font-weight:800}
+.nav-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--font-body);font-size:1.05rem;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--border-warm);background:#fff;cursor:pointer}
+.btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 3rem;max-width:900px;margin:0 auto;width:100%}
+.book-container{width:100%}
+.book-spread{background:var(--bg-paper);border-radius:14px;box-shadow:var(--shadow-book);border:1px solid var(--border-warm);padding:2.6rem 3rem;min-height:600px;display:flex;flex-direction:column;justify-content:space-between}
+.scene-meta{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;font-size:1rem;color:var(--accent-color);font-weight:700}
+.scene-number{background:var(--primary-color);color:#fff;border-radius:999px;padding:.2rem .8rem}
+.scene-heading{font-family:var(--font-story);font-size:2.1rem;font-weight:800;margin-bottom:1.3rem;line-height:1.4}
+.quote-label{font-size:.95rem;color:#9f1239;margin-bottom:.3rem;font-weight:700}
+.quote-box{background:#FFF1F2;border-left:4px solid #be123c;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1.6rem}
+.quote-text{font-family:var(--font-story);font-size:1.25rem;font-weight:700;color:#881337;line-height:1.7}
+.story-paragraph{font-size:1.35rem;line-height:2.1;color:#2f2a28;word-break:keep-all;white-space:pre-line}
+.page-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;font-size:1.05rem}
+.controls-panel{margin-top:1.6rem;display:flex;align-items:center;gap:1.2rem;background:rgba(255,253,249,.95);border:1px solid var(--border-warm);padding:.75rem 1.4rem;border-radius:999px}
+.nav-arrow{width:50px;height:50px;border-radius:50%;border:1px solid var(--border-warm);background:#fff;font-size:1.2rem;cursor:pointer}
+.slider-track{width:260px;max-width:50vw}
+.gallery-container{width:100%;display:flex;flex-direction:column;gap:2.5rem}
+.gallery-card{background:var(--bg-paper);border-radius:16px;border:1px solid var(--border-warm);padding:2rem 2.4rem}
+.gallery-title{font-family:var(--font-story);font-size:1.8rem;margin:.4rem 0 1rem}
+.gallery-quote{font-family:var(--font-story);font-weight:700;color:#881337;background:#FFF1F2;border-left:4px solid #be123c;padding:.8rem 1rem;margin-bottom:1rem;font-size:1.15rem}
+.gallery-text{font-size:1.3rem;line-height:2.05;white-space:pre-line;word-break:keep-all}
+.note{margin-top:1rem;font-size:.95rem;color:#7a6a58;text-align:center;max-width:760px;line-height:1.7}
+@media(max-width:640px){.book-spread{padding:1.6rem 1.2rem}.scene-heading{font-size:1.7rem}.story-paragraph{font-size:1.2rem}}
+</style></head><body>
+<header><div><span>📖</span> <span class="brand-title">김시습 · 금오신화</span></div>
+<div class="nav-actions">
+<button class="btn active" id="btnModeBook" onclick="switchMode('book')">📖 책으로 보기</button>
+<button class="btn" id="btnModeGallery" onclick="switchMode('gallery')">📜 쭉 이어 읽기</button>
+<button class="btn" id="btnMusic" onclick="toggleMusic()">🎵 오르골 소리</button></div></header>
+<main>
+<div class="book-container" id="bookView">
+<div class="book-spread"><div>
+<div class="scene-meta"><span class="scene-number" id="bookSceneNum"></span></div>
+<h1 class="scene-heading" id="bookTitle"></h1>
+<div class="quote-label">이 장면의 한마디</div>
+<div class="quote-box"><p class="quote-text" id="bookQuote"></p></div>
+<p class="story-paragraph" id="bookText"></p></div>
+<div class="page-footer"><span id="bookPageIndicator"></span><button class="btn" onclick="toggleTtsCurrent()">🔊 읽어주기</button></div></div>
+<div style="display:flex;justify-content:center"><div class="controls-panel">
+<button class="nav-arrow" onclick="prevScene()">❮</button>
+<input type="range" class="slider-track" id="sceneSlider" min="1" max="10" value="1" oninput="onSliderChange(this.value)">
+<button class="nav-arrow" onclick="nextScene()">❯</button></div></div>
+<p class="note">※ 이 이야기책은 김시습의 「금오신화」 다섯 편을 쉬운 말로 풀어 엮은 것입니다. 원문 그대로가 아니며, 줄이거나 보탠 곳이 있어 원작과 다를 수 있습니다. 자세한 내용은 책으로 꼭 확인해 보세요.</p>
+</div>
+<div class="gallery-container" id="galleryView" style="display:none"></div>
+</main>
+<script>
+const SCENES = [{"title": "만복사의 외로운 선비, 부처님과 저포 내기를 하다", "quote": "제가 지면 부처님께 잔치를 올리고, 제가 이기면 아름다운 짝을 내려 주십시오.", "text": "옛날 전라도 남원 땅에 양생이라는 젊은이가 살았습니다. 양생은 어려서 부모를 여의고 아내도 없이 만복사라는 절 동쪽 방에서 홀로 지냈습니다.\n\n봄이 되자 방 앞 배나무에 하얀 꽃이 구름처럼 피었습니다. 달 밝은 밤이면 양생은 나무 아래를 거닐며 쓸쓸한 마음을 시로 읊곤 했습니다. 꽃은 저리도 고운데 함께 볼 사람이 하나도 없으니, 그 외로움이 가슴을 눌렀습니다.\n\n삼월 스무나흗날, 만복사에서는 등불을 밝히고 복을 비는 큰 잔치가 열렸습니다. 마을 사람들이 몰려와 저마다 소원을 빌고 돌아갔습니다. 해가 지고 사람들이 흩어지자, 양생은 소매 속에서 저포를 꺼냈습니다. 저포는 나무 주사위를 던져 승부를 내는 놀이입니다.\n\n양생은 불상 앞에 저포를 놓고 말했습니다. '부처님, 저와 내기를 해 주십시오. 제가 지면 부처님께 잔치를 베풀어 올리겠습니다. 제가 이기면 아름다운 짝을 만나게 해 주십시오.' 그러고는 정성껏 주사위를 던졌습니다. 이야기 속에서 양생은 내기에 이겼습니다.\n\n양생은 불상 앞 탁자 밑에 가만히 숨어 앉아 소원이 이루어지기를 기다렸습니다. 밤은 깊어 가고 절 안에는 바람 소리뿐이었습니다. 그때 문득 발소리가 들려오더니, 열대여섯 살쯤 되어 보이는 아리따운 처녀가 등불을 들고 들어섰습니다. 양생의 가슴은 두근두근 뛰기 시작했습니다.", "id": 1}, {"title": "달빛 아래 만난 처녀, 사흘의 꿈 같은 나날", "quote": "이승에서는 하루가 가도 저승에서는 몇 해가 흐르는 법입니다.", "text": "처녀는 불상 앞에 조용히 절을 올리고 축원문을 펼쳐 읽었습니다. 왜구가 쳐들어온 난리 통에 목숨을 잃고, 외로운 혼으로 떠돌았다는 슬픈 사연이었습니다. 이제는 좋은 배필을 만나 쓸쓸함을 면하게 해 달라는 소원이 글 속에 담겨 있었습니다.\n\n양생은 더 숨어 있지 못하고 탁자 밑에서 걸어 나왔습니다. 두 사람은 마주 앉아 이야기를 나누었고, 서로의 마음이 통한다는 것을 알았습니다. 처녀는 양생의 손을 잡고 자기 집으로 이끌었습니다.\n\n가는 길에 사람 하나 만나지 않았고, 개 짖는 소리도 들리지 않았습니다. 이슬 맺힌 풀길을 지나 도착한 곳은 쓸쓸하지만 조용한 집이었습니다. 그곳에서 양생은 처녀와 함께 꿈같은 사흘을 보냈습니다.\n\n처녀의 이웃 친구라는 여인들도 찾아와 술상을 차리고 함께 시를 지으며 놀았습니다. 모두 단정하고 고운 사람들이었으나, 말투에 어딘지 아련한 슬픔이 서려 있었습니다. 양생은 즐거움에 취해 시간 가는 줄을 몰랐습니다.\n\n사흘째 되는 날, 처녀가 눈물을 머금고 말했습니다. '이곳에서의 사흘은 인간 세상의 삼 년과 같습니다. 이제 헤어질 때가 되었습니다.' 양생은 깜짝 놀랐으나 이별을 받아들이는 수밖에 없었습니다. 처녀는 정표로 은으로 만든 밥그릇 하나를 건네며, 내일 보련사로 가는 길가에서 기다려 달라고 부탁했습니다.", "id": 2}, {"title": "보련사 가는 길, 은 밥그릇과 마지막 인사", "quote": "덕분에 저는 다른 나라에 다시 태어나게 되었습니다. 부디 잘 계십시오.", "text": "이튿날 양생은 은 밥그릇을 들고 보련사 가는 길가에 서서 기다렸습니다. 얼마 뒤 귀한 집안의 행렬이 말을 타고 다가왔습니다. 그런데 한 사람이 양생의 손에 들린 은 밥그릇을 보더니 소리를 쳤습니다. 자기 딸의 무덤에 함께 묻어 준 그릇이라는 것이었습니다.\n\n양생이 차근차근 어젯밤 일을 이야기하자, 그 부모는 놀라면서도 눈물을 흘렸습니다. 딸이 왜구의 난리 때 죽었으나 장례도 제대로 치르지 못해 늘 마음에 걸렸다고 했습니다. 오늘이 바로 딸의 삼 년 제사를 올리는 날이었습니다.\n\n그때 저 멀리서 처녀가 모습을 드러냈습니다. 신기하게도 양생의 눈에만 보였습니다. 부모는 양생에게 딸과 함께 절에 들어가 제사를 올리라고 했습니다. 양생은 처녀와 나란히 앉아 음식을 들었으나, 다른 사람들에게는 숟가락이 혼자 움직이는 것처럼 보일 뿐이었습니다.\n\n밤이 깊어 제사가 끝나자 처녀는 양생에게 작별을 고했습니다. 이제 저승으로 떠나 다른 나라에 다시 태어나게 되었으니, 부디 부처님의 길을 따라 정성을 다해 달라고 말하며 울었습니다. 양생은 처녀가 남긴 유산을 팔아 며칠 동안 재를 올려 주었습니다.\n\n그 뒤 양생은 다시 장가들지 않고 지리산에 들어가 약초를 캐며 살았다고 합니다. 그가 어디에서 생을 마쳤는지는 아무도 모른다고 전해집니다.", "id": 3}, {"title": "담장 너머 시 한 수, 이생과 최랑의 첫 만남", "quote": "좋은 인연일까 나쁜 인연일까, 부질없이 괴로움만 안고 지내려는가.", "text": "고려 시대 송도, 지금의 개성에 이생이라는 열여덟 살 선비가 살았습니다. 이생은 얼굴이 맑고 재주가 뛰어나 날마다 국학이라는 학교에 오가며 글을 읽었습니다. 길가의 선죽리에는 귀한 집안의 딸 최랑이 살고 있었는데, 열대여섯 살 먹은 처녀로 자수와 시에 모두 솜씨가 뛰어났습니다.\n\n어느 날 이생이 글공부를 마치고 돌아가는 길에 최랑의 집 담장 옆을 지나게 되었습니다. 담 너머로 가지가 휘늘어진 수양버들 사이로 고운 꽃밭이 보였습니다. 그 사이로 최랑이 앉아 수를 놓다가 시를 읊고 있었습니다.\n\n이생은 그 모습에 넋을 잃고, 자기도 모르게 담 밖에서 시를 지어 읊었습니다. 그러자 잠시 뒤 담 안에서 작은 종이 한 장이 날아왔습니다. 그 속에는 저녁에 담 넘어 만나자는 시가 적혀 있었습니다.\n\n이생은 가슴이 뛰는 것을 가누지 못하고 날이 저물기를 기다렸습니다. 달이 뜨자 담을 넘어 꽃밭으로 들어가니, 최랑이 반갑게 맞아 주었습니다. 두 사람은 시를 주고받으며 밤 깊도록 이야기를 나누었고, 오래 전부터 알아 온 사이처럼 마음이 통했습니다.\n\n그날 이후 이생은 밤마다 담을 넘어 최랑을 만났습니다. 그러나 어느 밤 이생의 아버지가 이 일을 알게 되고 말았습니다.", "id": 4}, {"title": "아버지의 노여움과 기다림 끝에 맺은 혼인", "quote": "죽어도 변하지 않는 마음이 있다면, 어찌 인연이 끝나겠습니까.", "text": "이생의 아버지는 크게 걱정하여 아들을 멀리 경상도 울산의 농장으로 보내 버렸습니다. 아들이 공부는 하지 않고 담장만 넘어 다닌다는 것이 그 까닭이었습니다. 이생은 아무 말도 하지 못하고 길을 떠났습니다.\n\n그날부터 최랑은 이생을 만나지 못해 날마다 한숨을 쉬며 지냈습니다. 밥도 제대로 먹지 못하고 몸은 점점 야위어 갔습니다. 마침내 병이 들어 자리에 눕게 되었고, 부모가 이를 이상히 여겨 연유를 물었습니다.\n\n최랑은 더 이상 숨기지 못하고 이생과의 일을 모두 털어놓았습니다. 부모는 딸의 마음이 이토록 깊은 것을 알고 마음이 움직였습니다. 그들은 곧 사람을 이생의 집에 보내 혼인을 청하기로 했습니다.\n\n이생의 아버지는 처음에는 망설였으나, 최랑 집안의 정성과 딸의 사연을 듣고는 마음을 돌렸습니다. 그리하여 이생은 울산에서 돌아오게 되었고, 좋은 날을 받아 두 사람은 혼례를 올렸습니다. 깊은 정이 있는 두 사람이 마침내 부부가 된 것입니다.\n\n혼례를 올린 뒤 부부는 서로를 손님처럼 공경하며 오순도순 살아갔습니다. 이생은 과거에 급제하여 높은 벼슬길에 올랐고, 그 소문이 온 나라에 퍼졌습니다. 아침이면 함께 시를 읊고 저녁이면 함께 차를 마시는 나날이 이어졌습니다. 그러나 이 행복은 오래가지 못했습니다.", "id": 5}, {"title": "붉은 도적의 난리와 이승을 넘은 사랑", "quote": "저승의 명이 정해져 있어 오래 머물지 못합니다. 부디 몸을 아끼세요.", "text": "공민왕 때에 홍건적이 개경을 쳐들어와 온 나라가 불길에 휩싸였습니다. 사람들은 처자식을 이끌고 사방으로 달아났고, 이생도 가족을 이끌고 깊은 산속으로 몸을 피했습니다. 그러나 도적떼를 만난 최랑은 몸을 더럽히지 않으려 끝까지 맞서다가 그 자리에서 목숨을 잃고 말았습니다.\n\n이생은 겨우 목숨을 건져 난리가 가라앉은 뒤에 집으로 돌아왔습니다. 그러나 집은 불에 타 흔적도 없었고 가족은 흩어져 소식조차 알 수 없었습니다. 이생은 슬픔 속에 폐허가 된 집 안을 헤매다가 밤이 되어 쓰러지듯 누웠습니다.\n\n그런데 한밤중에 발소리가 들리더니 죽은 줄 알았던 아내가 방 안으로 들어서는 것이었습니다. 이생은 놀라고 기뻐서 아내의 손을 잡았고, 두 사람은 지난 일을 이야기하며 밤새 울고 웃었습니다. 그 뒤 몇 해 동안 부부는 예전처럼 함께 지냈습니다.\n\n어느 날 아내가 쓸쓸한 얼굴로 말했습니다. 하늘이 정해 준 시간이 다 되어 이제는 저승으로 돌아가야 한다는 것이었습니다. 말을 마치자 아내의 모습은 천천히 사라져 버렸습니다.\n\n이생은 아내의 유골을 거두어 정성스럽게 장사를 지내 주었습니다. 그 뒤 이생도 아내를 그리워하다 병이 들어 몇 달 만에 세상을 떠나고 말았습니다. 사람들은 두 사람의 깊은 사랑을 보고 모두 탄식하며 칭찬했다고 합니다.", "id": 6}, {"title": "부벽정의 달밤, 대동강에 취한 홍생", "quote": "풍경은 그대로인데 나라와 사람은 변하였으니, 그 한을 누가 풀어 주리요.", "text": "평양에는 대동강이 흐르고 그 강가에 부벽정이라는 정자가 있었습니다. 옛날 송도에 홍생이라는 젊은 부자 상인이 살았는데, 풍채가 좋고 글도 잘 짓는 사람이었습니다. 어느 해 팔월 한가위 무렵, 홍생은 친구들과 함께 배에 비단을 싣고 평양에 장사를 하러 왔습니다.\n\n그날은 보름달이 환히 뜬 밤이었습니다. 홍생은 장사를 마치고 친구들과 술잔을 기울이다가 혼자 배에서 내려 강을 거슬러 올라갔습니다. 강 위에는 달빛이 부서지고 갈대 숲이 바람에 흔들렸으며, 멀리서 종소리가 아련히 들려왔습니다.\n\n마침내 홍생은 부벽정에 올라 난간에 기대어 옛날 이야기를 떠올렸습니다. 이 땅은 오랜 옛날 기자가 세운 나라의 도읍이었으나, 이제는 풀과 이끼만 우거져 있었습니다. 지난 나라의 흥하고 망함이 허망하여, 홍생은 술기운에 시를 여섯 수나 지어 읊었습니다.\n\n시를 다 읊고 나서 손뼉을 치며 일어나 춤을 추려는 순간, 정자 아래에서 발소리가 들려왔습니다. 처음에는 이웃 사람이 오는 줄 알았으나 가까이 다가온 것은 뜻밖의 모습이었습니다. 하얀 옷에 고운 얼굴을 한 여인이 시녀 둘을 거느리고 나타난 것입니다. 홍생은 깜짝 놀랐으나 여인은 부드럽게 웃으며 시를 잘 들었다고 말했습니다.", "id": 7}, {"title": "기씨 여인과의 하룻밤, 하늘로 오른 그리움", "quote": "이승과 저승은 다르나, 오늘의 이 만남은 하늘이 내린 인연입니다.", "text": "여인은 자기를 옛 기자의 딸이라고 소개했습니다. 위만이라는 사람이 나라를 빼앗자 아버지는 도망쳤고, 자기는 신선이 되어 하늘에 올라갔다고 했습니다. 이제는 오랜 세월이 지났으나 고국을 잊지 못해 가끔 이곳 부벽정으로 내려온다는 것이었습니다.\n\n홍생은 놀라 어쩔 줄 모르다가 곧 마음을 가다듬고 정중하게 절을 올렸습니다. 두 사람은 자리에 앉아 술을 나누며 지난 나라의 흥하고 망한 이야기를 하염없이 나누었습니다. 여인은 홍생의 시를 칭찬하며 자기도 몇 수를 화답으로 지어 주었습니다.\n\n달빛 아래에서 시를 주고받는 동안 밤은 깊어 갔고, 마침내 동쪽 하늘이 희뿌옇게 밝아 오기 시작했습니다. 여인은 이제 하늘로 돌아가야 한다며 아쉬운 표정으로 일어섰습니다. 그리고 시 한 편을 남기고 바람처럼 사라졌습니다.\n\n홍생은 정신을 차리고 보니 여인의 모습은 어디에도 없었습니다. 배로 돌아온 홍생은 그날 이후 여인이 그리워 병이 들고 말았습니다. 의원도 고치지 못할 병이었습니다.\n\n홍생은 죽음이 가까워지자 옷을 단정히 하고 향을 피웠습니다. 그러다 꿈에서 한 여인이 나타나 상제께서 홍생에게 하늘의 벼슬을 내리셨다고 전했습니다. 홍생은 가족에게 이야기를 남기고 조용히 눈을 감았고, 며칠이 지나도 시신은 썩지 않고 향기가 났다고 합니다. 사람들은 홍생이 신선이 되었다고 여겼다고 합니다.", "id": 8}, {"title": "남염부주의 꿈, 박생과 염라대왕의 문답", "quote": "이 세상의 이치는 하나뿐이니, 어찌 두 가지 도가 있겠느냐.", "text": "경주에 박생이라는 선비가 있었습니다. 박생은 일찍부터 유학을 깊이 공부하여 세상 이치를 알고자 했습니다. 그는 다른 사람들이 믿는 부처님이나 귀신, 하늘나라나 지옥 이야기를 믿지 않았습니다. 그래서 '일리론'이라는 글을 지어 세상의 이치는 하나라는 자기 생각을 밝혔습니다.\n\n그러던 어느 날 밤, 박생은 책을 읽다가 잠이 들었습니다. 꿈속에서 그는 바다 가운데 있는 낯선 나라 남염부주에 닿게 되었습니다. 그곳은 쇠로 된 땅과 불타는 산이 이어지는 무서운 곳이었습니다.\n\n거기서 박생은 그 나라 임금인 염라대왕을 만났습니다. 대왕은 박생을 반갑게 맞이하며 자리를 내주었고, 두 사람은 하늘과 땅, 귀신과 사람, 죽음 뒤의 세상에 대해 깊은 대화를 나누었습니다. 박생은 자기가 평소 생각해 온 것들을 거리낌 없이 물었고, 대왕은 정중하게 답했습니다.\n\n대왕은 나라를 다스리는 일에 대해서도 말했습니다. 백성을 속이지 않고 덕으로 이끄는 것이 임금의 길이며, 그렇지 않으면 하늘이 반드시 벌을 내린다는 가르침이었습니다. 이야기를 마친 대왕은 박생의 사람됨에 크게 감동했습니다.\n\n그리하여 대왕은 자기 뒤를 이을 사람으로 박생을 지목하고 왕위를 물려주겠다는 글을 써 주었습니다. 깨어난 박생은 꿈이 범상치 않음을 알아 집안일을 하나하나 정리했습니다. 얼마 지나지 않아 병이 들었고, 그는 조금도 슬퍼하지 않고 편안히 세상을 떠났다고 합니다.", "id": 9}, {"title": "용궁의 잔치, 한생이 지은 상량문", "quote": "문장이 뛰어난 선비를 모셔, 새 누각의 대들보에 올릴 글을 부탁드립니다.", "text": "송도 땅에 한생이라는 젊은 선비가 살았습니다. 그는 어려서부터 글솜씨가 빼어나 온 나라에 이름이 알려졌습니다. 어느 날 낮잠을 자고 있는데, 푸른 옷을 입은 사자 둘이 나타나 정중히 절을 하며 말했습니다. 박연 폭포 속에 계신 용왕께서 한생을 모셔 오라 하셨다는 것이었습니다.\n\n한생은 처음에 어리둥절했으나 사자들이 이끄는 대로 말에 올랐습니다. 눈 깜짝할 사이에 구름 위를 지나고 물속을 건너 어느덧 화려한 궁궐 앞에 닿았습니다. 문 안에는 갑옷을 입은 병사와 관리들이 줄지어 서서 한생을 맞이했습니다.\n\n용왕은 한생을 정성스럽게 맞이하며 말했습니다. 자기에게 딸이 하나 있어 곧 혼례를 올릴 터인데, 새로 지은 가섭정이라는 누각에 올릴 상량문을 한생이 지어 달라는 부탁이었습니다. 상량문은 새 집의 마룻대를 올릴 때 읽는 축하 글입니다.\n\n한생은 붓을 들어 단숨에 아름다운 글을 써 내려갔습니다. 용왕은 글을 읽고 크게 기뻐하며 잔치를 열어 한생에게 술과 음식을 대접했습니다. 용궁의 신하들이 차례로 나와 춤을 추고 노래를 하여 흥을 돋우었습니다.\n\n잔치가 끝나자 한생은 용궁의 여러 곳을 구경하고, 용왕이 주는 구슬과 비단 같은 선물을 받아 돌아왔습니다. 깨어 보니 한바탕 꿈이었으나 선물은 그대로 품 안에 있었습니다. 그 뒤 한생은 세상의 명예와 이익에 마음을 두지 않고 이름난 산으로 들어가 살았는데, 그가 어디서 생을 마쳤는지는 아무도 모른다고 전해집니다.", "id": 10}];
+let cur=0,synth=window.speechSynthesis,speaking=false;
+function switchMode(m){document.getElementById('bookView').style.display=m==='book'?'block':'none';
+document.getElementById('galleryView').style.display=m==='gallery'?'flex':'none';
+document.getElementById('btnModeBook').classList.toggle('active',m==='book');
+document.getElementById('btnModeGallery').classList.toggle('active',m==='gallery');
+if(m==='book')render(cur);else{synth.cancel();speaking=false;}}
+function render(i){if(i<0||i>=SCENES.length)return;cur=i;const s=SCENES[i];
+document.getElementById('bookSceneNum').textContent='제 '+s.id+' 부 / 10';
+document.getElementById('bookTitle').textContent=s.title;
+document.getElementById('bookQuote').textContent='"'+s.quote+'"';
+document.getElementById('bookText').textContent=s.text;
+document.getElementById('bookPageIndicator').textContent=s.id+' / 10 쪽';
+document.getElementById('sceneSlider').value=s.id;synth.cancel();speaking=false;window.scrollTo(0,0);}
+function prevScene(){if(cur>0)render(cur-1);}
+function nextScene(){if(cur<SCENES.length-1)render(cur+1);}
+function onSliderChange(v){render(parseInt(v)-1);}
+function buildGallery(){const c=document.getElementById('galleryView');c.innerHTML='';
+SCENES.forEach(s=>{const d=document.createElement('div');d.className='gallery-card';
+d.innerHTML='<div style="color:#c28b38;font-weight:700"></div><h2 class="gallery-title"></h2><div class="gallery-quote"></div><p class="gallery-text"></p>';
+d.firstChild.textContent='제 '+s.id+' 부';d.querySelector('.gallery-title').textContent=s.title;
+d.querySelector('.gallery-quote').textContent='"'+s.quote+'"';d.querySelector('.gallery-text').textContent=s.text;c.appendChild(d);});}
+function toggleTtsCurrent(){if(speaking){synth.cancel();speaking=false;}else{
+const u=new SpeechSynthesisUtterance(SCENES[cur].title+'. '+SCENES[cur].text);
+u.lang='ko-KR';u.rate=.9;u.onend=()=>{speaking=false;};synth.speak(u);speaking=true;}}
+let ac=null,playing=false,mt=null;
+function toggleMusic(){if(playing){playing=false;clearTimeout(mt);document.getElementById('btnMusic').classList.remove('active');}
+else{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+playing=true;document.getElementById('btnMusic').classList.add('active');
+const n=[523.25,587.33,659.25,783.99,880,1046.5];let k=0;
+(function play(){if(!playing)return;const o=ac.createOscillator(),g=ac.createGain();
+o.frequency.setValueAtTime(n[k++%n.length],ac.currentTime);
+g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.06,ac.currentTime+.05);
+g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.8);o.connect(g);g.connect(ac.destination);
+o.start();o.stop(ac.currentTime+1.9);mt=setTimeout(play,900);})();}}
+window.onload=()=>{render(0);buildGallery();};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')nextScene();if(e.key==='ArrowLeft')prevScene();});
+</script></body></html>
