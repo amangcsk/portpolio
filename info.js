@@ -36,10 +36,6 @@ window.SITE_INFO = {
 /* ② 작품별 제목·설명 (원하는 작품만 적으세요) */
 window.ARTWORK_INFO = {
 
-  "gallery/1.png": {
-    title: "",
-    description: ""
-  },
 
   "audios/🎤 〈불꽃처럼 달려간다〉-디스코 .mp3": {
     title: "불꽃처럼 달려간다 (디스코)",
@@ -57,7 +53,7 @@ window.ARTWORK_INFO = {
     description: "조지 오웰 원작 그림 이야기책 (20장면 완결판)"
   },
 
-  "storyboard/little_prince_storybook_standalone.html": {
+  "stories/Middle/little_prince_storybook_standalone.html": {
     title: "어린 왕자 스토리북",
     description: "그림과 함께 읽는 이야기책"
   },
@@ -68,10 +64,6 @@ window.ARTWORK_INFO = {
     date: "2026-11-14"
   },
 
-  "apps/Lyric-Video-Studio.html": {
-    title: "가사 영상 스튜디오",
-    description: "노래 가사 영상을 만드는 도구"
-  },
 
   "musicvideos/꺼진 블씨를 잡고.mp4": {
     title: "",
@@ -79,23 +71,8 @@ window.ARTWORK_INFO = {
     youtube: "https://youtu.be/2Nj-OAC73mw"
   },
 
-  "musicvideos/물 흐르는대로-최종.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
-  "musicvideos/불꽃처럼 달려간다.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
-  "musicvideos/서울이여 안녕.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
   "musicvideos/소매 끝 미소.mp4": {
     title: "",
@@ -103,23 +80,8 @@ window.ARTWORK_INFO = {
     youtube: ""
   },
 
-  "musicvideos/어둑한 골목 끝에.mp4": {
-    title: "",
-    description: "",
-    youtube: "https://youtu.be/Xsqxk-wwitk"
-  },
 
-  "musicvideos/오늘은 주인공.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
-  "musicvideos/오지 않을 길목.mp4": {
-    title: "",
-    description: "",
-    youtube: "https://youtu.be/eXZtFEb9WWc"
-  },
 
   "musicvideos/저물어가는 노을 바라보며.mp4": {
     title: "",
@@ -133,17 +95,7 @@ window.ARTWORK_INFO = {
     youtube: "https://youtu.be/QrcDQQ2pAVU"
   },
 
-  "musicvideos/컴에 미쳐서.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
-  "musicvideos/타올라라, 나의 청춘": {
-    title: "",
-    description: "",
-    youtube: "https://youtu.be/8nVkUN1KvoE"
-  },
 
   "musicvideos/한이 불이 되어.mp4": {
     title: "",
@@ -163,22 +115,8 @@ window.ARTWORK_INFO = {
     youtube: "https://youtu.be/xcYEyJxpAxI"
   },
 
-  "musicvideos/시간이 멈춘 언덕에서.mp4": {
-    title: "시간이 멈춘 언덕에서",
-    description: "",
-    youtube: "https://youtu.be/XuVE4ryT7mc"
-  },
 
-  "musicvideos/group perfomance.mp4": {
-    title: "",
-    description: "",
-    youtube: ""
-  },
 
-  /* 아래는 위의 "젊은 날의 사랑.mp4"와 크기가 똑같아 같은 영상으로 보여 숨겨 두었습니다. 다른 영상이면 hidden 줄을 지우세요. */
-  "musicvideos/mangajoa - 젊은 날의 사랑-6m40k5.mp4": {
-    hidden: true
-  }
 
 };
 
