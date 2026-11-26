@@ -457,7 +457,7 @@
           <div class="row" style="margin-bottom:14px;">
             <div>
               <h2 class="h2">번역 및 발음연습</h2>
-              <p class="subtext">번역을 누르면 «말해보세요»가 나와요. 영어로 말하면 발음을 점수로 알려 드려요. (60점 미만 다시 · 90점 이상 다음 문장)</p>
+              <p class="subtext">번역을 누르면 «말해보세요»가 나와요. 영어로 말하면 발음을 점수로 알려 드려요. (50점 미만 다시 · 80점 이상 다음 문장)</p>
             </div>
           </div>
           <div id="translations-body"></div>
@@ -1098,10 +1098,10 @@
           var r = scoreSpeech(s.english, alts);
           practice.phase = 'result'; practice.score = r.score; practice.heard = r.heard; practice.tries++; practice.msg = '';
           renderTranslations();
-          if (r.score >= 90) {
+          if (r.score >= 80) {
             var cur = practice.idx;
             setTimeout(function () {
-              if (practice.idx === cur && practice.phase === 'result' && practice.score >= 90) goNextPractice();
+              if (practice.idx === cur && practice.phase === 'result' && practice.score >= 80) goNextPractice();
             }, 1500);
           }
         };
@@ -1156,9 +1156,9 @@
         } else {
           var sc = practice.score, verdict, cls;
           if (sc < 0) { verdict = practice.msg; cls = 'pr-low'; }
-          else if (sc >= 90) { verdict = '훌륭해요! 잠시 후 다음 문장으로 넘어가요.'; cls = 'pr-high'; }
-          else if (sc < 60) { verdict = '다시 해보세요. 천천히 또박또박 말해 보세요.'; cls = 'pr-low'; }
-          else { verdict = '좋아요! 90점 이상이면 자동으로 넘어가요. 한 번 더 해 보거나 다음으로 가세요.'; cls = 'pr-mid'; }
+          else if (sc >= 80) { verdict = '훌륭해요! 잠시 후 다음 문장으로 넘어가요.'; cls = 'pr-high'; }
+          else if (sc < 50) { verdict = '다시 해보세요. 천천히 또박또박 말해 보세요.'; cls = 'pr-low'; }
+          else { verdict = '좋아요! 80점 이상이면 자동으로 넘어가요. 한 번 더 해 보거나 다음으로 가세요.'; cls = 'pr-mid'; }
           body = (sc >= 0 ? '<div class="pr-score ' + cls + '">' + sc + '점</div>' : '') +
             '<div class="pr-verdict ' + cls + '">' + esc(verdict) + '</div>' +
             (sc >= 0 ? '<div class="pr-sub">내가 말한 문장: ' + esc(practice.heard) + '</div>' : '') +
