@@ -375,6 +375,19 @@
       color: #1E293B;
     }
     .trans-item:last-child { border-bottom: none; }
+    .trans-item[data-trans-idx] { cursor: pointer; border-radius: 8px; }
+    .trans-item[data-trans-idx]:hover { background: #F8FAFC; }
+    .trans-wrap { border-bottom: 1px solid #F1F5F9; }
+    .trans-wrap:last-child { border-bottom: none; }
+    .trans-wrap .trans-item { border-bottom: none; }
+    .trans-wrap.open { background: #F8FAFC; border-radius: 12px; padding: 0 10px 10px; }
+    .pr-panel { margin: 4px 0 4px 26px; padding: 14px; border-radius: 12px; background: #fff; border: 1px solid #BFDBFE; text-align: center; }
+    .pr-prompt { font-size: 20px; font-weight: 800; color: #1D4ED8; }
+    .pr-score { font-size: 34px; font-weight: 800; }
+    .pr-verdict { font-size: 14px; font-weight: 700; margin-top: 4px; }
+    .pr-sub { font-size: 13px; color: #475569; margin-top: 6px; word-break: break-word; }
+    .pr-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+    .pr-high { color: #047857; } .pr-mid { color: #B45309; } .pr-low { color: #B91C1C; }
     .footer {
       margin-top: 36px;
       padding-top: 24px;
@@ -399,7 +412,7 @@
       <a href="#top" class="brand">말하기 연습장</a>
       <nav class="nav" aria-label="화면 이동">
         <a href="#section-practice">연습장</a>
-        <a href="#section-translations">번역 보기</a>
+        <a href="#section-translations">번역·발음연습</a>
         <a href="#section-input">문장 넣기</a>
         <a href="#section-settings">속도·목소리</a>
         <a href="#section-saved">보관함</a>
@@ -443,10 +456,9 @@
         <section id="section-translations" class="card">
           <div class="row" style="margin-bottom:14px;">
             <div>
-              <h2 class="h2">한국어 번역</h2>
-              <p class="subtext">뜻을 가리고 먼저 말해 본 뒤 아래에서 확인해 보세요.</p>
+              <h2 class="h2">번역 및 발음연습</h2>
+              <p class="subtext">번역을 누르면 «말해보세요»가 나와요. 영어로 말하면 발음을 점수로 알려 드려요. (60점 미만 다시 · 90점 이상 다음 문장)</p>
             </div>
-            <button id="toggle-trans-btn" type="button" class="btn btn-neutral btn-sm">번역 숨기기</button>
           </div>
           <div id="translations-body"></div>
         </section>
@@ -1023,23 +1035,157 @@
           }).join('');
         }
 
-        // Translations at bottom
-        var tBtn = document.getElementById('toggle-trans-btn');
-        tBtn.textContent = state.settings.showTranslation ? '번역 숨기기' : '번역 보이기';
-        var tBody = document.getElementById('translations-body');
-        if (!state.settings.showTranslation) {
-          tBody.innerHTML = '<div style="padding:20px;border-radius:12px;background:#F8FAFC;border:1px solid #E2E8F0;text-align:center;font-size:14px;color:#475569;">번역을 가려 두었어요. 위 영어 문장과 한글 발음만 보고 먼저 소리 내어 말해 보세요.</div>';
-        } else if (state.sentences.length === 0) {
-          tBody.innerHTML = '<p class="subtext">표시할 번역이 없습니다.</p>';
-        } else {
-          tBody.innerHTML = state.sentences.map(function (s, idx) {
-            return '<div class="trans-item">' +
-              '<span class="tabular" style="font-size:12px;font-weight:600;color:#94A3B8;flex-shrink:0;">' + String(idx + 1).padStart(2, '0') + '</span>' +
-              '<div>' + (s.speaker ? '<strong style="color:#64748B;margin-right:6px;">' + esc(s.speaker) + ':</strong>' : '') + (s.translation ? esc(s.translation) : '<span style="color:#94A3B8;font-size:13px;">번역 없음</span>') + '</div>' +
-            '</div>';
-          }).join('');
+        renderTranslations();
+      }
+
+      // ---------- 번역 및 발음연습 ----------
+      var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var recognizer = null;
+      var practice = { idx: -1, phase: 'idle', score: 0, heard: '', tries: 0, msg: '' };
+
+      function normWords(t) {
+        return String(t || '').toLowerCase()
+          .replace(/[\u2019']/g, "'")
+          .replace(/[^a-z0-9'\s]/g, ' ')
+          .split(/\s+/).filter(Boolean);
+      }
+      function wordSimilarity(a, b) {
+        if (!a.length || !b.length) return 0;
+        var prev = [], cur = [], i, j;
+        for (j = 0; j <= b.length; j++) prev[j] = j;
+        for (i = 1; i <= a.length; i++) {
+          cur = [i];
+          for (j = 1; j <= b.length; j++) {
+            cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+          }
+          prev = cur;
+        }
+        return Math.max(0, Math.round(100 * (1 - prev[b.length] / Math.max(a.length, b.length))));
+      }
+      function scoreSpeech(target, alternatives) {
+        var tw = normWords(target), best = { score: 0, heard: alternatives[0] || '' };
+        alternatives.forEach(function (alt) {
+          var sc = wordSimilarity(tw, normWords(alt));
+          if (sc >= best.score) best = { score: sc, heard: alt };
+        });
+        return best;
+      }
+      function stopListening() {
+        if (recognizer) {
+          try { recognizer.onresult = recognizer.onerror = recognizer.onend = null; recognizer.abort(); } catch (e) {}
+          recognizer = null;
         }
       }
+      function startListening() {
+        var s = state.sentences[practice.idx];
+        if (!s) return;
+        stopListening();
+        if (state.playback.isPlaying) stopSpeech();
+        if (!SpeechRec) {
+          practice.phase = 'result'; practice.score = -1; practice.heard = '';
+          practice.msg = '이 브라우저는 말하기 평가를 지원하지 않아요. 크롬이나 엣지에서 열어 주세요. 아래 «다음»으로 계속 진행할 수 있어요.';
+          renderTranslations(); return;
+        }
+        var rec = new SpeechRec();
+        rec.lang = 'en-US';
+        rec.interimResults = false;
+        rec.maxAlternatives = 3;
+        var got = false;
+        rec.onresult = function (ev) {
+          got = true;
+          var alts = [];
+          for (var k = 0; k < ev.results[0].length; k++) alts.push(ev.results[0][k].transcript);
+          var r = scoreSpeech(s.english, alts);
+          practice.phase = 'result'; practice.score = r.score; practice.heard = r.heard; practice.tries++; practice.msg = '';
+          renderTranslations();
+          if (r.score >= 90) {
+            var cur = practice.idx;
+            setTimeout(function () {
+              if (practice.idx === cur && practice.phase === 'result' && practice.score >= 90) goNextPractice();
+            }, 1500);
+          }
+        };
+        rec.onerror = function (ev) {
+          got = true;
+          practice.phase = 'result'; practice.score = -1; practice.heard = '';
+          practice.msg = (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')
+            ? '마이크 사용이 막혀 있어요. 주소창의 마이크 권한을 허용해 주세요. «다음»으로 넘어갈 수도 있어요.'
+            : (ev.error === 'no-speech' ? '말소리가 들리지 않았어요. 다시 해보세요.' : '음성을 인식하지 못했어요. 다시 해보세요. (' + ev.error + ')');
+          renderTranslations();
+        };
+        rec.onend = function () {
+          if (!got && practice.phase === 'listening') {
+            practice.phase = 'result'; practice.score = -1; practice.heard = '';
+            practice.msg = '말소리가 들리지 않았어요. 다시 해보세요.';
+            renderTranslations();
+          }
+        };
+        recognizer = rec;
+        practice.phase = 'listening'; practice.msg = '';
+        renderTranslations();
+        try { rec.start(); } catch (e) {
+          practice.phase = 'result'; practice.score = -1; practice.msg = '마이크를 시작하지 못했어요. 다시 눌러 주세요.';
+          renderTranslations();
+        }
+      }
+      function openPractice(idx) {
+        stopListening();
+        practice = { idx: idx, phase: 'idle', score: 0, heard: '', tries: 0, msg: '' };
+        startListening();
+      }
+      function goNextPractice() {
+        if (practice.idx + 1 < state.sentences.length) openPractice(practice.idx + 1);
+        else { stopListening(); practice.phase = 'done'; renderTranslations(); }
+      }
+      function closePractice() {
+        stopListening();
+        practice = { idx: -1, phase: 'idle', score: 0, heard: '', tries: 0, msg: '' };
+        renderTranslations();
+      }
+
+      function practicePanel(s, idx) {
+        var isLast = idx + 1 >= state.sentences.length;
+        var nextBtn = '<button type="button" class="btn btn-outline btn-sm" data-pr-next="1">' + (isLast ? '끝내기' : '다음 문장 ▶') + '</button>';
+        var retryBtn = '<button type="button" class="btn btn-primary btn-sm" data-pr-retry="1">🎤 다시 말하기</button>';
+        var body;
+        if (practice.phase === 'listening') {
+          body = '<div class="pr-prompt">🎤 말해보세요</div><div class="pr-sub">영어로 문장을 말해 보세요. 듣고 있어요…</div>' +
+            '<div class="pr-actions"><button type="button" class="btn btn-outline btn-sm" data-pr-close="1">취소</button>' + nextBtn + '</div>';
+        } else if (practice.phase === 'done') {
+          body = '<div class="pr-prompt">🎉 마지막 문장까지 마쳤어요!</div><div class="pr-actions"><button type="button" class="btn btn-outline btn-sm" data-pr-close="1">닫기</button></div>';
+        } else {
+          var sc = practice.score, verdict, cls;
+          if (sc < 0) { verdict = practice.msg; cls = 'pr-low'; }
+          else if (sc >= 90) { verdict = '훌륭해요! 잠시 후 다음 문장으로 넘어가요.'; cls = 'pr-high'; }
+          else if (sc < 60) { verdict = '다시 해보세요. 천천히 또박또박 말해 보세요.'; cls = 'pr-low'; }
+          else { verdict = '좋아요! 90점 이상이면 자동으로 넘어가요. 한 번 더 해 보거나 다음으로 가세요.'; cls = 'pr-mid'; }
+          body = (sc >= 0 ? '<div class="pr-score ' + cls + '">' + sc + '점</div>' : '') +
+            '<div class="pr-verdict ' + cls + '">' + esc(verdict) + '</div>' +
+            (sc >= 0 ? '<div class="pr-sub">내가 말한 문장: ' + esc(practice.heard) + '</div>' : '') +
+            '<div class="pr-sub">정답: <strong>' + esc(s.english) + '</strong></div>' +
+            '<div class="pr-actions">' + retryBtn + nextBtn + '</div>';
+        }
+        return '<div class="pr-panel">' + body + '</div>';
+      }
+
+      function renderTranslations() {
+        var tBody = document.getElementById('translations-body');
+        if (state.sentences.length === 0) {
+          tBody.innerHTML = '<p class="subtext">표시할 번역이 없습니다.</p>';
+          return;
+        }
+        tBody.innerHTML = state.sentences.map(function (s, idx) {
+          var open = practice.idx === idx;
+          return '<div class="trans-wrap' + (open ? ' open' : '') + '">' +
+            '<div class="trans-item" role="button" tabindex="0" data-trans-idx="' + idx + '">' +
+              '<span class="tabular" style="font-size:12px;font-weight:600;color:#94A3B8;flex-shrink:0;">' + String(idx + 1).padStart(2, '0') + '</span>' +
+              '<div>' + (s.speaker ? '<strong style="color:#64748B;margin-right:6px;">' + esc(s.speaker) + ':</strong>' : '') + (s.translation ? esc(s.translation) : '<span style="color:#94A3B8;font-size:13px;">번역 없음</span>') + '</div>' +
+            '</div>' +
+            (open ? practicePanel(s, idx) : '') +
+          '</div>';
+        }).join('');
+      }
+
 
       var PRESETS = [
         { label: '0.7(2)·0.9(2)·1.0(3) 기본', steps: [{ speed: 0.7, repeat: 2 }, { speed: 0.9, repeat: 2 }, { speed: 1.0, repeat: 3 }] },
@@ -1250,10 +1396,21 @@
         if (state.playback.isPlaying) stopSpeech();
         else runSequence(state.sentences.map(function (s, i) { return { sentence: s, index: i }; }), 'all');
       });
-      document.getElementById('toggle-trans-btn').addEventListener('click', function () {
-        state.settings.showTranslation = !state.settings.showTranslation;
-        persist();
-        renderPractice();
+      document.getElementById('translations-body').addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (b) {
+          if (b.dataset.prRetry) startListening();
+          else if (b.dataset.prNext) goNextPractice();
+          else if (b.dataset.prClose) closePractice();
+          return;
+        }
+        var it = e.target.closest('[data-trans-idx]');
+        if (it) openPractice(Number(it.dataset.transIdx));
+      });
+      document.getElementById('translations-body').addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var it = e.target.closest('[data-trans-idx]');
+        if (it) { e.preventDefault(); openPractice(Number(it.dataset.transIdx)); }
       });
 
       document.getElementById('sentences-list').addEventListener('click', function (e) {
