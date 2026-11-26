@@ -1076,6 +1076,23 @@
           recognizer = null;
         }
       }
+      function micErrorMessage(code) {
+        var tail = '\n\n급하면 아래 «다음 문장 ▶»으로 넘어갈 수 있어요.';
+        if (code === 'not-allowed') {
+          return '이 사이트의 마이크 권한이 꺼져 있어요.\n① 주소창 왼쪽 자물쇠 → 권한 → 마이크를 «허용»으로 바꾸고 새로고침\n② 안드로이드: 휴대폰 설정 → 앱 → Chrome → 권한 → 마이크 허용\n③ 카톡·인스타 등 앱 안에서 열었다면 크롬이나 사파리로 직접 열기' + tail;
+        }
+        if (code === 'service-not-allowed') {
+          return '이 브라우저에서는 음성 인식 서비스를 쓸 수 없어요.\n앱 안의 브라우저이거나 휴대폰의 음성 인식(구글 음성 서비스·받아쓰기)이 꺼져 있을 수 있어요. 크롬(안드로이드) 또는 엣지로 직접 열어 보세요. 아이폰은 설정 → 일반 → 키보드 → «받아쓰기 활성화»도 확인해 주세요.' + tail;
+        }
+        if (code === 'audio-capture') {
+          return '마이크를 찾지 못했어요. 마이크가 연결돼 있는지, 다른 앱이 마이크를 쓰고 있지 않은지 확인해 주세요.' + tail;
+        }
+        if (code === 'network') {
+          return '인터넷 연결이 불안정해서 음성을 인식하지 못했어요. 연결을 확인하고 다시 해보세요.';
+        }
+        if (code === 'no-speech') return '말소리가 들리지 않았어요. 다시 해보세요.';
+        return '음성을 인식하지 못했어요. 다시 해보세요. (' + code + ')';
+      }
       function startListening() {
         var s = state.sentences[practice.idx];
         if (!s) return;
@@ -1108,9 +1125,7 @@
         rec.onerror = function (ev) {
           got = true;
           practice.phase = 'result'; practice.score = -1; practice.heard = '';
-          practice.msg = (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')
-            ? '마이크 사용이 막혀 있어요. 주소창의 마이크 권한을 허용해 주세요. «다음»으로 넘어갈 수도 있어요.'
-            : (ev.error === 'no-speech' ? '말소리가 들리지 않았어요. 다시 해보세요.' : '음성을 인식하지 못했어요. 다시 해보세요. (' + ev.error + ')');
+          practice.msg = micErrorMessage(ev.error);
           renderTranslations();
         };
         rec.onend = function () {
@@ -1160,7 +1175,7 @@
           else if (sc < 50) { verdict = '다시 해보세요. 천천히 또박또박 말해 보세요.'; cls = 'pr-low'; }
           else { verdict = '좋아요! 80점 이상이면 자동으로 넘어가요. 한 번 더 해 보거나 다음으로 가세요.'; cls = 'pr-mid'; }
           body = (sc >= 0 ? '<div class="pr-score ' + cls + '">' + sc + '점</div>' : '') +
-            '<div class="pr-verdict ' + cls + '">' + esc(verdict) + '</div>' +
+            '<div class="pr-verdict ' + cls + '" style="text-align:left;">' + esc(verdict).replace(/\n/g, '<br>') + '</div>' +
             (sc >= 0 ? '<div class="pr-sub">내가 말한 문장: ' + esc(practice.heard) + '</div>' : '') +
             '<div class="pr-sub">정답: <strong>' + esc(s.english) + '</strong></div>' +
             '<div class="pr-actions">' + retryBtn + nextBtn + '</div>';
