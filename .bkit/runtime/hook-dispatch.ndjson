@@ -896,3 +896,4 @@
 {"event":"PreToolUse","tool":"Bash","source":null,"agent":null,"at":"2026-11-26T11:24:23.820Z"}
 {"event":"PostToolUse","tool":"Bash","source":null,"agent":null,"at":"2026-11-26T11:24:28.350Z"}
 {"event":"Stop","tool":null,"source":null,"agent":null,"at":"2026-11-26T11:24:32.823Z"}
+{"event":"SubagentStop","tool":null,"source":null,"agent":"","at":"2026-11-26T11:24:36.829Z"}
